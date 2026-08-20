@@ -42,7 +42,7 @@ export default async function JouerPage() {
         {personnages.map((p) => (
           <div key={p.id} className={styles.card}>
             <span className={styles.cardName}>{p.name}</span>
-            <span className={styles.stars}>{"★".repeat(p.rarity?.stars ?? 0)}</span>
+            <span className={styles.stars}>{"★".repeat(p.rarity?.stars)}</span>
             <div className={styles.statRow}>
               <span className={`${styles.statChip} ${styles.statVie}`}>
                 ♥ {p.vie}

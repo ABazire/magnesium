@@ -27,9 +27,7 @@ export default async function CoffrePage() {
         </button>
       </form>
 
-      <form action={async () => {
-  await ouvrirCoffre(...);
-}}>
+      <form action={ouvrirCoffre}>
         <button
           type="submit"
           className={styles.openButton}

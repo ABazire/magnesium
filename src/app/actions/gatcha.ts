@@ -18,6 +18,9 @@ const NOMS_ALEATOIRES = [
   "Ossaria",
   "Nyxelle",
   "Grommosh",
+  "Thalindra",
+  "Zerathor",
+  "Eryndor",
 ];
 
 export async function tirerGatcha() {

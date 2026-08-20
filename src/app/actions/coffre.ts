@@ -51,6 +51,4 @@ export async function ouvrirCoffre() {
 
   revalidatePath("/coffre");
   revalidatePath("/jouer");
-
-  return equipment;
 }

@@ -1,0 +1,72 @@
+.page {
+  padding: 24px 16px;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.select,
+.textInput {
+  background: transparent;
+  border: 1.5px solid #10b981;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.select option {
+  background: #0f1a16;
+}
+
+.button {
+  background: #059669;
+  color: #0f1a16;
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 999px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #10b981;
+}
+
+.log {
+  border: 1.5px solid #1e3a2f;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logLine {
+  color: #cfe3da;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.logWinner {
+  color: #10b981;
+  font-weight: 700;
+}

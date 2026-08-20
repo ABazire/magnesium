@@ -1,0 +1,64 @@
+.page {
+  padding: 24px 16px;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.currency {
+  color: #4d7266;
+  font-size: 14px;
+}
+
+.currencyValue {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.devButton {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: #4d7266;
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.devButton:hover {
+  color: #10b981;
+}
+
+.pullButton {
+  background: #059669;
+  color: #0f1a16;
+  font-weight: 800;
+  font-size: 15px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 999px;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.pullButton:hover {
+  background: #10b981;
+}
+
+.pullButton:disabled {
+  background: transparent;
+  border: 1.5px solid #1e3a2f;
+  color: #4d7266;
+  cursor: not-allowed;
+}

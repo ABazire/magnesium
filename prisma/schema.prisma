@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       String  @id @default(cuid())
+  username String  @unique
+  currency Int     @default(0)
+
+  personnages Personnage[]
+  equipments Equipment[]
+}
+
+model Rarity {
+  id       String @id @default(cuid())
+  stars    Int    @unique
+  statMin  Int
+  statMax  Int
+  dropRate Float
+
+  personnages Personnage[]
+  equipments Equipment[]
+}
+
+model Personnage {
+  id      String @id @default(cuid())
+  name    String
+
+  vie        Int
+  force      Int
+  vitesse    Int
+  resistance Int
+  agilite    Int
+
+  rarity   Rarity? @relation(fields: [rarityId], references: [id])
+  rarityId String?
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  equipment PersonnageEquipment[]
+}
+
+enum EquipmentSlot {
+  ARME
+  ARMURE
+  BOTTES
+  AMULETTE
+}
+
+enum StatType {
+  FORCE
+  VITESSE
+  RESISTANCE
+  AGILITE
+}
+
+model Equipment {
+  id      String        @id @default(cuid())
+  name    String
+  slot    EquipmentSlot
+
+  bonusStat  StatType
+  bonusValue Int
+
+  rarity   Rarity @relation(fields: [rarityId], references: [id])
+  rarityId String
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  equippedOn PersonnageEquipment?
+}
+
+model PersonnageEquipment {
+  id String @id @default(cuid())
+
+  personnage   Personnage @relation(fields: [personnageId], references: [id])
+  personnageId String
+
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  equipmentId String    @unique
+
+  slot EquipmentSlot
+
+  @@unique([personnageId, slot])
+}

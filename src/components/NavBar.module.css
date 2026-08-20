@@ -1,0 +1,41 @@
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 6px;
+  background: #0f1a16;
+  border-top: 1.5px solid #1e3a2f;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #4d7266;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.link:hover {
+  color: #10b981;
+}
+
+.linkActive {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #0f1a16;
+  background: #059669;
+}

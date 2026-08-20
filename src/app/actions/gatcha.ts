@@ -1,0 +1,62 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
+import { tirerRarete } from "@/lib/rarity";
+
+const COUT_TIRAGE = 100;
+
+function randomStat(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+const NOMS_ALEATOIRES = [
+  "Kaeruun",
+  "Vor'gath",
+  "Brindal",
+  "Ossaria",
+  "Nyxelle",
+  "Grommosh",
+];
+
+export async function tirerGatcha() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non connecté");
+
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: session.user.id },
+  });
+
+  if (user.currency < COUT_TIRAGE) {
+    throw new Error("Monnaie insuffisante");
+  }
+
+  const rarete = await tirerRarete();
+  const name =
+    NOMS_ALEATOIRES[Math.floor(Math.random() * NOMS_ALEATOIRES.length)];
+
+  // On regroupe la dépense et la création dans une transaction :
+  // soit les deux réussissent, soit aucune des deux n'a lieu.
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: session.user.id },
+      data: { currency: { decrement: COUT_TIRAGE } },
+    }),
+    prisma.personnage.create({
+      data: {
+        name,
+        vie: randomStat(rarete.statMin, rarete.statMax),
+        force: randomStat(rarete.statMin, rarete.statMax),
+        vitesse: randomStat(rarete.statMin, rarete.statMax),
+        resistance: randomStat(rarete.statMin, rarete.statMax),
+        agilite: randomStat(rarete.statMin, rarete.statMax),
+        rarityId: rarete.id,
+        ownerId: session.user.id,
+      },
+    }),
+  ]);
+
+  revalidatePath("/gatcha");
+  revalidatePath("/jouer");
+}

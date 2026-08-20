@@ -1,0 +1,110 @@
+.page {
+  padding: 24px 16px;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.select {
+  flex: 1;
+  background: transparent;
+  border: 1.5px solid #10b981;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.select option {
+  background: #0f1a16;
+}
+
+.button {
+  background: #059669;
+  color: #0f1a16;
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 999px;
+  padding: 0 20px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #10b981;
+}
+
+.puissance {
+  color: #4d7266;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.puissanceValue {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.empty {
+  color: #4d7266;
+  font-size: 13px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  border: 1.5px solid #1e3a2f;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemName {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.itemPuissance {
+  color: #4d7266;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.fightLink {
+  color: #10b981;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1.5px solid #10b981;
+  border-radius: 999px;
+  padding: 6px 14px;
+}
+
+.fightLink:hover {
+  background: #10b981;
+  color: #0f1a16;
+}

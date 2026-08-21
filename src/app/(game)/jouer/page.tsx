@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { creerPersonnage } from "../../actions/personnage";
 import { equiperObjet } from "../../actions/equiper";
+import { desequiperObjet } from "../../actions/equiper";
 import styles from "./page.module.css";
 
 export default async function JouerPage() {
@@ -82,26 +83,39 @@ export default async function JouerPage() {
               )}
             </div>
 
-            <form
-              action={async (formData) => {
-                "use server";
-                const personnageId = formData.get("personnageId") as string;
-                await equiperObjet(personnageId, e.id);
-              }}
-              className={styles.equipForm}
-            >
-              <select name="personnageId" className={styles.select} required>
-                <option value="">Sur qui ?</option>
-                {personnages.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-              <button type="submit" className={styles.equipButton}>
-                Équiper
-              </button>
-            </form>
+            {e.equippedOn ? (
+              <form
+                action={async () => {
+                  "use server";
+                  await desequiperObjet(e.id);
+                }}
+              >
+                <button type="submit" className={styles.unequipButton}>
+                  Déséquiper
+                </button>
+              </form>
+            ) : (
+              <form
+                action={async (formData) => {
+                  "use server";
+                  const personnageId = formData.get("personnageId") as string;
+                  await equiperObjet(personnageId, e.id);
+                }}
+                className={styles.equipForm}
+              >
+                <select name="personnageId" className={styles.select} required>
+                  <option value="">Sur qui ?</option>
+                  {personnages.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+                <button type="submit" className={styles.equipButton}>
+                  Équiper
+                </button>
+              </form>
+            )}
           </div>
         ))}
       </div>

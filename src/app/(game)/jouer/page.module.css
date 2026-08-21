@@ -195,3 +195,20 @@
   background: #10b981;
   color: #0f1a16;
 }
+
+.unequipButton {
+  background: transparent;
+  border: 1.5px solid #4d7266;
+  color: #4d7266;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.unequipButton:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}

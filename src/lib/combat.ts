@@ -1,3 +1,5 @@
+import { creerRng } from "./rng";
+
 export type PersonnageCombat = {
   id: string;
   name: string;
@@ -33,7 +35,10 @@ function calculerDegats(
 export function simulerCombat(
   perso1: PersonnageCombat,
   perso2: PersonnageCombat,
+  seed: number,
 ) {
+  const random = creerRng(seed);
+
   const pv: Record<string, number> = {
     [perso1.id]: perso1.vie,
     [perso2.id]: perso2.vie,
@@ -64,7 +69,7 @@ export function simulerCombat(
     const defenseur = parId[defenseurId];
 
     const chance = chanceEsquive(defenseur.agilite, attaquant.force);
-    const jet = Math.random() * 100;
+    const jet = random() * 100;
 
     if (jet < chance) {
       log.push(`${defenseur.name} esquive l'attaque de ${attaquant.name}.`);

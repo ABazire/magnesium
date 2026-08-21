@@ -24,3 +24,19 @@ export async function equiperObjet(personnageId: string, equipmentId: string) {
 
   revalidatePath("/jouer");
 }
+
+export async function desequiperObjet(equipmentId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non connecté");
+
+  // Vérifie que l'objet appartient bien au joueur avant de toucher quoi que ce soit
+  const equipment = await prisma.equipment.findUniqueOrThrow({
+    where: { id: equipmentId, ownerId: session.user.id },
+  });
+
+  await prisma.personnageEquipment.deleteMany({
+    where: { equipmentId: equipment.id },
+  });
+
+  revalidatePath("/jouer");
+}

@@ -1,8 +1,10 @@
-// src/app/(game)/aventure/AventureClient.tsx
 "use client";
 
-import { useState } from "react";
-import { affronterMonstre } from "../../actions/aventure";
+import { useState, useEffect } from "react";
+import {
+  affronterMonstre,
+  getTentativesRestantes,
+} from "../../actions/aventure";
 import styles from "./page.module.css";
 
 type Props = {
@@ -18,12 +20,29 @@ export default function AventureClient({ personnages, monstres }: Props) {
     gain: number;
   } | null>(null);
   const [enCours, setEnCours] = useState(false);
+  const [restantes, setRestantes] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!personnageId) {
+      setRestantes({});
+      return;
+    }
+    getTentativesRestantes(personnageId).then((data) => {
+      const map: Record<string, number> = {};
+      for (const r of data) map[r.monsterId] = r.restantes;
+      setRestantes(map);
+    });
+  }, [personnageId]);
 
   async function combattre(monsterId: string) {
     if (!personnageId) return;
     setEnCours(true);
     const res = await affronterMonstre(personnageId, monsterId);
     setResultat(res);
+    setRestantes((prev) => ({
+      ...prev,
+      [monsterId]: Math.max(0, (prev[monsterId] ?? 0) - 1),
+    }));
     setEnCours(false);
   }
 
@@ -45,16 +64,30 @@ export default function AventureClient({ personnages, monstres }: Props) {
       </select>
 
       <div className={styles.monsterList}>
-        {monstres.map((m) => (
-          <button
-            key={m.id}
-            onClick={() => combattre(m.id)}
-            disabled={!personnageId || enCours}
-            className={styles.monsterButton}
-          >
-            Affronter {m.name}
-          </button>
-        ))}
+        {monstres.map((m) => {
+          const restant = restantes[m.id];
+          const epuise = personnageId && restant === 0;
+          return (
+            <div key={m.id} className={styles.monsterRow}>
+              <button
+                onClick={() => combattre(m.id)}
+                disabled={!personnageId || enCours || epuise}
+                className={styles.monsterButton}
+              >
+                Affronter {m.name}
+              </button>
+              {personnageId && restant !== undefined && (
+                <span
+                  className={epuise ? styles.limitReached : styles.remaining}
+                >
+                  {epuise
+                    ? "Limite atteinte"
+                    : `${restant} restant${restant > 1 ? "s" : ""} aujourd'hui`}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {resultat && (

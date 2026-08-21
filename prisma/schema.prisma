@@ -100,3 +100,21 @@ model Monster {
   resistance Int
   agilite    Int
 }
+
+model Fight {
+  id        String   @id @default(cuid())
+  playedAt  DateTime @default(now())
+  seed      Int
+  turns     Json
+  winnerId  String
+
+  attackerPersonnageId String
+  defenderPersonnageId String
+}
+
+model AdventureAttempt {
+  id           String   @id @default(cuid())
+  playedAt     DateTime @default(now())
+  personnageId String
+  monsterId    String
+}

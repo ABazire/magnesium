@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { statsEffectives, puissance } from "@/lib/personnage";
+import { lancerCombat, getCombatsPvpRestants } from "../../actions/combat";
+import { debutDeJournee } from "@/lib/date";
 import styles from "./page.module.css";
 
 export default async function ArenePage({
@@ -19,10 +20,18 @@ export default async function ArenePage({
     where: { ownerId: session.user.id },
   });
 
-  let adversaires: { id: string; name: string; puissance: number }[] = [];
+  let adversaires: {
+    id: string;
+    name: string;
+    puissance: number;
+    dejaAffronte: boolean;
+  }[] = [];
   let maPuissance: number | null = null;
+  let combatsRestants: number | null = null;
 
   if (mine) {
+    combatsRestants = await getCombatsPvpRestants(mine);
+
     const monPersonnage = await prisma.personnage.findUnique({
       where: { id: mine },
       include: { equipment: { include: { equipment: true } } },
@@ -31,16 +40,30 @@ export default async function ArenePage({
     if (monPersonnage) {
       maPuissance = puissance(statsEffectives(monPersonnage));
 
-      const autresPersonnages = await prisma.personnage.findMany({
-        where: { ownerId: { not: session.user.id } },
-        include: { equipment: { include: { equipment: true } } },
-      });
+      const [autresPersonnages, combatsDuJour] = await Promise.all([
+        prisma.personnage.findMany({
+          where: { ownerId: { not: session.user.id } },
+          include: { equipment: { include: { equipment: true } } },
+        }),
+        prisma.fight.findMany({
+          where: {
+            attackerPersonnageId: mine,
+            playedAt: { gte: debutDeJournee() },
+          },
+          select: { defenderPersonnageId: true },
+        }),
+      ]);
+
+      const idsDejaAffrontes = new Set(
+        combatsDuJour.map((f) => f.defenderPersonnageId),
+      );
 
       adversaires = autresPersonnages
         .map((p) => ({
           id: p.id,
           name: p.name,
           puissance: puissance(statsEffectives(p)),
+          dejaAffronte: idsDejaAffrontes.has(p.id),
         }))
         .sort(
           (a, b) =>
@@ -81,6 +104,13 @@ export default async function ArenePage({
         </p>
       )}
 
+      {combatsRestants !== null && (
+        <p className={styles.puissance}>
+          Combats PvP restants aujourd'hui :{" "}
+          <span className={styles.puissanceValue}>{combatsRestants}</span>
+        </p>
+      )}
+
       {mine && adversaires.length === 0 && (
         <p className={styles.empty}>
           Aucun adversaire trouvé — il faut au moins un autre compte avec un
@@ -97,12 +127,22 @@ export default async function ArenePage({
                 puissance {adv.puissance}
               </span>
             </span>
-            <Link
-              href={`/combat?a=${mine}&b=${adv.id}`}
-              className={styles.fightLink}
-            >
-              Combattre
-            </Link>
+
+            {adv.dejaAffronte ? (
+              <span className={styles.limitReached}>Déjà affronté</span>
+            ) : (
+              <form action={lancerCombat}>
+                <input type="hidden" name="a" value={mine} />
+                <input type="hidden" name="b" value={adv.id} />
+                <button
+                  type="submit"
+                  className={styles.fightLink}
+                  disabled={combatsRestants === 0}
+                >
+                  Combattre
+                </button>
+              </form>
+            )}
           </li>
         ))}
       </ul>

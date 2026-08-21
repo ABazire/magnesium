@@ -8,10 +8,12 @@ import { statsEffectives } from "@/lib/personnage";
 import { tirerRarete } from "@/lib/rarity";
 import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
 import { EquipmentSlot } from "@prisma/client";
+import { debutDeJournee } from "@/lib/date";
 
 const GAIN_VICTOIRE = 30;
 const GAIN_DEFAITE = 10;
-const CHANCE_COFFRE = 0.2; // 20%
+const CHANCE_COFFRE = 0.2;
+const LIMITE_PAR_MOB = 10;
 
 function randomStat(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -23,6 +25,18 @@ export async function affronterMonstre(
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non connecté");
+
+  const tentativesAujourdhui = await prisma.adventureAttempt.count({
+    where: {
+      personnageId,
+      monsterId,
+      playedAt: { gte: debutDeJournee() },
+    },
+  });
+
+  if (tentativesAujourdhui >= LIMITE_PAR_MOB) {
+    throw new Error("Limite quotidienne atteinte pour ce monstre");
+  }
 
   const [personnage, monstre] = await Promise.all([
     prisma.personnage.findUniqueOrThrow({
@@ -47,14 +61,20 @@ export async function affronterMonstre(
     agilite: monstre.agilite,
   };
 
-  const resultat = simulerCombat(combatPerso, combatMonstre);
+  const seed = Math.floor(Math.random() * 2147483647);
+  const resultat = simulerCombat(combatPerso, combatMonstre, seed);
   const victoire = resultat.winnerId === personnage.id;
   const gain = victoire ? GAIN_VICTOIRE : GAIN_DEFAITE;
 
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: { currency: { increment: gain } },
-  });
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: session.user.id },
+      data: { currency: { increment: gain } },
+    }),
+    prisma.adventureAttempt.create({
+      data: { personnageId, monsterId },
+    }),
+  ]);
 
   if (victoire && Math.random() < CHANCE_COFFRE) {
     const rarete = await tirerRarete();
@@ -78,4 +98,29 @@ export async function affronterMonstre(
   revalidatePath("/jouer");
 
   return { log: resultat.log, victoire, gain };
+}
+
+export async function getTentativesRestantes(personnageId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non connecté");
+
+  const monstres = await prisma.monster.findMany();
+
+  const resultats = await Promise.all(
+    monstres.map(async (m) => {
+      const utilisees = await prisma.adventureAttempt.count({
+        where: {
+          personnageId,
+          monsterId: m.id,
+          playedAt: { gte: debutDeJournee() },
+        },
+      });
+      return {
+        monsterId: m.id,
+        restantes: Math.max(0, LIMITE_PAR_MOB - utilisees),
+      };
+    }),
+  );
+
+  return resultats;
 }

@@ -52,7 +52,9 @@ export default async function JouerPage() {
           <div key={p.id} className={styles.card}>
             <PersonnageIcon size={48} couleur="#10b981" />
             <span className={styles.cardName}>{p.name}</span>
-            <span className={styles.stars}>{"★".repeat(p.rarity.stars)}</span>
+            <span className={styles.stars}>
+              {"★".repeat(p.rarity?.stars ?? 0)}
+            </span>
             <div className={styles.statRow}>
               <span className={styles.statChip}>
                 <HeartIcon size={14} /> {p.vie}

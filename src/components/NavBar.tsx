@@ -6,7 +6,7 @@ import styles from "./NavBar.module.css";
 
 const LIENS = [
   { href: "/jouer", label: "Accueil" },
-  { href: "/combat", label: "Combat" },
+  { href: "/aventure", label: "Aventure" },
   { href: "/arene", label: "Arène" },
   { href: "/gatcha", label: "Tirage" },
   { href: "/coffre", label: "Coffres" },

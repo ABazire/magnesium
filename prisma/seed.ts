@@ -13,6 +13,11 @@ const RARETES = [
   { stars: 6, statMin: 23, statMax: 30, dropRate: 0.5 },
 ];
 
+const MONSTRES = [
+  { name: "Loup", vie: 40, force: 12, vitesse: 15, resistance: 6, agilite: 10 },
+  { name: "Ours", vie: 70, force: 18, vitesse: 6, resistance: 14, agilite: 4 },
+];
+
 async function main() {
   for (const rarete of RARETES) {
     await prisma.rarity.upsert({
@@ -21,6 +26,15 @@ async function main() {
       create: rarete,
     });
   }
+
+  for (const monstre of MONSTRES) {
+    await prisma.monster.upsert({
+      where: { name: monstre.name },
+      update: monstre,
+      create: monstre,
+    });
+  }
+
   console.log("Raretés créées.");
 }
 

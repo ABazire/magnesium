@@ -89,3 +89,14 @@ model PersonnageEquipment {
 
   @@unique([personnageId, slot])
 }
+
+model Monster {
+  id    String @id @default(cuid())
+  name  String @unique
+
+  vie Int
+   force      Int
+  vitesse    Int
+  resistance Int
+  agilite    Int
+}

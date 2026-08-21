@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ouvrirCoffre } from "../../actions/coffre";
-import { ajouterMonnaieDev } from "../../actions/dev";
 import styles from "./page.module.css";
 
 export default async function CoffrePage() {
@@ -20,12 +19,6 @@ export default async function CoffrePage() {
       <p className={styles.currency}>
         Monnaie : <span className={styles.currencyValue}>{user.currency}</span>
       </p>
-
-      <form action={ajouterMonnaieDev}>
-        <button type="submit" className={styles.devButton}>
-          [DEV] +100 monnaie
-        </button>
-      </form>
 
       <form action={ouvrirCoffre}>
         <button

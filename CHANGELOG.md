@@ -18,3 +18,17 @@ versioning selon [Semantic Versioning](https://semver.org/lang/fr/).
 - Arène avec matchmaking par puissance proche
 - Interface complète (5 écrans, direction artistique émeraude)
 - Déploiement en production (Vercel)
+
+## [0.2.0] — 2026-08-21
+
+### Ajouté
+
+- Système d'Aventure (PvE) : combats contre des monstres à stats fixes (loup, ours), récompenses en monnaie et chance de coffre
+
+### Modifié
+
+- La navigation "Combat" est remplacée par "Aventure" ; l'arène reste dédiée au PvP
+
+### Supprimé
+
+- Boutons de test "[DEV] +100 monnaie", devenus inutiles grâce à l'aventure

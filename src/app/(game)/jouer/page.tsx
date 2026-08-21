@@ -13,6 +13,7 @@ import {
   AmuletIcon,
   PersonnageIcon,
 } from "@/components/pixel";
+import { statsEffectives } from "@/lib/personnage";
 
 export default async function JouerPage() {
   const session = await auth();
@@ -21,7 +22,10 @@ export default async function JouerPage() {
   const personnages = await prisma.personnage.findMany({
     where: { ownerId: session.user.id },
     orderBy: { id: "desc" },
-    include: { rarity: true },
+    include: {
+      rarity: true,
+      equipment: { include: { equipment: true } },
+    },
   });
 
   const equipments = await prisma.equipment.findMany({
@@ -48,32 +52,35 @@ export default async function JouerPage() {
 
       <h2 className={styles.sectionTitle}>Mes personnages</h2>
       <div className={styles.grid}>
-        {personnages.map((p) => (
-          <div key={p.id} className={styles.card}>
-            <PersonnageIcon size={48} couleur="#10b981" />
-            <span className={styles.cardName}>{p.name}</span>
-            <span className={styles.stars}>
-              {"★".repeat(p.rarity?.stars ?? 0)}
-            </span>
-            <div className={styles.statRow}>
-              <span className={styles.statChip}>
-                <HeartIcon size={14} /> {p.vie}
+        {personnages.map((p) => {
+          const stats = statsEffectives(p);
+          return (
+            <div key={p.id} className={styles.card}>
+              <PersonnageIcon size={48} couleur="#10b981" />
+              <span className={styles.cardName}>{p.name}</span>
+              <span className={styles.stars}>
+                {"★".repeat(p.rarity?.stars ?? 0)}
               </span>
-              <span className={styles.statChip}>
-                <SwordIcon size={14} /> {p.force}
-              </span>
-              <span className={styles.statChip}>
-                <BootsIcon size={14} /> {p.vitesse}
-              </span>
-              <span className={styles.statChip}>
-                <ArmorIcon size={14} /> {p.resistance}
-              </span>
-              <span className={styles.statChip}>
-                <AmuletIcon size={14} /> {p.agilite}
-              </span>
+              <div className={styles.statRow}>
+                <span className={styles.statChip}>
+                  <HeartIcon size={14} /> {stats.vie}
+                </span>
+                <span className={styles.statChip}>
+                  <SwordIcon size={14} /> {stats.force}
+                </span>
+                <span className={styles.statChip}>
+                  <BootsIcon size={14} /> {stats.vitesse}
+                </span>
+                <span className={styles.statChip}>
+                  <ArmorIcon size={14} /> {stats.resistance}
+                </span>
+                <span className={styles.statChip}>
+                  <AmuletIcon size={14} /> {stats.agilite}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <h2 className={styles.sectionTitle}>Équipements</h2>

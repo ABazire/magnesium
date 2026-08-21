@@ -5,6 +5,14 @@ import { creerPersonnage } from "../../actions/personnage";
 import { equiperObjet } from "../../actions/equiper";
 import { desequiperObjet } from "../../actions/equiper";
 import styles from "./page.module.css";
+import {
+  HeartIcon,
+  SwordIcon,
+  BootsIcon,
+  ArmorIcon,
+  AmuletIcon,
+  PersonnageIcon,
+} from "@/components/pixel";
 
 export default async function JouerPage() {
   const session = await auth();
@@ -42,25 +50,24 @@ export default async function JouerPage() {
       <div className={styles.grid}>
         {personnages.map((p) => (
           <div key={p.id} className={styles.card}>
+            <PersonnageIcon size={48} couleur="#10b981" />
             <span className={styles.cardName}>{p.name}</span>
-            <span className={styles.stars}>
-              {"★".repeat(p.rarity?.stars ?? 0)}
-            </span>
+            <span className={styles.stars}>{"★".repeat(p.rarity.stars)}</span>
             <div className={styles.statRow}>
-              <span className={`${styles.statChip} ${styles.statVie}`}>
-                ♥ {p.vie}
+              <span className={styles.statChip}>
+                <HeartIcon size={14} /> {p.vie}
               </span>
-              <span className={`${styles.statChip} ${styles.statForce}`}>
-                ⚔ {p.force}
+              <span className={styles.statChip}>
+                <SwordIcon size={14} /> {p.force}
               </span>
-              <span className={`${styles.statChip} ${styles.statVitesse}`}>
-                ➤ {p.vitesse}
+              <span className={styles.statChip}>
+                <BootsIcon size={14} /> {p.vitesse}
               </span>
-              <span className={`${styles.statChip} ${styles.statResistance}`}>
-                🛡 {p.resistance}
+              <span className={styles.statChip}>
+                <ArmorIcon size={14} /> {p.resistance}
               </span>
-              <span className={`${styles.statChip} ${styles.statAgilite}`}>
-                ✦ {p.agilite}
+              <span className={styles.statChip}>
+                <AmuletIcon size={14} /> {p.agilite}
               </span>
             </div>
           </div>

@@ -1,4 +1,3 @@
-// src/app/(game)/aventure/page.tsx
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";

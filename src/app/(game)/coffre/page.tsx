@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ouvrirCoffre } from "../../actions/coffre";
 import styles from "./page.module.css";
+import { CoinIcon, ChestIcon } from "@/components/pixel";
 
 export default async function CoffrePage() {
   const session = await auth();
@@ -17,7 +18,8 @@ export default async function CoffrePage() {
       <h1 className={styles.title}>Coffres</h1>
 
       <p className={styles.currency}>
-        Monnaie : <span className={styles.currencyValue}>{user.currency}</span>
+        <CoinIcon size={18} /> Monnaie :{" "}
+        <span className={styles.currencyValue}>{user.currency}</span>
       </p>
 
       <form action={ouvrirCoffre}>

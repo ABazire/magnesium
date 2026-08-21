@@ -6,6 +6,7 @@ import {
   getTentativesRestantes,
 } from "../../actions/aventure";
 import styles from "./page.module.css";
+import { BearIcon, WolfIcon } from "@/components/pixel";
 
 type Props = {
   personnages: { id: string; name: string }[];
@@ -13,6 +14,14 @@ type Props = {
 };
 
 export default function AventureClient({ personnages, monstres }: Props) {
+  const ICONE_MONSTRE: Record<
+    string,
+    React.ComponentType<{ size?: number }>
+  > = {
+    Loup: WolfIcon,
+    Ours: BearIcon,
+  };
+
   const [personnageId, setPersonnageId] = useState("");
   const [resultat, setResultat] = useState<{
     log: string[];
@@ -66,7 +75,8 @@ export default function AventureClient({ personnages, monstres }: Props) {
       <div className={styles.monsterList}>
         {monstres.map((m) => {
           const restant = restantes[m.id];
-          const epuise = personnageId && restant === 0;
+          const epuise = Boolean(personnageId && restant === 0);
+          const Icone = ICONE_MONSTRE[m.name];
           return (
             <div key={m.id} className={styles.monsterRow}>
               <button
@@ -74,6 +84,7 @@ export default function AventureClient({ personnages, monstres }: Props) {
                 disabled={!personnageId || enCours || epuise}
                 className={styles.monsterButton}
               >
+                {Icone && <Icone size={32} />}
                 Affronter {m.name}
               </button>
               {personnageId && restant !== undefined && (

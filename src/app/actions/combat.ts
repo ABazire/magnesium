@@ -62,15 +62,17 @@ export async function lancerCombat(formData: FormData) {
   };
 
   const seed = Math.floor(Math.random() * 2147483647);
-  const resultat = simulerCombat(combat1, combat2, seed);
+  const { events, winnerId } = simulerCombat(combat1, combat2, seed);
 
   const fight = await prisma.fight.create({
     data: {
       seed,
-      turns: resultat.log,
-      winnerId: resultat.winnerId,
+      turns: events,
+      winnerId,
       attackerPersonnageId: a,
       defenderPersonnageId: b,
+      attackerVieMax: combat1.vie,
+      defenderVieMax: combat2.vie,
     },
   });
 

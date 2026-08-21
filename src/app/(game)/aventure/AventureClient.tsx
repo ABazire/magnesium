@@ -7,6 +7,7 @@ import {
 } from "../../actions/aventure";
 import styles from "./page.module.css";
 import { BearIcon, WolfIcon } from "@/components/pixel";
+import CombatViewer from "@/components/CombatViewer";
 
 type Props = {
   personnages: { id: string; name: string }[];
@@ -102,16 +103,20 @@ export default function AventureClient({ personnages, monstres }: Props) {
       </div>
 
       {resultat && (
-        <div className={styles.log}>
-          {resultat.log.map((ligne, i) => (
-            <p key={i} className={styles.logLine}>
-              {ligne}
-            </p>
-          ))}
+        <>
+          <CombatViewer
+            fighters={resultat.fighters}
+            events={resultat.events}
+            winnerId={
+              resultat.victoire
+                ? personnageId
+                : resultat.fighters.find((f) => f.id !== personnageId)!.id
+            }
+          />
           <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>
             +{resultat.gain} monnaie
           </p>
-        </div>
+        </>
       )}
     </main>
   );

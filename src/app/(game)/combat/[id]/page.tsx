@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
+import CombatViewer from "@/components/CombatViewer";
+import type { CombatEvent } from "@/lib/combat";
 import styles from "../page.module.css";
 
 export default async function CombatResultPage({
@@ -12,29 +14,35 @@ export default async function CombatResultPage({
   if (!session?.user?.id) redirect("/");
 
   const { id } = await params;
-
   const fight = await prisma.fight.findUnique({ where: { id } });
   if (!fight) notFound();
 
-  const log = fight.turns as string[];
+  const [attaquant, defenseur] = await Promise.all([
+    prisma.personnage.findUnique({ where: { id: fight.attackerPersonnageId } }),
+    prisma.personnage.findUnique({ where: { id: fight.defenderPersonnageId } }),
+  ]);
+
+  const events = fight.turns as CombatEvent[];
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Résultat du combat</h1>
-
-      <div className={styles.log}>
-        {log.map((ligne, i) => {
-          const estDerniereLigne = i === log.length - 1;
-          return (
-            <p
-              key={i}
-              className={estDerniereLigne ? styles.logWinner : styles.logLine}
-            >
-              {ligne}
-            </p>
-          );
-        })}
-      </div>
+      <h1 className={styles.title}>Combat</h1>
+      <CombatViewer
+        fighters={[
+          {
+            id: fight.attackerPersonnageId,
+            name: attaquant?.name ?? "?",
+            vieMax: fight.attackerVieMax,
+          },
+          {
+            id: fight.defenderPersonnageId,
+            name: defenseur?.name ?? "?",
+            vieMax: fight.defenderVieMax,
+          },
+        ]}
+        events={events}
+        winnerId={fight.winnerId}
+      />
     </main>
   );
 }

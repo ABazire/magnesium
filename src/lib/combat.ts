@@ -10,6 +10,16 @@ export type PersonnageCombat = {
   agilite: number;
 };
 
+export type CombatEvent =
+  | { type: "dodge"; attackerId: string; defenderId: string }
+  | {
+      type: "hit";
+      attackerId: string;
+      defenderId: string;
+      damage: number;
+      defenderHpAfter: number;
+    };
+
 const BASE_TICK = 100;
 const FACTEUR_REDUCTION = 0.5;
 const ESQUIVE_MIN = 5;
@@ -43,10 +53,7 @@ export function simulerCombat(
     [perso1.id]: perso1.vie,
     [perso2.id]: perso2.vie,
   };
-  const compteur: Record<string, number> = {
-    [perso1.id]: 0,
-    [perso2.id]: 0,
-  };
+  const compteur: Record<string, number> = { [perso1.id]: 0, [perso2.id]: 0 };
   const intervalle: Record<string, number> = {
     [perso1.id]: BASE_TICK / perso1.vitesse,
     [perso2.id]: BASE_TICK / perso2.vitesse,
@@ -56,7 +63,7 @@ export function simulerCombat(
     [perso2.id]: perso2,
   };
 
-  const log: string[] = [];
+  const events: CombatEvent[] = [];
   let tours = 0;
 
   while (pv[perso1.id] > 0 && pv[perso2.id] > 0 && tours < MAX_TOURS) {
@@ -72,20 +79,27 @@ export function simulerCombat(
     const jet = random() * 100;
 
     if (jet < chance) {
-      log.push(`${defenseur.name} esquive l'attaque de ${attaquant.name}.`);
+      events.push({
+        type: "dodge",
+        attackerId: attaquantId,
+        defenderId: defenseurId,
+      });
     } else {
       const degats = calculerDegats(attaquant.force, defenseur.resistance);
       pv[defenseurId] = Math.max(0, pv[defenseurId] - degats);
-      log.push(
-        `${attaquant.name} attaque ${defenseur.name} et inflige ${degats} dégâts. (${defenseur.name} : ${pv[defenseurId]} PV restants)`,
-      );
+      events.push({
+        type: "hit",
+        attackerId: attaquantId,
+        defenderId: defenseurId,
+        damage: degats,
+        defenderHpAfter: pv[defenseurId],
+      });
     }
 
     compteur[attaquantId] += intervalle[attaquantId];
   }
 
   const winnerId = pv[perso1.id] > 0 ? perso1.id : perso2.id;
-  log.push(`${parId[winnerId].name} remporte le combat !`);
 
-  return { log, winnerId };
+  return { events, winnerId };
 }

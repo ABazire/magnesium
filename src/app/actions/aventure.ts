@@ -62,8 +62,8 @@ export async function affronterMonstre(
   };
 
   const seed = Math.floor(Math.random() * 2147483647);
-  const resultat = simulerCombat(combatPerso, combatMonstre, seed);
-  const victoire = resultat.winnerId === personnage.id;
+  const { events, winnerId } = simulerCombat(combatPerso, combatMonstre, seed);
+  const victoire = winnerId === personnage.id;
   const gain = victoire ? GAIN_VICTOIRE : GAIN_DEFAITE;
 
   await prisma.$transaction([
@@ -97,7 +97,19 @@ export async function affronterMonstre(
   revalidatePath("/aventure");
   revalidatePath("/jouer");
 
-  return { log: resultat.log, victoire, gain };
+  return {
+    events,
+    victoire,
+    gain,
+    fighters: [
+      { id: combatPerso.id, name: combatPerso.name, vieMax: combatPerso.vie },
+      {
+        id: combatMonstre.id,
+        name: combatMonstre.name,
+        vieMax: combatMonstre.vie,
+      },
+    ],
+  };
 }
 
 export async function getTentativesRestantes(personnageId: string) {

@@ -107,6 +107,8 @@ model Fight {
   seed      Int
   turns     Json
   winnerId  String
+  attackerVieMax Int
+  defenderVieMax Int
 
   attackerPersonnageId String
   defenderPersonnageId String

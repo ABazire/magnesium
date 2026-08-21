@@ -1,0 +1,121 @@
+.viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fightersRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.fighterCard {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 12px;
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
+}
+
+.attacking {
+  border-color: #10b981;
+  transform: scale(1.03);
+}
+
+.hit {
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.fighterName {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hpBarTrack {
+  height: 10px;
+  border-radius: 999px;
+  background: #1e3a2f;
+  overflow: hidden;
+}
+
+.hpBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  transition: width 0.4s ease-out;
+}
+
+.hpValue {
+  color: #4d7266;
+  font-size: 11px;
+}
+
+.damagePopup {
+  position: absolute;
+  top: -4px;
+  right: 8px;
+  color: #ef4444;
+  font-weight: 800;
+  font-size: 14px;
+  animation: floatUp 0.6s ease-out forwards;
+}
+
+.dodgePopup {
+  position: absolute;
+  top: -4px;
+  right: 8px;
+  color: #10b981;
+  font-weight: 700;
+  font-size: 12px;
+  animation: floatUp 0.6s ease-out forwards;
+}
+
+@keyframes floatUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+.winnerBanner {
+  text-align: center;
+  color: #10b981;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.skipButton {
+  align-self: center;
+  background: transparent;
+  border: 1px solid #1e3a2f;
+  color: #4d7266;
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+}

@@ -108,6 +108,11 @@ export async function affronterMonstre(
         name: combatMonstre.name,
         vieMax: combatMonstre.vie,
       },
+    ] as [
+      typeof combatPerso extends never
+        ? never
+        : { id: string; name: string; vieMax: number },
+      { id: string; name: string; vieMax: number },
     ],
   };
 }

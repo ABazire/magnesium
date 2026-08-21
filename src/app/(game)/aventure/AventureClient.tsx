@@ -8,6 +8,7 @@ import {
 import styles from "./page.module.css";
 import { BearIcon, WolfIcon } from "@/components/pixel";
 import CombatViewer from "@/components/CombatViewer";
+import type { CombatEvent } from "@/lib/combat";
 
 type Props = {
   personnages: { id: string; name: string }[];
@@ -24,13 +25,19 @@ export default function AventureClient({ personnages, monstres }: Props) {
   };
 
   const [personnageId, setPersonnageId] = useState("");
-  const [resultat, setResultat] = useState<{
-    log: string[];
-    victoire: boolean;
-    gain: number;
-  } | null>(null);
   const [enCours, setEnCours] = useState(false);
   const [restantes, setRestantes] = useState<Record<string, number>>({});
+
+  type Fighter = { id: string; name: string; vieMax: number };
+
+  type ResultatCombat = {
+    events: CombatEvent[];
+    victoire: boolean;
+    gain: number;
+    fighters: [Fighter, Fighter];
+  };
+
+  const [resultat, setResultat] = useState<ResultatCombat | null>(null);
 
   useEffect(() => {
     if (!personnageId) {

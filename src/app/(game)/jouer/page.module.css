@@ -125,6 +125,21 @@
   color: #10b981;
 }
 
+.statContainer {
+  display: flex;
+  gap: 15px;
+  margin-top: 8px;
+
+  color: #ffffff;
+}
+
+.statContainer p {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  align-items: center;
+}
+
 /* Équipements */
 .equipList {
   display: flex;

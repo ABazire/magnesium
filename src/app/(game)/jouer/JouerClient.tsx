@@ -3,7 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { statsEffectives } from "@/lib/personnage";
-import { PersonnageIcon, HeartIcon } from "@/components/pixel";
+import {
+  PersonnageIcon,
+  HeartIcon,
+  SwordIcon,
+  BootsIcon,
+  ArmorIcon,
+  AmuletIcon,
+} from "@/components/pixel";
 import styles from "./page.module.css";
 
 import type { Prisma } from "@prisma/client";
@@ -73,6 +80,24 @@ export default function JouerClient({
               <span className={styles.hpLabel}>
                 PV {statsEffectives(selectionne).vie}
               </span>
+            </div>
+            <div className={styles.statContainer}>
+              <p>
+                <SwordIcon size={16} /> Force:{" "}
+                {statsEffectives(selectionne).force}
+              </p>
+              <p>
+                <BootsIcon size={16} /> Vitesse:{" "}
+                {statsEffectives(selectionne).vitesse}
+              </p>
+              <p>
+                <ArmorIcon size={16} /> Résistance:{" "}
+                {statsEffectives(selectionne).resistance}
+              </p>
+              <p>
+                <AmuletIcon size={16} /> Agilité:{" "}
+                {statsEffectives(selectionne).agilite}
+              </p>
             </div>
 
             <span className={styles.subLabel}>Équipement</span>

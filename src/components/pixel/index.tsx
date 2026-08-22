@@ -65,3 +65,13 @@ export function PersonnageIcon({
     />
   );
 }
+export function HomeIcon({ size = 20 }: { size?: number }) {
+  return (
+    <PixelSprite grid={S.SPRITE_HOME} palette={S.PALETTE_HOME} size={size} />
+  );
+}
+export function StarIcon({ size = 20 }: { size?: number }) {
+  return (
+    <PixelSprite grid={S.SPRITE_STAR} palette={S.PALETTE_STAR} size={size} />
+  );
+}

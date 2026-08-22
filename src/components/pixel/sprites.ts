@@ -201,3 +201,35 @@ export function spritePersonnage(): string[] {
 export function palettePersonnage(couleur: string) {
   return { ...PALETTE_COMMUNE, "#": couleur, $: "#0f1a16" };
 }
+
+export const SPRITE_HOME = [
+  "............",
+  ".....kk.....",
+  "....k##k....",
+  "...k####k...",
+  "..k######k..",
+  ".k########k.",
+  "k##########k",
+  "k#kkkkkkkk#k",
+  "k#k######k#k",
+  "k#k######k#k",
+  "k#kkkkkkkk#k",
+  "kkkkkkkkkkkk",
+];
+export const PALETTE_HOME = { ...PALETTE_COMMUNE, "#": "#10b981" };
+
+export const SPRITE_STAR = [
+  "......k.....",
+  "......#.....",
+  ".....###....",
+  "....#####...",
+  "kkk#######kk",
+  ".k#########k",
+  "..k#######k.",
+  "..k#k...k#k.",
+  ".k#k.....k#k",
+  ".k#.......#k",
+  "k#.........#",
+  "............",
+];
+export const PALETTE_STAR = { ...PALETTE_COMMUNE, "#": "#f2c94c" };

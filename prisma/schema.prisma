@@ -36,6 +36,8 @@ model Personnage {
   resistance Int
   agilite    Int
 
+  inTeam Boolean @default(false)
+
   rarity   Rarity? @relation(fields: [rarityId], references: [id])
   rarityId String?
 

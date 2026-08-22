@@ -6,20 +6,11 @@ import { statsEffectives } from "@/lib/personnage";
 import { PersonnageIcon, HeartIcon } from "@/components/pixel";
 import styles from "./page.module.css";
 
-type PersonnageAvecRelations = {
-  id: string;
-  name: string;
-  rarity: { stars: number } | null;
-  vie: number;
-  force: number;
-  vitesse: number;
-  resistance: number;
-  agilite: number;
-  equipment: {
-    slot: string;
-    equipment: { name: string; bonusStat: string; bonusValue: number };
-  }[];
-};
+import type { Prisma } from "@prisma/client";
+
+type PersonnageAvecRelations = Prisma.PersonnageGetPayload<{
+  include: { rarity: true; equipment: { include: { equipment: true } } };
+}>;
 
 export default function JouerClient({
   equipe,

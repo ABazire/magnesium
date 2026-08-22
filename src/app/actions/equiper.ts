@@ -40,3 +40,13 @@ export async function desequiperObjet(equipmentId: string) {
 
   revalidatePath("/jouer");
 }
+
+export async function getEquipementsDisponibles(slot: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non connecté");
+
+  return prisma.equipment.findMany({
+    where: { ownerId: session.user.id, slot: slot as any, equippedOn: null },
+    include: { rarity: true },
+  });
+}

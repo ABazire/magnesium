@@ -10,6 +10,7 @@ model User {
   id       String  @id @default(cuid())
   username String  @unique
   currency Int     @default(0)
+  rankPoints3v3 Int @default(1000)
 
   personnages Personnage[]
   equipments Equipment[]
@@ -24,6 +25,11 @@ model Rarity {
 
   personnages Personnage[]
   equipments Equipment[]
+}
+
+enum FormationRow {
+  AVANT
+  ARRIERE
 }
 
 model Personnage {
@@ -45,6 +51,8 @@ model Personnage {
 
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String
+
+  formationRow FormationRow @default(AVANT)
 
   spriteId Int    @default(0)
   color    String @default("#10b981")
@@ -119,6 +127,20 @@ model Fight {
 
   attackerPersonnageId String
   defenderPersonnageId String
+}
+
+model TeamFight {
+  id       String   @id @default(cuid())
+  playedAt DateTime @default(now())
+  seed     Int
+  events   Json
+  winnerSide String // "A" ou "B"
+
+  attackerUserId String
+  defenderUserId String
+
+  fightersA Json // snapshot des 3 combattants du camp A
+  fightersB Json // snapshot des 3 combattants du camp B
 }
 
 model AdventureAttempt {

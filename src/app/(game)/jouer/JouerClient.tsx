@@ -18,6 +18,7 @@ import {
 } from "../../actions/equiper";
 import type { Prisma } from "@prisma/client";
 import styles from "./page.module.css";
+import { definirFormation } from "../../actions/equipe";
 
 type PersonnageAvecRelations = Prisma.PersonnageGetPayload<{
   include: { rarity: true; equipment: { include: { equipment: true } } };
@@ -32,6 +33,8 @@ type EquipementDisponible = {
 };
 
 const SLOTS = ["ARME", "ARMURE", "BOTTES", "AMULETTE"];
+
+const TAILLE_EQUIPE = 3;
 
 export default function JouerClient({
   equipe,
@@ -78,27 +81,70 @@ export default function JouerClient({
       <h2 className={styles.sectionTitle}>Mon équipe</h2>
 
       <div className={styles.teamRow}>
-        {equipe.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => {
-              setSelectionneId(p.id);
-              setSlotOuvert(null);
-            }}
-            className={`${styles.teamCard} ${p.id === selectionneId ? styles.teamCardActive : ""}`}
-          >
-            <PersonnageIcon size={40} couleur={p.color} variant={p.spriteId} />{" "}
-            <span className={styles.cardName}>{p.name.toUpperCase()}</span>
-            <span className={styles.stars}>
-              {"★".repeat(p.rarity?.stars ?? 0)}
-            </span>
-          </button>
-        ))}
+        {Array.from({ length: TAILLE_EQUIPE }).map((_, i) => {
+          const p = equipe[i];
+
+          if (!p) {
+            return (
+              <Link
+                key={`vide-${i}`}
+                href="/collection"
+                className={styles.teamSlotEmpty}
+              >
+                <span className={styles.emptyPlus}>+</span>
+                <span className={styles.emptyLabel}>Ajouter</span>
+              </Link>
+            );
+          }
+
+          return (
+            <div
+              key={p.id}
+              onClick={() => {
+                setSelectionneId(p.id);
+                setSlotOuvert(null);
+              }}
+              className={`${styles.teamCard} ${p.id === selectionneId ? styles.teamCardActive : ""}`}
+              role="button"
+              tabIndex={0}
+            >
+              <PersonnageIcon
+                size={40}
+                couleur={p.color}
+                variant={p.spriteId}
+              />
+              <span className={styles.cardName}>{p.name.toUpperCase()}</span>
+              <span className={styles.stars}>
+                {"★".repeat(p.rarity?.stars ?? 0)}
+              </span>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  definirFormation(
+                    p.id,
+                    p.formationRow === "AVANT" ? "ARRIERE" : "AVANT",
+                  ).then(() => router.refresh());
+                }}
+                className={styles.positionButton}
+              >
+                {p.formationRow === "AVANT" ? "Avant" : "Arrière"}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       <Link href="/collection" className={styles.collectionButton}>
         Collection
       </Link>
+
+      {equipe.length === 0 && (
+        <p className={styles.emptyMessage}>
+          Ton équipe est vide. Va dans ta Collection pour y ajouter des
+          personnages.
+        </p>
+      )}
 
       {selectionne && (
         <div className={styles.detailPanel}>

@@ -17,6 +17,7 @@ const LIENS = [
   { href: "/jouer", label: "Accueil", Icone: HomeIcon },
   { href: "/aventure", label: "Aventure", Icone: WolfIcon },
   { href: "/arene", label: "Arène", Icone: SwordIcon },
+  { href: "/arene3v3", label: "3v3", Icone: SwordIcon },
   { href: "/classement", label: "Classement", Icone: TrophyIcon },
   { href: "/gatcha", label: "Tirage", Icone: StarIcon },
   { href: "/coffre", label: "Coffres", Icone: ChestIcon },

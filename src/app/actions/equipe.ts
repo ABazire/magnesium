@@ -31,3 +31,18 @@ export async function toggleEquipe(personnageId: string) {
   revalidatePath("/jouer");
   revalidatePath("/collection");
 }
+
+export async function definirFormation(
+  personnageId: string,
+  row: "AVANT" | "ARRIERE",
+) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non connecté");
+
+  await prisma.personnage.update({
+    where: { id: personnageId, ownerId: session.user.id },
+    data: { formationRow: row },
+  });
+
+  revalidatePath("/jouer");
+}

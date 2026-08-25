@@ -408,3 +408,51 @@
   font-size: 11px;
   padding: 6px 8px;
 }
+
+.teamSlotEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px dashed #1e3a2f;
+  border-radius: 14px;
+  padding: 12px;
+  text-decoration: none;
+  min-height: 90px;
+}
+
+.teamSlotEmpty:hover {
+  border-color: #10b981;
+}
+
+.emptyPlus {
+  color: #4d7266;
+  font-size: 24px;
+}
+
+.emptyLabel {
+  color: #4d7266;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.emptyMessage {
+  color: #4d7266;
+  font-size: 13px;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.positionButton {
+  background: transparent;
+  border: 1.5px solid #10b981;
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+}

@@ -86,20 +86,6 @@ export default function AventureClient({ personnages, monstres }: Props) {
 
   const [dernierMonsterId, setDernierMonsterId] = useState<string | null>(null);
 
-  async function combattre(monsterId: string) {
-    if (!personnageId) return;
-    setEnCours(true);
-    setDernierMonsterId(monsterId);
-    const res = await affronterMonstre(personnageId, monsterId);
-    setResultat(res);
-    setFightKey((k) => k + 1);
-    setRestantes((prev) => ({
-      ...prev,
-      [monsterId]: Math.max(0, (prev[monsterId] ?? 0) - 1),
-    }));
-    setEnCours(false);
-  }
-
   function fermerCombat() {
     setResultat(null);
     getMonstresDisponibles().then(setMonstresDispo); // rafraîchit au cas où un palier vient d'être débloqué

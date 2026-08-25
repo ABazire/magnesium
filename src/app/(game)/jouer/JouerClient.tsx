@@ -53,9 +53,11 @@ export default function JouerClient({
   const selectionne = equipe.find((p) => p.id === selectionneId);
   const stats = selectionne ? statsEffectives(selectionne) : null;
 
-  const max = niveauMax(selectionne.rarity?.stars ?? 1);
-  const auMax = selectionne.level >= max;
-  const xpRequise = xpRequisePourNiveauSuivant(selectionne.level);
+  const max = selectionne ? niveauMax(selectionne.rarity?.stars ?? 1) : 1;
+  const auMax = selectionne ? selectionne.level >= max : false;
+  const xpRequise = selectionne
+    ? xpRequisePourNiveauSuivant(selectionne.level)
+    : 0;
 
   async function ouvrirSlot(slot: string) {
     if (slotOuvert === slot) {
@@ -126,7 +128,7 @@ export default function JouerClient({
                 <span className={styles.cardLevel}>
                   Niveau {p.level} / {niveauMax(p.rarity?.stars ?? 1)}
                 </span>
-                {!auMax && (
+                {!auMax && selectionne && (
                   <div className={styles.xpBarTrack}>
                     <div
                       className={styles.xpBarFill}
@@ -176,7 +178,7 @@ export default function JouerClient({
           </div>
           <div className={styles.detailRight}>
             <span className={styles.detailName}>
-              {selectionne.name.toUpperCase()}
+              {selectionne!.name.toUpperCase()}
             </span>
             <span className={styles.stars}>
               {"★".repeat(selectionne.rarity?.stars ?? 0)}

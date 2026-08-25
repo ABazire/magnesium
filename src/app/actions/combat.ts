@@ -77,7 +77,7 @@ export async function lancerCombat(formData: FormData) {
     const { newLevel, newXp } = gagnerXp(
       gagnant.level,
       gagnant.xp,
-      gagnant.rarity.stars,
+      gagnant.rarity!.stars,
     );
 
     await prisma.personnage.update({

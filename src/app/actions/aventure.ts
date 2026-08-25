@@ -86,7 +86,11 @@ export async function affronterMonstre(
     leveledUp: false,
   };
   if (victoire) {
-    xpInfo = gagnerXp(personnage.level, personnage.xp, personnage.rarity.stars);
+    xpInfo = gagnerXp(
+      personnage.level,
+      personnage.xp,
+      personnage.rarity!.stars,
+    );
   }
 
   await prisma.$transaction([

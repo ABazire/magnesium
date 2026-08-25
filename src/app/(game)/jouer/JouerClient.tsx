@@ -87,7 +87,7 @@ export default function JouerClient({
             }}
             className={`${styles.teamCard} ${p.id === selectionneId ? styles.teamCardActive : ""}`}
           >
-            <PersonnageIcon size={40} couleur="#10b981" />
+            <PersonnageIcon size={40} couleur={p.color} variant={p.spriteId} />{" "}
             <span className={styles.cardName}>{p.name.toUpperCase()}</span>
             <span className={styles.stars}>
               {"★".repeat(p.rarity?.stars ?? 0)}
@@ -103,7 +103,11 @@ export default function JouerClient({
       {selectionne && (
         <div className={styles.detailPanel}>
           <div className={styles.detailLeft}>
-            <PersonnageIcon size={120} couleur="#10b981" />
+            <PersonnageIcon
+              size={120}
+              couleur={selectionne.color}
+              variant={selectionne.spriteId}
+            />
           </div>
           <div className={styles.detailRight}>
             <span className={styles.detailName}>

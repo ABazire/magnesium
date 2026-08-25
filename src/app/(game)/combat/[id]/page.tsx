@@ -35,12 +35,16 @@ export default async function CombatResultPage({
             name: attaquant?.name ?? "?",
             vieMax: fight.attackerVieMax,
             iconKey: "personnage",
+            couleur: attaquant?.color,
+            spriteVariant: attaquant?.spriteId,
           },
           {
             id: fight.defenderPersonnageId,
             name: defenseur?.name ?? "?",
             vieMax: fight.defenderVieMax,
             iconKey: "personnage",
+            couleur: defenseur?.color,
+            spriteVariant: defenseur?.spriteId,
           },
         ]}
         events={events}

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Personnage" ADD COLUMN     "color" TEXT NOT NULL DEFAULT '#10b981',
+ADD COLUMN     "spriteId" INTEGER NOT NULL DEFAULT 0;

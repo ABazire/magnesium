@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { simulerCombat } from "@/lib/combat";
+import { CombatEvent, simulerCombat } from "@/lib/combat";
 import { statsEffectives } from "@/lib/personnage";
 import { tirerRarete } from "@/lib/rarity";
 import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
@@ -19,10 +19,23 @@ function randomStat(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+type Fighter = {
+  id: string;
+  name: string;
+  vieMax: number;
+  color?: string;
+  spriteId?: number;
+};
+
 export async function affronterMonstre(
   personnageId: string,
   monsterId: string,
-) {
+): Promise<{
+  events: CombatEvent[];
+  victoire: boolean;
+  gain: number;
+  fighters: [Fighter, Fighter];
+}> {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non connecté");
 
@@ -102,17 +115,18 @@ export async function affronterMonstre(
     victoire,
     gain,
     fighters: [
-      { id: combatPerso.id, name: combatPerso.name, vieMax: combatPerso.vie },
+      {
+        id: combatPerso.id,
+        name: combatPerso.name,
+        vieMax: combatPerso.vie,
+        color: personnage.color,
+        spriteId: personnage.spriteId,
+      },
       {
         id: combatMonstre.id,
         name: combatMonstre.name,
         vieMax: combatMonstre.vie,
       },
-    ] as [
-      typeof combatPerso extends never
-        ? never
-        : { id: string; name: string; vieMax: number },
-      { id: string; name: string; vieMax: number },
     ],
   };
 }

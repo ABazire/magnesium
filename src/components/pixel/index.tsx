@@ -50,21 +50,25 @@ export function BearIcon({ size = 48 }: { size?: number }) {
     <PixelSprite grid={S.SPRITE_BEAR} palette={S.PALETTE_BEAR} size={size} />
   );
 }
+
 export function PersonnageIcon({
   size = 48,
   couleur = "#10b981",
+  variant = 0,
 }: {
   size?: number;
   couleur?: string;
+  variant?: number;
 }) {
   return (
     <PixelSprite
-      grid={S.spritePersonnage()}
+      grid={S.spritePersonnage(variant)}
       palette={S.palettePersonnage(couleur)}
       size={size}
     />
   );
 }
+
 export function HomeIcon({ size = 20 }: { size?: number }) {
   return (
     <PixelSprite grid={S.SPRITE_HOME} palette={S.PALETTE_HOME} size={size} />

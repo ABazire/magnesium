@@ -29,7 +29,13 @@ export default function AventureClient({ personnages, monstres }: Props) {
   const [enCours, setEnCours] = useState(false);
   const [restantes, setRestantes] = useState<Record<string, number>>({});
 
-  type Fighter = { id: string; name: string; vieMax: number };
+  type Fighter = {
+    id: string;
+    name: string;
+    vieMax: number;
+    color?: string;
+    spriteId?: number;
+  };
 
   type ResultatCombat = {
     events: CombatEvent[];
@@ -114,7 +120,12 @@ export default function AventureClient({ personnages, monstres }: Props) {
         <>
           <CombatViewer
             fighters={[
-              { ...resultat.fighters[0], iconKey: "personnage" },
+              {
+                ...resultat.fighters[0],
+                iconKey: "personnage",
+                couleur: resultat.fighters[0].color,
+                spriteVariant: resultat.fighters[0].spriteId,
+              },
               {
                 ...resultat.fighters[1],
                 iconKey: resultat.fighters[1].name.toLowerCase(),

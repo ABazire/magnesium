@@ -181,27 +181,6 @@ export const PALETTE_BEAR = {
   g: "#f2c94c",
 };
 
-// --- Personnage générique (silhouette, couleur personnalisable) ---
-export function spritePersonnage(): string[] {
-  return [
-    "....kkkk....",
-    "...k####k...",
-    "...k#$$#k...",
-    "...k####k...",
-    "....kkkk....",
-    "..k######k..",
-    ".k########k.",
-    ".k########k.",
-    ".k########k.",
-    "..k######k..",
-    "...k#..#k...",
-    "..k##..##k..",
-  ];
-}
-export function palettePersonnage(couleur: string) {
-  return { ...PALETTE_COMMUNE, "#": couleur, $: "#0f1a16" };
-}
-
 export const SPRITE_HOME = [
   "............",
   ".....kk.....",
@@ -249,3 +228,55 @@ export const SPRITE_TROPHY = [
   "kkkkkkkkkkkk",
 ];
 export const PALETTE_TROPHY = { ...PALETTE_COMMUNE, "#": "#f2c94c" };
+
+export function spritePersonnage(variant: number = 0): string[] {
+  const variantes = [
+    [
+      "....kkkk....",
+      "...k####k...",
+      "...k#$$#k...",
+      "...k####k...",
+      "....kkkk....",
+      "..k######k..",
+      ".k########k.",
+      ".k########k.",
+      ".k########k.",
+      "..k######k..",
+      "...k#..#k...",
+      "..k##..##k..",
+    ],
+    [
+      "...kkkkkk...",
+      "..k######k..",
+      ".k##$##$##k.",
+      ".k########k.",
+      "..k######k..",
+      "...kkkkkk...",
+      "..k######k..",
+      ".k########k.",
+      ".k########k.",
+      "..k######k..",
+      "...k#..#k...",
+      "....k..k....",
+    ],
+    [
+      "....k##k....",
+      "...k####k...",
+      "..k######k..",
+      ".k##$##$##k.",
+      "..k######k..",
+      "...kkkkkk...",
+      "....k##k....",
+      "...k####k...",
+      "...k####k...",
+      "...k####k...",
+      "...k#..#k...",
+      "..k##..##k..",
+    ],
+  ];
+  return variantes[variant] ?? variantes[0];
+}
+
+export function palettePersonnage(couleur: string) {
+  return { ...PALETTE_COMMUNE, "#": couleur, $: "#0f1a16" };
+}

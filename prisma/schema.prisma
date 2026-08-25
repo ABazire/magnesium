@@ -46,6 +46,9 @@ model Personnage {
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String
 
+  spriteId Int    @default(0)
+  color    String @default("#10b981")
+
   equipment PersonnageEquipment[]
 }
 

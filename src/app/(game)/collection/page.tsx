@@ -31,7 +31,11 @@ export default async function CollectionPage() {
           const stats = statsEffectives(p);
           return (
             <div key={p.id} className={styles.card}>
-              <PersonnageIcon size={48} couleur="#10b981" />
+              <PersonnageIcon
+                size={48}
+                couleur={p.color}
+                variant={p.spriteId}
+              />
               <span className={styles.cardName}>{p.name}</span>
               <span className={styles.stars}>
                 {"★".repeat(p.rarity?.stars ?? 0)}

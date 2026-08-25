@@ -21,6 +21,7 @@ function randomStat(min: number, max: number): number {
 
 type ResultatGatcha = {
   personnage: {
+    id: string;
     name: string;
     stars: number;
     vie: number;
@@ -53,7 +54,7 @@ export async function tirerGatcha(): Promise<ResultatGatcha> {
     agilite: randomStat(rarete.statMin, rarete.statMax),
   };
 
-  const [updatedUser] = await prisma.$transaction([
+  const [updatedUser, nouveauPersonnage] = await prisma.$transaction([
     prisma.user.update({
       where: { id: session.user.id },
       data: { currency: { decrement: COUT_TIRAGE } },
@@ -68,7 +69,12 @@ export async function tirerGatcha(): Promise<ResultatGatcha> {
   revalidatePath("/collection");
 
   return {
-    personnage: { name, stars: rarete.stars, ...stats },
+    personnage: {
+      id: nouveauPersonnage.id,
+      name,
+      stars: rarete.stars,
+      ...stats,
+    },
     newCurrency: updatedUser.currency,
   };
 }

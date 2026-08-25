@@ -15,7 +15,9 @@ type Fighter = {
   id: string;
   name: string;
   vieMax: number;
-  iconKey?: string; // "personnage" | "loup" | "ours" ...
+  iconKey?: string;
+  couleur?: string;
+  spriteVariant?: number;
 };
 
 type Props = {
@@ -96,7 +98,7 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
 
         <div className={`${styles.fighterWrapper} ${styles.left}`}>
           <div className={classeSprite(f1.id, "gauche")}>
-            <Icone1 size={72} />
+            <Icone1 size={72} couleur={f1.couleur} variant={f1.spriteVariant} />
           </div>
           {evenementActuel?.defenderId === f1.id &&
             evenementActuel.type === "hit" &&
@@ -115,7 +117,11 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
             className={classeSprite(f2.id, "droite")}
             style={{ transform: "scaleX(-1)" }}
           >
-            <Icone2 size={72} />
+            <PersonnageIcon
+              size={72}
+              couleur={f2.couleur}
+              variant={f2.spriteVariant}
+            />
           </div>
           {evenementActuel?.defenderId === f2.id &&
             evenementActuel.type === "hit" &&

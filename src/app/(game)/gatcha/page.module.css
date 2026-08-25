@@ -132,3 +132,76 @@
   color: #ef4444;
   font-size: 12px;
 }
+
+.nameInput {
+  background: transparent;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  width: 200px;
+}
+
+.nameInput:focus {
+  outline: none;
+  border-color: #10b981;
+}
+
+.spriteRow {
+  display: flex;
+  gap: 8px;
+}
+
+.spriteChoice {
+  background: transparent;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 12px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.spriteChoiceActive {
+  border-color: #10b981;
+}
+
+.colorRow {
+  display: flex;
+  gap: 8px;
+}
+
+.colorSwatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.colorSwatchActive {
+  border-color: #ffffff;
+}
+
+.spriteNav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navArrow {
+  background: transparent;
+  border: 1.5px solid #1e3a2f;
+  color: #10b981;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.navArrow:hover {
+  border-color: #10b981;
+}

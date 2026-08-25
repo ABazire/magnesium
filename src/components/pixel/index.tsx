@@ -89,3 +89,22 @@ export function TrophyIcon({ size = 20 }: { size?: number }) {
     />
   );
 }
+
+export function WolfMassifIcon({ size = 48 }: { size?: number }) {
+  return (
+    <PixelSprite
+      grid={S.SPRITE_WOLF_MASSIF}
+      palette={S.PALETTE_WOLF_MASSIF}
+      size={size}
+    />
+  );
+}
+export function BearMassifIcon({ size = 48 }: { size?: number }) {
+  return (
+    <PixelSprite
+      grid={S.SPRITE_BEAR_MASSIF}
+      palette={S.PALETTE_BEAR_MASSIF}
+      size={size}
+    />
+  );
+}

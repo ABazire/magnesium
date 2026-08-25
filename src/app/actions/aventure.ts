@@ -18,12 +18,18 @@ function randomStat(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function getMonsterBaseName(monstre: { baseName: string; name: string }) {
+  return monstre.baseName || monstre.name.replace(/\s+[IVXLCDM]+$/, "");
+}
+
 type Fighter = {
   id: string;
   name: string;
   vieMax: number;
   color?: string;
   spriteId?: number;
+  baseName?: string;
+  tier?: number;
 };
 
 export async function affronterMonstre(
@@ -54,9 +60,10 @@ export async function affronterMonstre(
   ]);
 
   // Vérifie que ce palier est bien débloqué pour ce joueur
+  const baseName = getMonsterBaseName(monstre);
   const unlock = await prisma.monsterUnlock.findUnique({
     where: {
-      userId_baseName: { userId: session.user.id, baseName: monstre.baseName },
+      userId_baseName: { userId: session.user.id, baseName },
     },
   });
   const tierDebloque = unlock?.highestTierUnlocked ?? 1;
@@ -117,13 +124,13 @@ export async function affronterMonstre(
       where: {
         userId_baseName: {
           userId: session.user.id,
-          baseName: monstre.baseName,
+          baseName,
         },
       },
       update: { highestTierUnlocked: tierDebloque + 1 },
       create: {
         userId: session.user.id,
-        baseName: monstre.baseName,
+        baseName,
         highestTierUnlocked: 2,
       },
     });
@@ -166,6 +173,8 @@ export async function affronterMonstre(
         id: combatMonstre.id,
         name: combatMonstre.name,
         vieMax: combatMonstre.vie,
+        baseName: monstre.baseName,
+        tier: monstre.tier,
       },
     ],
   };
@@ -210,8 +219,12 @@ export async function getMonstresDisponibles() {
   const unlockMap: Record<string, number> = {};
   for (const u of unlocks) unlockMap[u.baseName] = u.highestTierUnlocked;
 
-  return monstres.map((m) => ({
-    ...m,
-    debloque: m.tier <= (unlockMap[m.baseName] ?? 1),
-  }));
+  return monstres.map((m) => {
+    const baseName = getMonsterBaseName(m);
+    return {
+      ...m,
+      baseName,
+      debloque: m.tier <= (unlockMap[baseName] ?? 1),
+    };
+  });
 }

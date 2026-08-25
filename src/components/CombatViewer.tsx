@@ -2,13 +2,21 @@
 
 import { useState, useEffect } from "react";
 import type { CombatEvent } from "@/lib/combat";
-import { PersonnageIcon, WolfIcon, BearIcon } from "@/components/pixel";
+import {
+  PersonnageIcon,
+  WolfIcon,
+  BearIcon,
+  WolfMassifIcon,
+  BearMassifIcon,
+} from "@/components/pixel";
 import styles from "./CombatViewer.module.css";
 
 const ICONES: Record<string, typeof PersonnageIcon> = {
   personnage: PersonnageIcon,
   loup: WolfIcon,
   ours: BearIcon,
+  loup_massif: WolfMassifIcon,
+  ours_massif: BearMassifIcon,
 };
 
 type Fighter = {
@@ -33,7 +41,6 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
   const [f1, f2] = fighters;
   const Icone1 = ICONES[f1.iconKey ?? "personnage"] ?? PersonnageIcon;
   const Icone2 = ICONES[f2.iconKey ?? "personnage"] ?? PersonnageIcon;
-
   const vie: Record<string, number> = {
     [f1.id]: f1.vieMax,
     [f2.id]: f2.vieMax,
@@ -117,11 +124,7 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
             className={classeSprite(f2.id, "droite")}
             style={{ transform: "scaleX(-1)" }}
           >
-            <PersonnageIcon
-              size={72}
-              couleur={f2.couleur}
-              variant={f2.spriteVariant}
-            />
+            <Icone2 size={72} couleur={f2.couleur} variant={f2.spriteVariant} />
           </div>
           {evenementActuel?.defenderId === f2.id &&
             evenementActuel.type === "hit" &&
@@ -142,7 +145,7 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
         </p>
       ) : (
         <button onClick={passerAnimation} className={styles.skipButton}>
-          Passer l'animation
+          Passer l&apos;animation
         </button>
       )}
     </div>

@@ -39,6 +39,8 @@ export default function AventureClient({ personnages, monstres }: Props) {
     vieMax: number;
     color?: string;
     spriteId?: number;
+    baseName?: string;
+    tier?: number;
   };
 
   type ResultatCombat = {
@@ -66,6 +68,7 @@ export default function AventureClient({ personnages, monstres }: Props) {
     if (!personnageId) return;
     setEnCours(true);
     const res = await affronterMonstre(personnageId, monsterId);
+    console.log("fighter monstre:", res.fighters[1]);
     setResultat(res);
 
     setFightKey((k) => k + 1);
@@ -101,6 +104,12 @@ export default function AventureClient({ personnages, monstres }: Props) {
     : undefined;
   const palierSuivantDisponible = palierSuivant?.debloque ?? false;
   const palierSuivantId = palierSuivant?.id ?? null;
+
+  function resolveIconKey(fighter: Fighter): string {
+    if (!fighter.baseName) return "personnage";
+    const base = fighter.baseName.toLowerCase();
+    return `${base}_massif`;
+  }
 
   return (
     <main className={styles.page}>
@@ -172,7 +181,7 @@ export default function AventureClient({ personnages, monstres }: Props) {
                 },
                 {
                   ...resultat.fighters[1],
-                  iconKey: resultat.fighters[1].name.toLowerCase(),
+                  iconKey: resolveIconKey(resultat.fighters[1]),
                 },
               ]}
               events={resultat.events}
@@ -185,7 +194,6 @@ export default function AventureClient({ personnages, monstres }: Props) {
             <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>
               +{resultat.gain} monnaie
             </p>
-
             <div className={styles.postCombatActions}>
               <button
                 onClick={() => combattre(dernierMonsterId!)}

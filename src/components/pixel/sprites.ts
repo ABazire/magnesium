@@ -198,6 +198,46 @@ export const PALETTE_BEAR = {
   g: "#f2c94c",
 };
 
+export const SPRITE_WOLF_MASSIF = [
+  "...k..kkkk..k...",
+  "..kk.k####k.kk..",
+  ".k##k######k##k.",
+  ".k##########k#k.",
+  ".k#$$e####e$$#k.",
+  "..k##g####g##k..",
+  "...k########k...",
+  "..k##########k..",
+  ".k############k.",
+  "k##############k",
+  "k####bb##bb####k",
+  "k##############k",
+  "k##############k",
+  ".k####kk####k..",
+  "..k####kk####..",
+  "...kk......kk...",
+];
+export const PALETTE_WOLF_MASSIF = PALETTE_WOLF;
+
+export const SPRITE_BEAR_MASSIF = [
+  "..k........k..",
+  ".k#k......k#k.",
+  ".k##k....k##k.",
+  "..k########k..",
+  ".k##########k.",
+  ".k##g####g##k.",
+  ".k####kk####k.",
+  "..k########k..",
+  "k##############k",
+  "k##############k",
+  "k####bbbb######k",
+  "k##############k",
+  "k##############k",
+  ".k####kk####k..",
+  "..k####kk####..",
+  "...kk......kk...",
+];
+export const PALETTE_BEAR_MASSIF = PALETTE_BEAR;
+
 export const SPRITE_HOME = [
   "............",
   ".....kk.....",

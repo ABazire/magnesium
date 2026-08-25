@@ -1,9 +1,7 @@
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { tirerGatcha } from "../../actions/gatcha";
-import styles from "./page.module.css";
-import { CoinIcon, ChestIcon } from "@/components/pixel";
+import GatchaClient from "./GatchaClient";
 
 export default async function GatchaPage() {
   const session = await auth();
@@ -13,24 +11,5 @@ export default async function GatchaPage() {
     where: { id: session.user.id },
   });
 
-  return (
-    <main className={styles.page}>
-      <h1 className={styles.title}>Tirage</h1>
-
-      <p className={styles.currency}>
-        <CoinIcon size={18} /> Monnaie :{" "}
-        <span className={styles.currencyValue}>{user.currency}</span>
-      </p>
-
-      <form action={tirerGatcha}>
-        <button
-          type="submit"
-          className={styles.pullButton}
-          disabled={user.currency < 100}
-        >
-          Tirer (100 monnaie)
-        </button>
-      </form>
-    </main>
-  );
+  return <GatchaClient currencyInitiale={user.currency} />;
 }

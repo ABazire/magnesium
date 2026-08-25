@@ -25,7 +25,7 @@ export async function personnaliserPersonnage(
   const nomPropre = name.trim().slice(0, 20);
   if (nomPropre.length === 0) throw new Error("Le nom ne peut pas être vide");
 
-  if (spriteId < 0 || spriteId > 2) throw new Error("Sprite invalide");
+  if (spriteId < 0 || spriteId > 7) throw new Error("Sprite invalide");
   if (!COULEURS_AUTORISEES.includes(color)) throw new Error("Couleur invalide");
 
   await prisma.personnage.update({

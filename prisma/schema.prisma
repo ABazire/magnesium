@@ -109,14 +109,30 @@ model PersonnageEquipment {
 }
 
 model Monster {
-  id    String @id @default(cuid())
-  name  String @unique
+  id       String @id @default(cuid())
+  baseName String @default("") // "Loup" ou "Ours"
+  tier     Int @default(1)    // 1 à 5
+  name     String @unique // "Loup I", "Loup II", ...
 
-  vie Int
-   force      Int
+  vie        Int
+  force      Int
   vitesse    Int
   resistance Int
   agilite    Int
+
+  gainVictoire Int @default(0)
+  gainDefaite  Int @default(0)
+
+  @@unique([baseName, tier])
+}
+
+model MonsterUnlock {
+  id       String @id @default(cuid())
+  userId   String
+  baseName String
+  highestTierUnlocked Int @default(1)
+
+  @@unique([userId, baseName])
 }
 
 model Fight {
@@ -151,4 +167,5 @@ model AdventureAttempt {
   playedAt     DateTime @default(now())
   personnageId String
   monsterId    String
+  victory Boolean @default(false)
 }

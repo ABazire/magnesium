@@ -14,8 +14,127 @@ const RARETES = [
 ];
 
 const MONSTRES = [
-  { name: "Loup", vie: 40, force: 12, vitesse: 15, resistance: 6, agilite: 10 },
-  { name: "Ours", vie: 70, force: 18, vitesse: 6, resistance: 14, agilite: 4 },
+  {
+    baseName: "Loup",
+    tier: 1,
+    name: "Loup I",
+    vie: 40,
+    force: 12,
+    vitesse: 15,
+    resistance: 6,
+    agilite: 10,
+    gainVictoire: 30,
+    gainDefaite: 10,
+  },
+  {
+    baseName: "Loup",
+    tier: 2,
+    name: "Loup II",
+    vie: 60,
+    force: 18,
+    vitesse: 18,
+    resistance: 9,
+    agilite: 13,
+    gainVictoire: 45,
+    gainDefaite: 15,
+  },
+  {
+    baseName: "Loup",
+    tier: 3,
+    name: "Loup III",
+    vie: 85,
+    force: 25,
+    vitesse: 22,
+    resistance: 13,
+    agilite: 17,
+    gainVictoire: 65,
+    gainDefaite: 20,
+  },
+  {
+    baseName: "Loup",
+    tier: 4,
+    name: "Loup IV",
+    vie: 115,
+    force: 33,
+    vitesse: 27,
+    resistance: 18,
+    agilite: 22,
+    gainVictoire: 90,
+    gainDefaite: 28,
+  },
+  {
+    baseName: "Loup",
+    tier: 5,
+    name: "Loup V",
+    vie: 150,
+    force: 42,
+    vitesse: 33,
+    resistance: 24,
+    agilite: 28,
+    gainVictoire: 120,
+    gainDefaite: 36,
+  },
+
+  {
+    baseName: "Ours",
+    tier: 1,
+    name: "Ours I",
+    vie: 70,
+    force: 18,
+    vitesse: 6,
+    resistance: 14,
+    agilite: 4,
+    gainVictoire: 30,
+    gainDefaite: 10,
+  },
+  {
+    baseName: "Ours",
+    tier: 2,
+    name: "Ours II",
+    vie: 95,
+    force: 25,
+    vitesse: 8,
+    resistance: 19,
+    agilite: 6,
+    gainVictoire: 45,
+    gainDefaite: 15,
+  },
+  {
+    baseName: "Ours",
+    tier: 3,
+    name: "Ours III",
+    vie: 125,
+    force: 33,
+    vitesse: 10,
+    resistance: 25,
+    agilite: 8,
+    gainVictoire: 65,
+    gainDefaite: 20,
+  },
+  {
+    baseName: "Ours",
+    tier: 4,
+    name: "Ours IV",
+    vie: 160,
+    force: 42,
+    vitesse: 13,
+    resistance: 32,
+    agilite: 11,
+    gainVictoire: 90,
+    gainDefaite: 28,
+  },
+  {
+    baseName: "Ours",
+    tier: 5,
+    name: "Ours V",
+    vie: 200,
+    force: 52,
+    vitesse: 16,
+    resistance: 40,
+    agilite: 14,
+    gainVictoire: 120,
+    gainDefaite: 36,
+  },
 ];
 
 async function main() {
@@ -29,13 +148,15 @@ async function main() {
 
   for (const monstre of MONSTRES) {
     await prisma.monster.upsert({
-      where: { name: monstre.name },
+      where: {
+        baseName_tier: { baseName: monstre.baseName, tier: monstre.tier },
+      },
       update: monstre,
       create: monstre,
     });
   }
 
-  console.log("Raretés créées.");
+  console.log("Raretés et monstres créés.");
 }
 
 main()

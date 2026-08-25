@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import {
   affronterMonstre,
+  getMonstresDisponibles,
   getTentativesRestantes,
 } from "../../actions/aventure";
 import styles from "./page.module.css";
@@ -75,6 +76,46 @@ export default function AventureClient({ personnages, monstres }: Props) {
     setEnCours(false);
   }
 
+  const [monstresDispo, setMonstresDispo] = useState<
+    Awaited<ReturnType<typeof getMonstresDisponibles>>
+  >([]);
+
+  useEffect(() => {
+    getMonstresDisponibles().then(setMonstresDispo);
+  }, [resultat]); // se rafraîchit après chaque combat, au cas où un palier vient d'être débloqué
+
+  const [dernierMonsterId, setDernierMonsterId] = useState<string | null>(null);
+
+  async function combattre(monsterId: string) {
+    if (!personnageId) return;
+    setEnCours(true);
+    setDernierMonsterId(monsterId);
+    const res = await affronterMonstre(personnageId, monsterId);
+    setResultat(res);
+    setFightKey((k) => k + 1);
+    setRestantes((prev) => ({
+      ...prev,
+      [monsterId]: Math.max(0, (prev[monsterId] ?? 0) - 1),
+    }));
+    setEnCours(false);
+  }
+
+  function fermerCombat() {
+    setResultat(null);
+    getMonstresDisponibles().then(setMonstresDispo); // rafraîchit au cas où un palier vient d'être débloqué
+  }
+
+  const monstreActuel = monstresDispo.find((m) => m.id === dernierMonsterId);
+  const palierSuivant = monstreActuel
+    ? monstresDispo.find(
+        (m) =>
+          m.baseName === monstreActuel.baseName &&
+          m.tier === monstreActuel.tier + 1,
+      )
+    : undefined;
+  const palierSuivantDisponible = palierSuivant?.debloque ?? false;
+  const palierSuivantId = palierSuivant?.id ?? null;
+
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Aventure</h1>
@@ -93,10 +134,20 @@ export default function AventureClient({ personnages, monstres }: Props) {
       </select>
 
       <div className={styles.monsterList}>
-        {monstres.map((m) => {
+        {monstresDispo.map((m) => {
           const restant = restantes[m.id];
           const epuise = Boolean(personnageId && restant === 0);
-          const Icone = ICONE_MONSTRE[m.name];
+          const Icone = ICONE_MONSTRE[m.baseName];
+
+          if (!m.debloque) {
+            return (
+              <div key={m.id} className={styles.monsterRowLocked}>
+                <span className={styles.lockIcon}>🔒</span>
+                <span>{m.name} — verrouillé</span>
+              </div>
+            );
+          }
+
           return (
             <div key={m.id} className={styles.monsterRow}>
               <button
@@ -123,30 +174,54 @@ export default function AventureClient({ personnages, monstres }: Props) {
 
       {resultat && (
         <>
-          <CombatViewer
-            key={fightKey}
-            fighters={[
-              {
-                ...resultat.fighters[0],
-                iconKey: "personnage",
-                couleur: resultat.fighters[0].color,
-                spriteVariant: resultat.fighters[0].spriteId,
-              },
-              {
-                ...resultat.fighters[1],
-                iconKey: resultat.fighters[1].name.toLowerCase(),
-              },
-            ]}
-            events={resultat.events}
-            winnerId={
-              resultat.victoire
-                ? personnageId
-                : resultat.fighters.find((f) => f.id !== personnageId)!.id
-            }
-          />
-          <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>
-            +{resultat.gain} monnaie
-          </p>
+          <div className={styles.combatOverlay}>
+            <CombatViewer
+              key={fightKey}
+              fighters={[
+                {
+                  ...resultat.fighters[0],
+                  iconKey: "personnage",
+                  couleur: resultat.fighters[0].color,
+                  spriteVariant: resultat.fighters[0].spriteId,
+                },
+                {
+                  ...resultat.fighters[1],
+                  iconKey: resultat.fighters[1].name.toLowerCase(),
+                },
+              ]}
+              events={resultat.events}
+              winnerId={
+                resultat.victoire
+                  ? personnageId
+                  : resultat.fighters.find((f) => f.id !== personnageId)!.id
+              }
+            />
+            <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>
+              +{resultat.gain} monnaie
+            </p>
+
+            <div className={styles.postCombatActions}>
+              <button
+                onClick={() => combattre(dernierMonsterId!)}
+                className={styles.actionButton}
+              >
+                Recommencer
+              </button>
+
+              {resultat.victoire && palierSuivantDisponible && (
+                <button
+                  onClick={() => combattre(palierSuivantId!)}
+                  className={styles.actionButtonPrimary}
+                >
+                  Niveau suivant
+                </button>
+              )}
+
+              <button onClick={fermerCombat} className={styles.actionButton}>
+                Retour aux niveaux
+              </button>
+            </div>
+          </div>
         </>
       )}
     </main>

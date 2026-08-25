@@ -11,8 +11,6 @@ import { gagnerXp } from "@/lib/leveling";
 import { EquipmentSlot } from "@prisma/client";
 import { debutDeJournee } from "@/lib/date";
 
-const GAIN_VICTOIRE = 30;
-const GAIN_DEFAITE = 10;
 const CHANCE_COFFRE = 0.2;
 const LIMITE_PAR_MOB = 10;
 
@@ -41,13 +39,8 @@ export async function affronterMonstre(
   if (!session?.user?.id) throw new Error("Non connecté");
 
   const tentativesAujourdhui = await prisma.adventureAttempt.count({
-    where: {
-      personnageId,
-      monsterId,
-      playedAt: { gte: debutDeJournee() },
-    },
+    where: { personnageId, monsterId, playedAt: { gte: debutDeJournee() } },
   });
-
   if (tentativesAujourdhui >= LIMITE_PAR_MOB) {
     throw new Error("Limite quotidienne atteinte pour ce monstre");
   }
@@ -59,6 +52,17 @@ export async function affronterMonstre(
     }),
     prisma.monster.findUniqueOrThrow({ where: { id: monsterId } }),
   ]);
+
+  // Vérifie que ce palier est bien débloqué pour ce joueur
+  const unlock = await prisma.monsterUnlock.findUnique({
+    where: {
+      userId_baseName: { userId: session.user.id, baseName: monstre.baseName },
+    },
+  });
+  const tierDebloque = unlock?.highestTierUnlocked ?? 1;
+  if (monstre.tier > tierDebloque) {
+    throw new Error("Ce palier n'est pas encore débloqué");
+  }
 
   const combatPerso = {
     id: personnage.id,
@@ -78,18 +82,14 @@ export async function affronterMonstre(
   const seed = Math.floor(Math.random() * 2147483647);
   const { events, winnerId } = simulerCombat(combatPerso, combatMonstre, seed);
   const victoire = winnerId === personnage.id;
-  const gain = victoire ? GAIN_VICTOIRE : GAIN_DEFAITE;
+  const gain = victoire ? monstre.gainVictoire : monstre.gainDefaite;
 
-  let xpInfo = {
-    newLevel: personnage.level,
-    newXp: personnage.xp,
-    leveledUp: false,
-  };
+  let xpInfo = { newLevel: personnage.level, newXp: personnage.xp };
   if (victoire) {
     xpInfo = gagnerXp(
       personnage.level,
       personnage.xp,
-      personnage.rarity!.stars,
+      personnage.rarity?.stars ?? 1,
     );
   }
 
@@ -99,7 +99,7 @@ export async function affronterMonstre(
       data: { currency: { increment: gain } },
     }),
     prisma.adventureAttempt.create({
-      data: { personnageId, monsterId },
+      data: { personnageId, monsterId, victory: victoire },
     }),
     ...(victoire
       ? [
@@ -110,6 +110,24 @@ export async function affronterMonstre(
         ]
       : []),
   ]);
+
+  // Débloque le palier suivant si on vient de battre le palier max actuellement débloqué
+  if (victoire && monstre.tier === tierDebloque && tierDebloque < 5) {
+    await prisma.monsterUnlock.upsert({
+      where: {
+        userId_baseName: {
+          userId: session.user.id,
+          baseName: monstre.baseName,
+        },
+      },
+      update: { highestTierUnlocked: tierDebloque + 1 },
+      create: {
+        userId: session.user.id,
+        baseName: monstre.baseName,
+        highestTierUnlocked: 2,
+      },
+    });
+  }
 
   if (victoire && Math.random() < CHANCE_COFFRE) {
     const rarete = await tirerRarete();
@@ -176,4 +194,24 @@ export async function getTentativesRestantes(personnageId: string) {
   );
 
   return resultats;
+}
+
+export async function getMonstresDisponibles() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non connecté");
+
+  const monstres = await prisma.monster.findMany({
+    orderBy: [{ baseName: "asc" }, { tier: "asc" }],
+  });
+
+  const unlocks = await prisma.monsterUnlock.findMany({
+    where: { userId: session.user.id },
+  });
+  const unlockMap: Record<string, number> = {};
+  for (const u of unlocks) unlockMap[u.baseName] = u.highestTierUnlocked;
+
+  return monstres.map((m) => ({
+    ...m,
+    debloque: m.tier <= (unlockMap[m.baseName] ?? 1),
+  }));
 }

@@ -7,7 +7,7 @@ import { PersonnageIcon, StarIcon } from "@/components/pixel";
 import styles from "./page.module.css";
 
 const COUT_TIRAGE = 100;
-const NB_SPRITES = 3;
+const NB_SPRITES = 8;
 
 const RARITY_COLORS: Record<number, string> = {
   1: "#9db3aa",

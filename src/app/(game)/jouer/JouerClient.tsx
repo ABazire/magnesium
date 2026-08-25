@@ -19,6 +19,7 @@ import {
 import type { Prisma } from "@prisma/client";
 import styles from "./page.module.css";
 import { definirFormation } from "../../actions/equipe";
+import { xpRequisePourNiveauSuivant, niveauMax } from "@/lib/leveling";
 
 type PersonnageAvecRelations = Prisma.PersonnageGetPayload<{
   include: { rarity: true; equipment: { include: { equipment: true } } };
@@ -51,6 +52,10 @@ export default function JouerClient({
 
   const selectionne = equipe.find((p) => p.id === selectionneId);
   const stats = selectionne ? statsEffectives(selectionne) : null;
+
+  const max = niveauMax(selectionne.rarity?.stars ?? 1);
+  const auMax = selectionne.level >= max;
+  const xpRequise = xpRequisePourNiveauSuivant(selectionne.level);
 
   async function ouvrirSlot(slot: string) {
     if (slotOuvert === slot) {
@@ -117,7 +122,21 @@ export default function JouerClient({
               <span className={styles.stars}>
                 {"★".repeat(p.rarity?.stars ?? 0)}
               </span>
-
+              <div className={styles.levelBlock}>
+                <span className={styles.cardLevel}>
+                  Niveau {p.level} / {niveauMax(p.rarity?.stars ?? 1)}
+                </span>
+                {!auMax && (
+                  <div className={styles.xpBarTrack}>
+                    <div
+                      className={styles.xpBarFill}
+                      style={{
+                        width: `${(selectionne.xp / xpRequise) * 100}%`,
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
               <button
                 onClick={(e) => {
                   e.stopPropagation();

@@ -23,3 +23,34 @@
   padding: 4px 10px;
   cursor: pointer;
 }
+
+.levelBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.levelLabel {
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.xpBarTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: #1e3a2f;
+  overflow: hidden;
+}
+
+.xpBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #5cc8ff, #10b981);
+  transition: width 0.4s ease-out;
+}
+
+.cardLevel {
+  color: #4d7266;
+  font-size: 10px;
+}

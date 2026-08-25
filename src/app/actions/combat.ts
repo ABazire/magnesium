@@ -7,6 +7,7 @@ import { simulerCombat } from "@/lib/combat";
 import { statsEffectives } from "@/lib/personnage";
 import { debutDeJournee } from "@/lib/date";
 import { calculerNouveauxRangs } from "@/lib/elo";
+import { gagnerXp } from "@/lib/leveling";
 
 const LIMITE_PVP_PAR_JOUR = 6;
 
@@ -43,11 +44,11 @@ export async function lancerCombat(formData: FormData) {
   const [perso1, perso2] = await Promise.all([
     prisma.personnage.findUniqueOrThrow({
       where: { id: a, ownerId: session.user.id },
-      include: { equipment: { include: { equipment: true } } },
+      include: { rarity: true, equipment: { include: { equipment: true } } },
     }),
     prisma.personnage.findUniqueOrThrow({
       where: { id: b },
-      include: { equipment: { include: { equipment: true } } },
+      include: { rarity: true, equipment: { include: { equipment: true } } },
     }),
   ]);
 
@@ -70,6 +71,20 @@ export async function lancerCombat(formData: FormData) {
     perso2.rankPoints,
     winnerId === perso1.id,
   );
+
+  if (winnerId === perso1.id || winnerId === perso2.id) {
+    const gagnant = winnerId === perso1.id ? perso1 : perso2;
+    const { newLevel, newXp } = gagnerXp(
+      gagnant.level,
+      gagnant.xp,
+      gagnant.rarity.stars,
+    );
+
+    await prisma.personnage.update({
+      where: { id: gagnant.id },
+      data: { level: newLevel, xp: newXp },
+    });
+  }
 
   const fight = await prisma.fight.create({
     data: {

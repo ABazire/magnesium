@@ -40,6 +40,7 @@ export default async function CollectionPage() {
               <span className={styles.stars}>
                 {"★".repeat(p.rarity?.stars ?? 0)}
               </span>
+              <span className={styles.cardLevel}>Niv. {p.level}</span>
               <div className={styles.statRow}>
                 <span className={styles.statChip}>
                   <HeartIcon size={14} /> {stats.vie}

@@ -7,6 +7,7 @@ import { CombatEvent, simulerCombat } from "@/lib/combat";
 import { statsEffectives } from "@/lib/personnage";
 import { tirerRarete } from "@/lib/rarity";
 import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
+import { gagnerXp } from "@/lib/leveling";
 import { EquipmentSlot } from "@prisma/client";
 import { debutDeJournee } from "@/lib/date";
 
@@ -54,7 +55,7 @@ export async function affronterMonstre(
   const [personnage, monstre] = await Promise.all([
     prisma.personnage.findUniqueOrThrow({
       where: { id: personnageId, ownerId: session.user.id },
-      include: { equipment: { include: { equipment: true } } },
+      include: { rarity: true, equipment: { include: { equipment: true } } },
     }),
     prisma.monster.findUniqueOrThrow({ where: { id: monsterId } }),
   ]);
@@ -79,6 +80,15 @@ export async function affronterMonstre(
   const victoire = winnerId === personnage.id;
   const gain = victoire ? GAIN_VICTOIRE : GAIN_DEFAITE;
 
+  let xpInfo = {
+    newLevel: personnage.level,
+    newXp: personnage.xp,
+    leveledUp: false,
+  };
+  if (victoire) {
+    xpInfo = gagnerXp(personnage.level, personnage.xp, personnage.rarity.stars);
+  }
+
   await prisma.$transaction([
     prisma.user.update({
       where: { id: session.user.id },
@@ -87,6 +97,14 @@ export async function affronterMonstre(
     prisma.adventureAttempt.create({
       data: { personnageId, monsterId },
     }),
+    ...(victoire
+      ? [
+          prisma.personnage.update({
+            where: { id: personnageId },
+            data: { level: xpInfo.newLevel, xp: xpInfo.newXp },
+          }),
+        ]
+      : []),
   ]);
 
   if (victoire && Math.random() < CHANCE_COFFRE) {

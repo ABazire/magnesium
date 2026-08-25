@@ -8,6 +8,7 @@ import {
   type PersonnageCombat3v3,
 } from "@/lib/combatEquipe";
 import { statsEffectives } from "@/lib/personnage";
+import { gagnerXp } from "@/lib/leveling";
 import { calculerNouveauxRangs } from "@/lib/elo";
 
 async function chargerEquipe(userId: string): Promise<PersonnageCombat3v3[]> {
@@ -53,6 +54,27 @@ export async function lancerCombat3v3(defenderUserId: string) {
     winnerSide === "A",
   );
 
+  const equipeGagnante = winnerSide === "A" ? equipeA : equipeB;
+
+  const misesAJourNiveau = [];
+  for (const combattant of equipeGagnante) {
+    const personnage = await prisma.personnage.findUniqueOrThrow({
+      where: { id: combattant.id },
+      include: { rarity: true },
+    });
+    const { newLevel, newXp } = gagnerXp(
+      personnage.level,
+      personnage.xp,
+      personnage.rarity!.stars,
+    );
+    misesAJourNiveau.push(
+      prisma.personnage.update({
+        where: { id: combattant.id },
+        data: { level: newLevel, xp: newXp },
+      }),
+    );
+  }
+
   const fight = await prisma.teamFight.create({
     data: {
       seed,
@@ -74,6 +96,7 @@ export async function lancerCombat3v3(defenderUserId: string) {
       where: { id: defenderUserId },
       data: { rankPoints3v3: nouveauRankDefenseur },
     }),
+    ...misesAJourNiveau,
   ]);
 
   redirect(`/arene3v3/${fight.id}`);

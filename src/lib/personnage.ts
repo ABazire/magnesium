@@ -5,17 +5,21 @@ import {
   StatType,
 } from "@prisma/client";
 
+import { bonusStatsParNiveau } from "./leveling";
+
 type PersonnageAvecEquipement = Personnage & {
   equipment: (PersonnageEquipment & { equipment: Equipment })[];
 };
 
 export function statsEffectives(personnage: PersonnageAvecEquipement) {
+  const bonusNiveau = bonusStatsParNiveau(personnage.level);
+
   const stats = {
-    vie: personnage.vie,
-    force: personnage.force,
-    vitesse: personnage.vitesse,
-    resistance: personnage.resistance,
-    agilite: personnage.agilite,
+    vie: personnage.vie + bonusNiveau,
+    force: personnage.force + bonusNiveau,
+    vitesse: personnage.vitesse + bonusNiveau,
+    resistance: personnage.resistance + bonusNiveau,
+    agilite: personnage.agilite + bonusNiveau,
   };
 
   for (const pe of personnage.equipment) {

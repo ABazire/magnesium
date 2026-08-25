@@ -10,6 +10,7 @@ import { BearIcon, WolfIcon } from "@/components/pixel";
 import CombatViewer from "@/components/CombatViewer";
 import type { CombatEvent } from "@/lib/combat";
 import { PersonnageIcon } from "@/components/pixel";
+import { gagnerXp } from "@/lib/leveling";
 
 type Props = {
   personnages: { id: string; name: string }[];
@@ -65,7 +66,8 @@ export default function AventureClient({ personnages, monstres }: Props) {
     setEnCours(true);
     const res = await affronterMonstre(personnageId, monsterId);
     setResultat(res);
-    setFightKey((k) => k + 1); // ← force CombatViewer à se réinitialiser
+
+    setFightKey((k) => k + 1);
     setRestantes((prev) => ({
       ...prev,
       [monsterId]: Math.max(0, (prev[monsterId] ?? 0) - 1),

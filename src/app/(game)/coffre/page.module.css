@@ -47,3 +47,82 @@
   color: #4d7266;
   cursor: not-allowed;
 }
+
+.chestWrapper {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 140px;
+}
+
+.chestActive {
+  animation: shakeChest 0.5s ease-in-out infinite;
+}
+
+@keyframes shakeChest {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-4deg) scale(1.03);
+  }
+  75% {
+    transform: rotate(4deg) scale(1.03);
+  }
+}
+
+.resultCard {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  border-radius: 20px;
+  border: 2px solid;
+  background: #16241f;
+  animation: revealIn 0.4s ease-out;
+}
+
+@keyframes revealIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.resultLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.resultName {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.resultStars {
+  color: #f2c94c;
+  font-size: 14px;
+}
+
+.resultBonus {
+  color: #10b981;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 12px;
+}

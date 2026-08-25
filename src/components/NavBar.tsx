@@ -2,19 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import styles from "./NavBar.module.css";
+
 import {
   HomeIcon,
   WolfIcon,
   SwordIcon,
   StarIcon,
   ChestIcon,
+  TrophyIcon,
 } from "@/components/pixel";
-import styles from "./NavBar.module.css";
 
 const LIENS = [
   { href: "/jouer", label: "Accueil", Icone: HomeIcon },
   { href: "/aventure", label: "Aventure", Icone: WolfIcon },
   { href: "/arene", label: "Arène", Icone: SwordIcon },
+  { href: "/classement", label: "Classement", Icone: TrophyIcon },
   { href: "/gatcha", label: "Tirage", Icone: StarIcon },
   { href: "/coffre", label: "Coffres", Icone: ChestIcon },
 ];

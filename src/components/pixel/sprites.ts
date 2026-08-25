@@ -233,3 +233,19 @@ export const SPRITE_STAR = [
   "............",
 ];
 export const PALETTE_STAR = { ...PALETTE_COMMUNE, "#": "#f2c94c" };
+
+export const SPRITE_TROPHY = [
+  "............",
+  "..k######k..",
+  ".k########k.",
+  "k####kk####k",
+  "k####kk####k",
+  ".k########k.",
+  "..k######k..",
+  "...k####k...",
+  "....k##k....",
+  "...k####k...",
+  "..k######k..",
+  "kkkkkkkkkkkk",
+];
+export const PALETTE_TROPHY = { ...PALETTE_COMMUNE, "#": "#f2c94c" };

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { simulerCombat } from "@/lib/combat";
 import { statsEffectives } from "@/lib/personnage";
 import { debutDeJournee } from "@/lib/date";
+import { calculerNouveauxRangs } from "@/lib/elo";
 
 const LIMITE_PVP_PAR_JOUR = 6;
 
@@ -64,6 +65,12 @@ export async function lancerCombat(formData: FormData) {
   const seed = Math.floor(Math.random() * 2147483647);
   const { events, winnerId } = simulerCombat(combat1, combat2, seed);
 
+  const { nouveauRankAttaquant, nouveauRankDefenseur } = calculerNouveauxRangs(
+    perso1.rankPoints,
+    perso2.rankPoints,
+    winnerId === perso1.id,
+  );
+
   const fight = await prisma.fight.create({
     data: {
       seed,
@@ -75,6 +82,17 @@ export async function lancerCombat(formData: FormData) {
       defenderVieMax: combat2.vie,
     },
   });
+
+  await prisma.$transaction([
+    prisma.personnage.update({
+      where: { id: perso1.id },
+      data: { rankPoints: nouveauRankAttaquant },
+    }),
+    prisma.personnage.update({
+      where: { id: perso2.id },
+      data: { rankPoints: nouveauRankDefenseur },
+    }),
+  ]);
 
   redirect(`/combat/${fight.id}`);
 }

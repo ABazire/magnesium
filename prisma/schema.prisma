@@ -41,6 +41,8 @@ model Personnage {
   rarity   Rarity? @relation(fields: [rarityId], references: [id])
   rarityId String?
 
+  rankPoints Int @default(500)
+
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String
 

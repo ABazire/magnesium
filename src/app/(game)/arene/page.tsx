@@ -40,19 +40,20 @@ export default async function ArenePage({
     if (monPersonnage) {
       maPuissance = puissance(statsEffectives(monPersonnage));
 
-      const [autresPersonnages, combatsDuJour] = await Promise.all([
-        prisma.personnage.findMany({
-          where: { ownerId: { not: session.user.id } },
-          include: { equipment: { include: { equipment: true } } },
-        }),
-        prisma.fight.findMany({
-          where: {
-            attackerPersonnageId: mine,
-            playedAt: { gte: debutDeJournee() },
-          },
-          select: { defenderPersonnageId: true },
-        }),
-      ]);
+      const combatsDuJour = await prisma.fight.findMany({
+        where: {
+          attackerPersonnageId: mine,
+          playedAt: { gte: debutDeJournee() },
+        },
+      });
+
+      const autresPersonnages = await prisma.personnage.findMany({
+        where: { ownerId: { not: session.user.id } },
+        include: {
+          equipment: { include: { equipment: true } },
+          owner: { select: { username: true } },
+        },
+      });
 
       const idsDejaAffrontes = new Set(
         combatsDuJour.map((f) => f.defenderPersonnageId),
@@ -64,6 +65,8 @@ export default async function ArenePage({
           name: p.name,
           puissance: puissance(statsEffectives(p)),
           dejaAffronte: idsDejaAffrontes.has(p.id),
+          rankPoints: p.rankPoints,
+          ownerUsername: p.owner.username,
         }))
         .sort(
           (a, b) =>
@@ -123,8 +126,9 @@ export default async function ArenePage({
           <li key={adv.id} className={styles.item}>
             <span>
               <span className={styles.itemName}>{adv.name}</span>
+              <span className={styles.itemOwner}>par {adv.ownerUsername}</span>
               <span className={styles.itemPuissance}>
-                puissance {adv.puissance}
+                puissance {adv.puissance} · {adv.rankPoints} pts
               </span>
             </span>
 

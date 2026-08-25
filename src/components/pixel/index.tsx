@@ -75,3 +75,13 @@ export function StarIcon({ size = 20 }: { size?: number }) {
     <PixelSprite grid={S.SPRITE_STAR} palette={S.PALETTE_STAR} size={size} />
   );
 }
+
+export function TrophyIcon({ size = 20 }: { size?: number }) {
+  return (
+    <PixelSprite
+      grid={S.SPRITE_TROPHY}
+      palette={S.PALETTE_TROPHY}
+      size={size}
+    />
+  );
+}

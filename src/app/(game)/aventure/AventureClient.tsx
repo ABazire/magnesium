@@ -29,6 +29,8 @@ export default function AventureClient({ personnages, monstres }: Props) {
   const [enCours, setEnCours] = useState(false);
   const [restantes, setRestantes] = useState<Record<string, number>>({});
 
+  const [fightKey, setFightKey] = useState(0);
+
   type Fighter = {
     id: string;
     name: string;
@@ -63,6 +65,7 @@ export default function AventureClient({ personnages, monstres }: Props) {
     setEnCours(true);
     const res = await affronterMonstre(personnageId, monsterId);
     setResultat(res);
+    setFightKey((k) => k + 1); // ← force CombatViewer à se réinitialiser
     setRestantes((prev) => ({
       ...prev,
       [monsterId]: Math.max(0, (prev[monsterId] ?? 0) - 1),
@@ -119,6 +122,7 @@ export default function AventureClient({ personnages, monstres }: Props) {
       {resultat && (
         <>
           <CombatViewer
+            key={fightKey}
             fighters={[
               {
                 ...resultat.fighters[0],

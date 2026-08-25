@@ -25,6 +25,8 @@ export default async function ArenePage({
     name: string;
     puissance: number;
     dejaAffronte: boolean;
+    rankPoints: number;
+    ownerUsername: string;
   }[] = [];
   let maPuissance: number | null = null;
   let combatsRestants: number | null = null;

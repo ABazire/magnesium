@@ -10,6 +10,7 @@ import {
 import { statsEffectives } from "@/lib/personnage";
 import { gagnerXp } from "@/lib/leveling";
 import { calculerNouveauxRangs } from "@/lib/elo";
+import { revalidatePath } from "next/cache";
 
 async function chargerEquipe(userId: string): Promise<PersonnageCombat3v3[]> {
   const personnages = await prisma.personnage.findMany({
@@ -99,5 +100,6 @@ export async function lancerCombat3v3(defenderUserId: string) {
     ...misesAJourNiveau,
   ]);
 
+  revalidatePath("/arene3v3");
   redirect(`/arene3v3/${fight.id}`);
 }

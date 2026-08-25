@@ -62,6 +62,7 @@ export default async function ArenePage({
       );
 
       adversaires = autresPersonnages
+        .filter((p) => !idsDejaAffrontes.has(p.id))
         .map((p) => ({
           id: p.id,
           name: p.name,
@@ -134,21 +135,17 @@ export default async function ArenePage({
               </span>
             </span>
 
-            {adv.dejaAffronte ? (
-              <span className={styles.limitReached}>Déjà affronté</span>
-            ) : (
-              <form action={lancerCombat}>
-                <input type="hidden" name="a" value={mine} />
-                <input type="hidden" name="b" value={adv.id} />
-                <button
-                  type="submit"
-                  className={styles.fightLink}
-                  disabled={combatsRestants === 0}
-                >
-                  Combattre
-                </button>
-              </form>
-            )}
+            <form action={lancerCombat}>
+              <input type="hidden" name="a" value={mine} />
+              <input type="hidden" name="b" value={adv.id} />
+              <button
+                type="submit"
+                className={styles.fightLink}
+                disabled={combatsRestants === 0}
+              >
+                Combattre
+              </button>
+            </form>
           </li>
         ))}
       </ul>

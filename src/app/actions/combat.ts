@@ -8,6 +8,7 @@ import { statsEffectives } from "@/lib/personnage";
 import { debutDeJournee } from "@/lib/date";
 import { calculerNouveauxRangs } from "@/lib/elo";
 import { gagnerXp } from "@/lib/leveling";
+import { revalidatePath } from "next/cache";
 
 const LIMITE_PVP_PAR_JOUR = 6;
 
@@ -109,6 +110,7 @@ export async function lancerCombat(formData: FormData) {
     }),
   ]);
 
+  revalidatePath("/arene");
   redirect(`/combat/${fight.id}`);
 }
 

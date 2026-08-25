@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import CombatViewer from "@/components/CombatViewer";
 import type { CombatEvent } from "@/lib/combat";
 import styles from "../page.module.css";
+import { PersonnageIcon } from "@/components/pixel";
 
 export default async function CombatResultPage({
   params,
@@ -33,11 +34,13 @@ export default async function CombatResultPage({
             id: fight.attackerPersonnageId,
             name: attaquant?.name ?? "?",
             vieMax: fight.attackerVieMax,
+            iconKey: "personnage",
           },
           {
             id: fight.defenderPersonnageId,
             name: defenseur?.name ?? "?",
             vieMax: fight.defenderVieMax,
+            iconKey: "personnage",
           },
         ]}
         events={events}

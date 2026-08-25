@@ -9,6 +9,7 @@ import styles from "./page.module.css";
 import { BearIcon, WolfIcon } from "@/components/pixel";
 import CombatViewer from "@/components/CombatViewer";
 import type { CombatEvent } from "@/lib/combat";
+import { PersonnageIcon } from "@/components/pixel";
 
 type Props = {
   personnages: { id: string; name: string }[];
@@ -112,7 +113,13 @@ export default function AventureClient({ personnages, monstres }: Props) {
       {resultat && (
         <>
           <CombatViewer
-            fighters={resultat.fighters}
+            fighters={[
+              { ...resultat.fighters[0], iconKey: "personnage" },
+              {
+                ...resultat.fighters[1],
+                iconKey: resultat.fighters[1].name.toLowerCase(),
+              },
+            ]}
             events={resultat.events}
             winnerId={
               resultat.victoire

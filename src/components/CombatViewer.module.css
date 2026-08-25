@@ -1,54 +1,25 @@
 .viewer {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
-.fightersRow {
+.hpRow {
   display: flex;
   justify-content: space-between;
   gap: 16px;
 }
 
-.fighterCard {
-  position: relative;
+.hpBlock {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 12px;
-  transition:
-    transform 0.15s,
-    border-color 0.15s;
-}
-
-.attacking {
-  border-color: #10b981;
-  transform: scale(1.03);
-}
-
-.hit {
-  animation: shake 0.3s;
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-4px);
-  }
-  75% {
-    transform: translateX(4px);
-  }
+  gap: 4px;
 }
 
 .fighterName {
   color: #ffffff;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -70,24 +41,144 @@
   font-size: 11px;
 }
 
+/* --- Le ring --- */
+.stage {
+  position: relative;
+  height: 180px;
+  border-radius: 16px;
+  border: 1.5px solid #1e3a2f;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse 120% 80% at 50% 20%,
+    #16241f 0%,
+    #0f1a16 70%
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 40px 24px;
+}
+
+.stageFloor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(180deg, transparent, rgba(16, 185, 129, 0.08));
+  border-top: 1px solid #1e3a2f;
+}
+
+.fighterWrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.sprite {
+  transition: transform 0.2s ease-out;
+}
+
+/* Attaque : bond vers le centre puis retour */
+@keyframes lunge-right {
+  0% {
+    transform: translateX(0);
+  }
+  40% {
+    transform: translateX(50px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes lunge-left {
+  0% {
+    transform: translateX(0) scaleX(-1);
+  }
+  40% {
+    transform: translateX(-50px) scaleX(-1);
+  }
+  100% {
+    transform: translateX(0) scaleX(-1);
+  }
+}
+.lungeRight {
+  animation: lunge-right 0.5s ease-out;
+}
+.lungeLeft {
+  animation: lunge-left 0.5s ease-out;
+}
+
+/* Coup reçu : tremblement + flash rouge */
+@keyframes hit-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+    filter: none;
+  }
+  20% {
+    transform: translateX(-6px);
+    filter: brightness(1.6) saturate(3) hue-rotate(-30deg);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+.hitFlash {
+  animation: hit-shake 0.4s ease-out;
+}
+
+/* Esquive : petit bond de côté */
+@keyframes dodge-left {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-14px) translateY(-6px);
+  }
+}
+@keyframes dodge-right {
+  0%,
+  100% {
+    transform: translateX(0) scaleX(-1);
+  }
+  50% {
+    transform: translateX(14px) translateY(-6px) scaleX(-1);
+  }
+}
+.dodgeLeft {
+  animation: dodge-left 0.35s ease-out;
+}
+.dodgeRight {
+  animation: dodge-right 0.35s ease-out;
+}
+
 .damagePopup {
   position: absolute;
-  top: -4px;
-  right: 8px;
+  top: -10px;
+  right: -8px;
   color: #ef4444;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 16px;
   animation: floatUp 0.6s ease-out forwards;
+  pointer-events: none;
 }
 
 .dodgePopup {
   position: absolute;
-  top: -4px;
-  right: 8px;
+  top: -10px;
+  right: -8px;
   color: #10b981;
   font-weight: 700;
   font-size: 12px;
   animation: floatUp 0.6s ease-out forwards;
+  pointer-events: none;
 }
 
 @keyframes floatUp {
@@ -97,7 +188,7 @@
   }
   to {
     opacity: 0;
-    transform: translateY(-16px);
+    transform: translateY(-20px);
   }
 }
 

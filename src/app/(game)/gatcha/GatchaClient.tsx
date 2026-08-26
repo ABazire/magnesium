@@ -153,14 +153,11 @@ export default function GatchaClient({
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Tirage</h1>
-
+      <h1 className={styles.title}>Recrutement</h1>
       <p className={styles.currency}>
         Monnaie : <span className={styles.currencyValue}>{currency}</span>
       </p>
-
       {erreur && <p className={styles.error}>{erreur}</p>}
-
       {phase !== "reveal" && (
         <>
           <div
@@ -174,12 +171,11 @@ export default function GatchaClient({
             disabled={currency < COUT_TIRAGE || phase === "tirage"}
           >
             {phase === "tirage"
-              ? "Tirage en cours..."
-              : `Tirer (${COUT_TIRAGE} monnaie)`}
+              ? "Recrutement en cours..."
+              : `Recruter (${COUT_TIRAGE} monnaie)`}
           </button>
         </>
       )}
-
       {phase === "reveal" && resultat && (
         <div
           className={styles.resultCard}
@@ -189,7 +185,7 @@ export default function GatchaClient({
           }}
         >
           <span className={styles.resultLabel} style={{ color: couleurRarete }}>
-            Nouveau personnage obtenu
+            Nouveau personnage recruté{" "}
           </span>
 
           <div className={styles.spriteNav}>
@@ -246,12 +242,11 @@ export default function GatchaClient({
         </div>
       )}
       <div className={styles.sectionDivider} />
-      <h2 className={styles.sectionTitle}>Tirage premium</h2>
+      <h2 className={styles.sectionTitle}>Recrutement premium</h2>{" "}
       <p className={styles.currency}>
         <DiamondIcon size={18} /> Diamants :{" "}
         <span className={styles.currencyValue}>{diamonds}</span>
       </p>
-
       {phasePremium !== "reveal" && (
         <>
           <div
@@ -265,12 +260,11 @@ export default function GatchaClient({
             disabled={diamonds < 1 || phasePremium === "tirage"}
           >
             {phasePremium === "tirage"
-              ? "Tirage en cours..."
-              : "Tirer (1 diamant, 3★ garanti)"}
+              ? "Recrutement en cours..."
+              : "Recruter (1 diamant, 3★ garanti)"}
           </button>
         </>
       )}
-
       {phasePremium === "reveal" && resultatPremium && (
         <div
           className={styles.resultCard}
@@ -283,7 +277,7 @@ export default function GatchaClient({
             className={styles.resultLabel}
             style={{ color: RARITY_COLORS[resultatPremium.stars] }}
           >
-            Nouveau personnage obtenu (premium)
+            Nouveau personnage recruté{" "}
           </span>
 
           <div className={styles.spriteNav}>

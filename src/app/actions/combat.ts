@@ -9,6 +9,7 @@ import { debutDeJournee } from "@/lib/date";
 import { calculerNouveauxRangs } from "@/lib/elo";
 import { gagnerXp } from "@/lib/leveling";
 import { revalidatePath } from "next/cache";
+import { tirerGainDiamants } from "@/lib/diamond";
 
 const LIMITE_PVP_PAR_JOUR = 6;
 
@@ -66,6 +67,7 @@ export async function lancerCombat(formData: FormData) {
 
   const seed = Math.floor(Math.random() * 2147483647);
   const { events, winnerId } = simulerCombat(combat1, combat2, seed);
+  const gainDiamants = tirerGainDiamants();
 
   const { nouveauRankAttaquant, nouveauRankDefenseur } = calculerNouveauxRangs(
     perso1.rankPoints,
@@ -100,6 +102,14 @@ export async function lancerCombat(formData: FormData) {
   });
 
   await prisma.$transaction([
+    ...(gainDiamants > 0
+      ? [
+          prisma.user.update({
+            where: { id: session.user.id },
+            data: { diamonds: { increment: gainDiamants } },
+          }),
+        ]
+      : []),
     prisma.personnage.update({
       where: { id: perso1.id },
       data: { rankPoints: nouveauRankAttaquant },

@@ -422,3 +422,29 @@ export function palettePersonnage(couleur: string) {
     $: assombrir(couleur, 0.5),
   };
 }
+
+export const SPRITE_DIAMOND = [
+  "......kkkk......",
+  ".....kbb##bbk...",
+  "....kbb####bbk..",
+  "...kbb######bbk.",
+  "..kbb##$$####bbk",
+  ".kbb##$$$$####bk",
+  "kbb##$$$$$$####k",
+  "k##$$$$$$$$####k",
+  "k####$$$$$$####k",
+  ".k####dddd####k.",
+  "..k####dddd##k..",
+  "...k####dd##k...",
+  "....k######k....",
+  ".....k####k.....",
+  "......k##k......",
+  ".......kk.......",
+];
+export const PALETTE_DIAMOND = {
+  k: PALETTE_COMMUNE.k,
+  b: "#a8e0ff",
+  "#": "#5cc8ff",
+  $: "#8ff5da",
+  d: "#2b8fb0",
+};

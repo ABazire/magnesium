@@ -10,6 +10,7 @@ model User {
   id       String  @id @default(cuid())
   username String  @unique
   currency Int     @default(0)
+  diamonds Int @default(0)
   rankPoints3v3 Int @default(1000)
 
   personnages Personnage[]

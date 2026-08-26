@@ -10,6 +10,10 @@ export default async function GatchaPage() {
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: session.user.id },
   });
-
-  return <GatchaClient currencyInitiale={user.currency} />;
+  return (
+    <GatchaClient
+      currencyInitiale={user.currency}
+      diamondsInitiaux={user.diamonds}
+    />
+  );
 }

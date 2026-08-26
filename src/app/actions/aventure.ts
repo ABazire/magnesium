@@ -10,6 +10,7 @@ import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
 import { gagnerXp } from "@/lib/leveling";
 import { EquipmentSlot } from "@prisma/client";
 import { debutDeJournee } from "@/lib/date";
+import { tirerGainDiamants } from "@/lib/diamond";
 
 const CHANCE_COFFRE = 0.2;
 const LIMITE_PAR_MOB = 10;
@@ -90,6 +91,7 @@ export async function affronterMonstre(
   const { events, winnerId } = simulerCombat(combatPerso, combatMonstre, seed);
   const victoire = winnerId === personnage.id;
   const gain = victoire ? monstre.gainVictoire : monstre.gainDefaite;
+  const gainDiamants = victoire ? tirerGainDiamants() : 0;
 
   let xpInfo = { newLevel: personnage.level, newXp: personnage.xp };
   if (victoire) {
@@ -103,7 +105,10 @@ export async function affronterMonstre(
   await prisma.$transaction([
     prisma.user.update({
       where: { id: session.user.id },
-      data: { currency: { increment: gain } },
+      data: {
+        currency: { increment: gain },
+        ...(gainDiamants > 0 ? { diamonds: { increment: gainDiamants } } : {}),
+      },
     }),
     prisma.adventureAttempt.create({
       data: { personnageId, monsterId, victory: victoire },

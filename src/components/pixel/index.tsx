@@ -108,3 +108,13 @@ export function BearMassifIcon({ size = 48 }: { size?: number }) {
     />
   );
 }
+
+export function DiamondIcon({ size = 24 }: { size?: number }) {
+  return (
+    <PixelSprite
+      grid={S.SPRITE_DIAMOND}
+      palette={S.PALETTE_DIAMOND}
+      size={size}
+    />
+  );
+}

@@ -239,7 +239,29 @@ export default function JouerClient({
                     </button>
 
                     {slotOuvert === slot && (
-                      <div className={styles.picker}>{/* ... */}</div>
+                      <div className={styles.picker}>
+                        {chargement && (
+                          <span className={styles.pickerEmpty}>
+                            Chargement...
+                          </span>
+                        )}
+                        {!chargement && disponibles.length === 0 && (
+                          <span className={styles.pickerEmpty}>
+                            Aucun objet disponible
+                          </span>
+                        )}
+                        {!chargement &&
+                          disponibles.map((e) => (
+                            <button
+                              key={e.id}
+                              onClick={() => equiper(e.id)}
+                              className={styles.pickerItem}
+                            >
+                              {"★".repeat(e.rarity.stars)} {e.name} (+
+                              {e.bonusValue} {e.bonusStat})
+                            </button>
+                          ))}
+                      </div>
                     )}
                   </div>
                 );

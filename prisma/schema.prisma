@@ -12,6 +12,7 @@ model User {
   currency Int     @default(0)
   diamonds Int @default(0)
   rankPoints3v3 Int @default(1000)
+  hasCompletedTutorial Boolean @default(false)
 
   personnages Personnage[]
   equipments Equipment[]

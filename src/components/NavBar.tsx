@@ -2,16 +2,7 @@
 
 import Link from "next/link";
 
-import {
-  IdCard,
-  Compass,
-  Backpack,
-  BriefcaseBusiness,
-  Trophy,
-  Star,
-  Gem,
-  Swords,
-} from "lucide-react";
+import { IdCard, Compass, Trophy, Star, Gem, Swords } from "lucide-react";
 
 import styles from "./NavBar.module.css";
 
@@ -29,11 +20,6 @@ const LIENS = [
   {
     href: "/arene",
     label: "Arène",
-    Icone: Backpack,
-  },
-  {
-    href: "/arene3v3",
-    label: "3v3",
     Icone: Swords,
     actif: true,
   },

@@ -1,13 +1,18 @@
 .viewer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
+  width: 100%;
+  max-width: 900px;
+  align-items: center;
 }
 
 .hpRow {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 40px;
+  width: 100%;
+  max-width: 700px;
 }
 
 .hpBlock {
@@ -19,12 +24,12 @@
 
 .fighterName {
   color: #ffffff;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
 }
 
 .hpBarTrack {
-  height: 10px;
+  height: 14px;
   border-radius: 999px;
   background: #1e3a2f;
   overflow: hidden;
@@ -38,13 +43,19 @@
 
 .hpValue {
   color: #4d7266;
-  font-size: 11px;
+  font-size: 13px;
+}
+
+.winnerBanner {
+  font-size: 22px;
 }
 
 /* --- Le ring --- */
 .stage {
   position: relative;
-  height: 180px;
+  height: 50vh;
+  min-height: 320px;
+  max-height: 520px;
   border-radius: 16px;
   border: 1.5px solid #1e3a2f;
   overflow: hidden;
@@ -56,7 +67,9 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 0 40px 24px;
+  padding: 0 80px 40px;
+  width: 100%;
+  max-width: 900px;
 }
 
 .stageFloor {

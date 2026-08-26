@@ -65,7 +65,9 @@ export default function AventureClient({ personnages, monstres }: Props) {
   }, [personnageId]);
 
   async function combattre(monsterId: string) {
+    console.log("combattre appelé avec monsterId =", monsterId);
     if (!personnageId) return;
+    setDernierMonsterId(monsterId);
     setEnCours(true);
     const res = await affronterMonstre(personnageId, monsterId);
     console.log("fighter monstre:", res.fighters[1]);

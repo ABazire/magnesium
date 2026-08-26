@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ComponentType, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { statsEffectives } from "@/lib/personnage";
@@ -8,6 +8,7 @@ import {
   AmuletIcon,
   ArmorIcon,
   BootsIcon,
+  ChestIcon,
   PersonnageIcon,
   SwordIcon,
 } from "@/components/pixel";
@@ -53,12 +54,6 @@ export default function JouerClient({
   const selectionne = equipe.find((p) => p.id === selectionneId);
   const stats = selectionne ? statsEffectives(selectionne) : null;
 
-  const max = selectionne ? niveauMax(selectionne.rarity?.stars ?? 1) : 1;
-  const auMax = selectionne ? selectionne.level >= max : false;
-  const xpRequise = selectionne
-    ? xpRequisePourNiveauSuivant(selectionne.level)
-    : 0;
-
   async function ouvrirSlot(slot: string) {
     if (slotOuvert === slot) {
       setSlotOuvert(null);
@@ -83,6 +78,15 @@ export default function JouerClient({
     router.refresh();
   }
 
+  const ICONE_SLOT: Record<string, ComponentType<{ size?: number }>> = {
+    ARME: SwordIcon,
+    ARMURE: ArmorIcon,
+    BOTTES: BootsIcon,
+    AMULETTE: AmuletIcon,
+  };
+
+  const IconeObjet = ICONE_SLOT[slotOuvert ?? ""] ?? ChestIcon;
+
   return (
     <main className={styles.page}>
       <h2 className={styles.sectionTitle}>Mon équipe</h2>
@@ -104,6 +108,10 @@ export default function JouerClient({
             );
           }
 
+          const maxP = niveauMax(p.rarity?.stars ?? 1);
+          const auMaxP = p.level >= maxP;
+          const xpRequiseP = xpRequisePourNiveauSuivant(p.level);
+
           return (
             <div
               key={p.id}
@@ -111,37 +119,45 @@ export default function JouerClient({
                 setSelectionneId(p.id);
                 setSlotOuvert(null);
               }}
-              className={`${styles.teamCard} ${p.id === selectionneId ? styles.teamCardActive : ""}`}
+              className={`${styles.teamCard} ${
+                p.id === selectionneId ? styles.teamCardActive : ""
+              }`}
               role="button"
               tabIndex={0}
             >
               <PersonnageIcon
-                size={40}
+                size={68}
                 couleur={p.color}
                 variant={p.spriteId}
               />
+
               <span className={styles.cardName}>{p.name.toUpperCase()}</span>
+
               <span className={styles.stars}>
                 {"★".repeat(p.rarity?.stars ?? 0)}
               </span>
+
               <div className={styles.levelBlock}>
                 <span className={styles.cardLevel}>
-                  Niveau {p.level} / {niveauMax(p.rarity?.stars ?? 1)}
+                  Niveau {p.level} / {maxP}
                 </span>
-                {!auMax && selectionne && (
+
+                {!auMaxP && xpRequiseP > 0 && (
                   <div className={styles.xpBarTrack}>
                     <div
                       className={styles.xpBarFill}
                       style={{
-                        width: `${(selectionne.xp / xpRequise) * 100}%`,
+                        width: `${Math.min(100, (p.xp / xpRequiseP) * 100)}%`,
                       }}
                     />
                   </div>
                 )}
               </div>
+
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+
                   definirFormation(
                     p.id,
                     p.formationRow === "AVANT" ? "ARRIERE" : "AVANT",
@@ -171,7 +187,7 @@ export default function JouerClient({
         <div className={styles.detailPanel}>
           <div className={styles.detailLeft}>
             <PersonnageIcon
-              size={120}
+              size={180}
               couleur={selectionne.color}
               variant={selectionne.spriteId}
             />
@@ -211,9 +227,12 @@ export default function JouerClient({
                       }
                     >
                       {lien ? (
-                        <span className={styles.slotFilled}>
-                          {lien.equipment.name}
-                        </span>
+                        <>
+                          <IconeObjet size={32} />
+                          <span className={styles.slotFilled}>
+                            {lien.equipment.name}
+                          </span>
+                        </>
                       ) : (
                         <span className={styles.slotEmpty}>+</span>
                       )}

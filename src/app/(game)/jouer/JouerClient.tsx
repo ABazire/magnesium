@@ -85,8 +85,6 @@ export default function JouerClient({
     AMULETTE: AmuletIcon,
   };
 
-  const IconeObjet = ICONE_SLOT[slotOuvert ?? ""] ?? ChestIcon;
-
   return (
     <main className={styles.page}>
       <h2 className={styles.sectionTitle}>Mon équipe</h2>
@@ -218,6 +216,8 @@ export default function JouerClient({
             <div className={styles.slotGrid}>
               {SLOTS.map((slot) => {
                 const lien = selectionne.equipment.find((e) => e.slot === slot);
+                const IconeObjet = ICONE_SLOT[slot] ?? ChestIcon;
+
                 return (
                   <div key={slot} className={styles.slotWrapper}>
                     <button
@@ -239,29 +239,7 @@ export default function JouerClient({
                     </button>
 
                     {slotOuvert === slot && (
-                      <div className={styles.picker}>
-                        {chargement && (
-                          <span className={styles.pickerEmpty}>
-                            Chargement...
-                          </span>
-                        )}
-                        {!chargement && disponibles.length === 0 && (
-                          <span className={styles.pickerEmpty}>
-                            Aucun objet disponible
-                          </span>
-                        )}
-                        {!chargement &&
-                          disponibles.map((e) => (
-                            <button
-                              key={e.id}
-                              onClick={() => equiper(e.id)}
-                              className={styles.pickerItem}
-                            >
-                              {"★".repeat(e.rarity.stars)} {e.name} (+
-                              {e.bonusValue} {e.bonusStat})
-                            </button>
-                          ))}
-                      </div>
+                      <div className={styles.picker}>{/* ... */}</div>
                     )}
                   </div>
                 );

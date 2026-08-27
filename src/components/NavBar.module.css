@@ -4,10 +4,18 @@
   width: 100%;
 
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  gap: auto;
 
   z-index: 100;
+  padding-inline: 50px;
+}
+
+.header > div {
+  position: relative;
+  width: 300px;
 }
 
 /* =========================================================
@@ -259,6 +267,9 @@
 .currency {
   display: flex;
   align-items: center;
+  border: 1px solid #eaeda0;
+  padding: 5px 10px;
+  border-radius: 6px;
 
   gap: 7px;
 }

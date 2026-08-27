@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 
-import { IdCard, Compass, Trophy, Star, Gem, Swords } from "lucide-react";
+import {
+  IdCard,
+  Compass,
+  Trophy,
+  Star,
+  Gem,
+  Swords,
+  CircleStar,
+} from "lucide-react";
 
 import styles from "./NavBar.module.css";
 
@@ -48,6 +56,7 @@ type NavBarProps = {
 export default function NavBar({ currency, diamonds }: NavBarProps) {
   return (
     <header className={styles.header}>
+      <div></div>
       <nav className={styles.nav}>
         {/* Fond de la barre */}
         <div className={styles.navBackground} />
@@ -70,14 +79,16 @@ export default function NavBar({ currency, diamonds }: NavBarProps) {
       {/* Informations de monnaie */}
       <div className={styles.infos}>
         <div className={styles.currency}>
-          <span className={styles.currencyLabel}>Monnaie</span>
-
+          <span className={styles.currencyLabel}>
+            <CircleStar className={styles.icon} strokeWidth={2} size={32} />
+          </span>
           <span className={styles.currencyValue}>{currency}</span>
         </div>
 
         <div className={styles.currency}>
-          <span className={styles.currencyLabel}>Diamants</span>
-
+          <span className={styles.currencyLabel}>
+            <Gem className={styles.icon} strokeWidth={2} size={32} />
+          </span>
           <span className={styles.diamondsValue}>{diamonds}</span>
         </div>
       </div>

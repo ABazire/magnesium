@@ -13,6 +13,10 @@ model User {
   diamonds Int @default(0)
   rankPoints3v3 Int @default(1000)
   hasCompletedTutorial Boolean @default(false)
+  energy          Int      @default(300)
+  energyUpdatedAt DateTime @default(now())
+  coupons         Int      @default(10)
+  couponsUpdatedAt DateTime @default(now())
 
   personnages Personnage[]
   equipments Equipment[]

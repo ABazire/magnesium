@@ -10,6 +10,7 @@ import { calculerNouveauxRangs } from "@/lib/elo";
 import { gagnerXp } from "@/lib/leveling";
 import { revalidatePath } from "next/cache";
 import { tirerGainDiamants } from "@/lib/diamond";
+import { obtenirCouponsActuels, COUPONS_COUT_COMBAT } from "@/lib/energy";
 
 const LIMITE_PVP_PAR_JOUR = 6;
 
@@ -20,16 +21,15 @@ export async function lancerCombat(formData: FormData) {
   const a = formData.get("a") as string;
   const b = formData.get("b") as string;
 
-  const combatsAujourdhui = await prisma.fight.count({
-    where: {
-      attackerPersonnageId: a,
-      playedAt: { gte: debutDeJournee() },
-    },
-  });
-
-  if (combatsAujourdhui >= LIMITE_PVP_PAR_JOUR) {
-    throw new Error("Limite quotidienne de combats PvP atteinte");
+  const couponsActuels = await obtenirCouponsActuels(session.user.id);
+  if (couponsActuels < COUPONS_COUT_COMBAT) {
+    throw new Error("Coupons insuffisants");
   }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { coupons: { decrement: COUPONS_COUT_COMBAT } },
+  });
 
   const dejaAffronteAujourdhui = await prisma.fight.findFirst({
     where: {

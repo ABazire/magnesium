@@ -11,6 +11,7 @@ import { gagnerXp } from "@/lib/leveling";
 import { EquipmentSlot } from "@prisma/client";
 import { debutDeJournee } from "@/lib/date";
 import { tirerGainDiamants } from "@/lib/diamond";
+import { obtenirEnergieActuelle, ENERGY_COUT_COMBAT } from "@/lib/energy";
 
 const CHANCE_COFFRE = 0.2;
 const LIMITE_PAR_MOB = 10;
@@ -44,6 +45,11 @@ export async function affronterMonstre(
 }> {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non connecté");
+
+  const energieActuelle = await obtenirEnergieActuelle(session.user.id);
+  if (energieActuelle < ENERGY_COUT_COMBAT) {
+    throw new Error("Énergie insuffisante");
+  }
 
   const tentativesAujourdhui = await prisma.adventureAttempt.count({
     where: { personnageId, monsterId, playedAt: { gte: debutDeJournee() } },
@@ -107,6 +113,7 @@ export async function affronterMonstre(
       where: { id: session.user.id },
       data: {
         currency: { increment: gain },
+        energy: { decrement: ENERGY_COUT_COMBAT },
         ...(gainDiamants > 0 ? { diamonds: { increment: gainDiamants } } : {}),
       },
     }),

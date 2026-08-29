@@ -10,9 +10,12 @@ import {
   Gem,
   Swords,
   CircleStar,
+  Zap,
+  Ticket,
 } from "lucide-react";
 
 import styles from "./NavBar.module.css";
+import { ENERGY_MAX, COUPONS_MAX } from "@/lib/energyConstants";
 
 const LIENS = [
   {
@@ -51,9 +54,16 @@ const LIENS = [
 type NavBarProps = {
   currency: number;
   diamonds: number;
+  energy: number;
+  coupons: number;
 };
 
-export default function NavBar({ currency, diamonds }: NavBarProps) {
+export default function NavBar({
+  currency,
+  diamonds,
+  energy,
+  coupons,
+}: NavBarProps) {
   return (
     <header className={styles.header}>
       <div></div>
@@ -90,6 +100,24 @@ export default function NavBar({ currency, diamonds }: NavBarProps) {
             <Gem className={styles.icon} strokeWidth={2} size={32} />
           </span>
           <span className={styles.diamondsValue}>{diamonds}</span>
+        </div>
+
+        <div className={styles.currency}>
+          <span className={styles.currencyLabel}>
+            <Zap className={styles.icon} strokeWidth={2} size={32} />
+          </span>
+          <span className={styles.currencyValue}>
+            {energy}/{ENERGY_MAX}
+          </span>
+        </div>
+
+        <div className={styles.currency}>
+          <span className={styles.currencyLabel}>
+            <Ticket className={styles.icon} strokeWidth={2} size={32} />
+          </span>
+          <span className={styles.currencyValue}>
+            {coupons}/{COUPONS_MAX}
+          </span>
         </div>
       </div>
     </header>

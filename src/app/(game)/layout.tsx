@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import NavBar from "@/components/NavBar";
 import VersionTag from "@/components/VersionTag";
+import { getEnergieEtCoupons } from "@/lib/energy";
 
 export default async function GameLayout({
   children,
@@ -22,10 +23,19 @@ export default async function GameLayout({
     redirect("/tutoriel");
   }
 
+  const ressources = session?.user?.id
+    ? await getEnergieEtCoupons(session.user.id)
+    : { energy: 0, coupons: 0 };
+
   return (
     <div>
       <VersionTag />
-      <NavBar currency={user?.currency ?? 0} diamonds={user?.diamonds ?? 0} />
+      <NavBar
+        currency={user?.currency ?? 0}
+        diamonds={user?.diamonds ?? 0}
+        energy={ressources.energy}
+        coupons={ressources.coupons}
+      />
       <div style={{ paddingBottom: "70px" }}>{children}</div>
     </div>
   );

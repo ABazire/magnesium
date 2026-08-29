@@ -1,56 +1,77 @@
-.addButton {
-  margin-top: 4px;
-  background: transparent;
-  border: 1.5px solid #10b981;
-  color: #10b981;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  border-radius: 999px;
-  padding: 4px 10px;
-  cursor: pointer;
+.page {
+  padding: 24px 16px;
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
-.inTeamButton {
-  margin-top: 4px;
-  background: #10b981;
-  border: 1.5px solid #10b981;
-  color: #0f1a16;
-  font-size: 10px;
-  font-weight: 700;
+.title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
   text-transform: uppercase;
-  border-radius: 999px;
-  padding: 4px 10px;
-  cursor: pointer;
+  margin-bottom: 20px;
 }
 
-.levelBlock {
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 15px;
+}
+
+.cardForm {
+  max-width: 100%;
+  height: 100%;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.levelLabel {
-  color: #10b981;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.xpBarTrack {
-  height: 6px;
-  border-radius: 999px;
-  background: #1e3a2f;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 12px;
+  border: 1.5px solid;
+  cursor: pointer;
+  padding: 4px;
   overflow: hidden;
 }
 
-.xpBarFill {
-  height: 100%;
-  background: linear-gradient(90deg, #5cc8ff, #10b981);
-  transition: width 0.4s ease-out;
+.cardLabel {
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .cardLevel {
-  color: #4d7266;
-  font-size: 10px;
+  display: block;
+  opacity: 0.75;
+  font-size: 7px;
+}
+
+.cardStars {
+  color: #f2c94c;
+  font-size: 8px;
+  letter-spacing: 0.5px;
+}
+
+.inTeamBadge {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.cardEmpty {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
 }

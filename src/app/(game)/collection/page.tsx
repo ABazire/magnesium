@@ -3,14 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { statsEffectives } from "@/lib/personnage";
 import { toggleEquipe } from "../../actions/equipe";
-import {
-  PersonnageIcon,
-  HeartIcon,
-  SwordIcon,
-  BootsIcon,
-  ArmorIcon,
-  AmuletIcon,
-} from "@/components/pixel";
+import { PersonnageIcon } from "@/components/pixel";
 import styles from "./page.module.css";
 
 export default async function CollectionPage() {
@@ -23,6 +16,9 @@ export default async function CollectionPage() {
     include: { rarity: true, equipment: { include: { equipment: true } } },
   });
 
+  const COLONNES = 8;
+  const cellulesVides = (COLONNES - (personnages.length % COLONNES)) % COLONNES;
+
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Collection</h1>
@@ -30,50 +26,43 @@ export default async function CollectionPage() {
         {personnages.map((p) => {
           const stats = statsEffectives(p);
           return (
-            <div key={p.id} className={styles.card}>
-              <PersonnageIcon
-                size={48}
-                couleur={p.color}
-                variant={p.spriteId}
-              />
-              <span className={styles.cardName}>{p.name}</span>
-              <span className={styles.stars}>
-                {"★".repeat(p.rarity?.stars ?? 0)}
-              </span>
-              <span className={styles.cardLevel}>Niv. {p.level}</span>
-              <div className={styles.statRow}>
-                <span className={styles.statChip}>
-                  <HeartIcon size={14} /> {stats.vie}
-                </span>
-                <span className={styles.statChip}>
-                  <SwordIcon size={14} /> {stats.force}
-                </span>
-                <span className={styles.statChip}>
-                  <BootsIcon size={14} /> {stats.vitesse}
-                </span>
-                <span className={styles.statChip}>
-                  <ArmorIcon size={14} /> {stats.resistance}
-                </span>
-                <span className={styles.statChip}>
-                  <AmuletIcon size={14} /> {stats.agilite}
-                </span>
-              </div>
-              <form
-                action={async () => {
-                  "use server";
-                  await toggleEquipe(p.id);
+            <form
+              key={p.id}
+              action={async () => {
+                "use server";
+                await toggleEquipe(p.id);
+              }}
+              className={styles.cardForm}
+            >
+              <button
+                type="submit"
+                className={styles.card}
+                style={{
+                  background: `linear-gradient(160deg, ${p.color}bb, ${p.color}55)`,
+                  borderColor: p.color,
                 }}
               >
-                <button
-                  type="submit"
-                  className={p.inTeam ? styles.inTeamButton : styles.addButton}
-                >
-                  {p.inTeam ? "Dans l'équipe" : "Ajouter à l'équipe"}
-                </button>
-              </form>
-            </div>
+                <span className={styles.cardLabel}>
+                  {p.name.toUpperCase()}{" "}
+                  <span className={styles.cardLevel}>NIV. {p.level}</span>
+                </span>
+                <PersonnageIcon
+                  size={48}
+                  couleur={p.color}
+                  variant={p.spriteId}
+                />
+                <span className={styles.cardStars}>
+                  {"★".repeat(p.rarity?.stars ?? 0)}
+                </span>
+                {p.inTeam && <span className={styles.inTeamBadge}>✓</span>}
+              </button>
+            </form>
           );
         })}
+
+        {Array.from({ length: cellulesVides }).map((_, i) => (
+          <div key={`vide-${i}`} className={styles.cardEmpty} />
+        ))}
       </div>
     </main>
   );

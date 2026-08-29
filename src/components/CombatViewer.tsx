@@ -1,11 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import type { CombatEvent } from "@/lib/combat";
 import { PersonnageIcon, WolfTierIcon, BearTierIcon } from "@/components/pixel";
 import styles from "./CombatViewer.module.css";
 
-const ICONES: Record<string, typeof PersonnageIcon> = {
+type IconeProps = {
+  size?: number;
+  couleur?: string;
+  variant?: number;
+  tier?: number;
+};
+
+const ICONES: Record<string, ComponentType<IconeProps>> = {
   personnage: PersonnageIcon,
   loup: WolfTierIcon,
   ours: BearTierIcon,

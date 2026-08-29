@@ -12,15 +12,17 @@
   margin-bottom: 20px;
 }
 
+.layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
 .grid {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 25px;
-}
-
-.cardForm {
-  max-width: 100%;
-  height: 100%;
 }
 
 .card {
@@ -38,6 +40,11 @@
   cursor: pointer;
   padding: 4px;
   overflow: hidden;
+}
+
+.cardSelected {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }
 
 .cardLabel {
@@ -77,4 +84,125 @@
   width: 50%;
   position: relative;
   place-self: center;
+}
+
+.details {
+  position: sticky;
+  top: 24px;
+  width: 300px;
+  flex-shrink: 0;
+  background: #12181a;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.detailEmpty {
+  display: block;
+  color: #6b7c78;
+  font-size: 13px;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.detailHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.detailName {
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.detailLevel {
+  color: #9db8b1;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.stars {
+  color: #e9ec9f;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.statContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.statContainer p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  margin: 0;
+}
+
+.subLabel {
+  display: block;
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.positionButton {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid #10b981;
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin: 10px 0 16px;
+}
+
+.positionButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.slotGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.slot {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.slotEmpty {
+  color: #4d7266;
+  font-size: 20px;
+}
+
+.slotFilled {
+  color: #10b981;
+  font-size: 9px;
+  text-align: center;
+  padding: 0 4px;
 }

@@ -12,6 +12,7 @@ import {
   CircleStar,
   Zap,
   Ticket,
+  Package,
 } from "lucide-react";
 
 import styles from "./NavBar.module.css";
@@ -23,6 +24,7 @@ const LIENS = [
     label: "Accueil",
     Icone: IdCard,
   },
+  { href: "/inventaire", label: "Inventaire", Icone: Package },
   {
     href: "/aventure",
     label: "Aventure",

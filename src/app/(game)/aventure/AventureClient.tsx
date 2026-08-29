@@ -108,9 +108,7 @@ export default function AventureClient({ personnages, monstres }: Props) {
   const palierSuivantId = palierSuivant?.id ?? null;
 
   function resolveIconKey(fighter: Fighter): string {
-    if (!fighter.baseName) return "personnage";
-    const base = fighter.baseName.toLowerCase();
-    return `${base}_massif`;
+    return fighter.baseName ? fighter.baseName.toLowerCase() : "personnage";
   }
 
   return (
@@ -184,6 +182,7 @@ export default function AventureClient({ personnages, monstres }: Props) {
                 {
                   ...resultat.fighters[1],
                   iconKey: resolveIconKey(resultat.fighters[1]),
+                  tier: resultat.fighters[1].tier,
                 },
               ]}
               events={resultat.events}

@@ -46,52 +46,73 @@
   font-size: 13px;
 }
 
-.winnerBanner {
-  font-size: 22px;
-}
-
-/* --- Le ring --- */
 .stage {
   position: relative;
-  height: 50vh;
-  min-height: 320px;
-  max-height: 520px;
+  height: 60vh;
+  min-height: 380px;
+  max-height: 580px;
   border-radius: 16px;
   border: 1.5px solid #1e3a2f;
   overflow: hidden;
-  background: radial-gradient(
-    ellipse 120% 80% at 50% 20%,
-    #16241f 0%,
-    #0f1a16 70%
-  );
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 20% 85%,
+      rgba(16, 185, 129, 0.06),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 80% 60% at 80% 85%,
+      rgba(16, 185, 129, 0.06),
+      transparent 70%
+    ),
+    radial-gradient(ellipse 120% 80% at 50% 20%, #16241f 0%, #0f1a16 70%);
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 0 80px 40px;
+  padding: 0 60px 50px;
   width: 100%;
   max-width: 900px;
 }
 
-.stageFloor {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(180deg, transparent, rgba(16, 185, 129, 0.08));
-  border-top: 1px solid #1e3a2f;
-}
-
 .fighterWrapper {
   position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   z-index: 1;
 }
 
-.sprite {
-  transition: transform 0.2s ease-out;
+.groundShadow {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  filter: blur(4px);
+  z-index: 0;
 }
 
-/* Attaque : bond vers le centre puis retour */
+.glow {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 220px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sprite {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s ease-out;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.5));
+}
+
 @keyframes lunge-right {
   0% {
     transform: translateX(0);
@@ -121,7 +142,6 @@
   animation: lunge-left 0.5s ease-out;
 }
 
-/* Coup reçu : tremblement + flash rouge */
 @keyframes hit-shake {
   0%,
   100% {
@@ -146,7 +166,6 @@
   animation: hit-shake 0.4s ease-out;
 }
 
-/* Esquive : petit bond de côté */
 @keyframes dodge-left {
   0%,
   100% {
@@ -208,7 +227,7 @@
 .winnerBanner {
   text-align: center;
   color: #10b981;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 800;
   text-transform: uppercase;
 }

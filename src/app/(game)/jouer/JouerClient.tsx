@@ -23,6 +23,7 @@ import type { Prisma } from "@prisma/client";
 import { xpRequisePourNiveauSuivant, niveauMax } from "@/lib/leveling";
 import Modal from "@/components/Modal";
 import styles from "./page.module.css";
+import WolfSprite from "@/components/WolfSprite";
 
 type PersonnageAvecRelations = Prisma.PersonnageGetPayload<{
   include: { rarity: true; equipment: { include: { equipment: true } } };

@@ -199,24 +199,35 @@ export const PALETTE_BEAR = {
 };
 
 export const SPRITE_WOLF_MASSIF = [
-  "...k..kkkk..k...",
-  "..kk.k####k.kk..",
-  ".k##k######k##k.",
-  ".k##########k#k.",
-  ".k#$$e####e$$#k.",
-  "..k##g####g##k..",
-  "...k########k...",
-  "..k##########k..",
-  ".k############k.",
-  "k##############k",
-  "k####bb##bb####k",
-  "k##############k",
-  "k##############k",
-  ".k####kk####k..",
-  "..k####kk####..",
-  "...kk......kk...",
+  "..k...k....k...k..",
+  ".kk#k.k#k..k#k.k#k.",
+  "k.k##k..k##k..k##k.",
+  ".k####k.k##k.k####k",
+  "k#$$$$#kk##kk#$$$$#k",
+  "k#$rr$#kkkkkk#$rr$#k",
+  "k#$$$$###wwww###$$$#k",
+  "k##$$$$#wwwwww#$$$$##k",
+  ".k#########kk#########k.",
+  "k###########kk###########k",
+  "k#############kk#############k",
+  ".k###########################k.",
+  "k#############################k",
+  "k####bb###############bb#####k",
+  "k#################################k",
+  "k#################################k",
+  "k#######kkkk###########kkkk#######k",
+  ".k#####kk####k#####k####kk#####k.",
+  "..k####kk####k#####k####kk####k..",
+  "...kk####kk...........kk####kk...",
 ];
-export const PALETTE_WOLF_MASSIF = PALETTE_WOLF;
+export const PALETTE_WOLF_MASSIF = {
+  k: PALETTE_COMMUNE.k,
+  "#": "#4a5c52", // pelage sombre principal
+  $: "#2e3d36", // pelage encore plus sombre (museau, ombres)
+  b: "#6b7d74", // reflet clair (dos)
+  r: "#ef4444", // yeux rouges menaçants
+  w: "#f5f5f0", // crocs blancs
+};
 
 export const SPRITE_BEAR_MASSIF = [
   "..k........k..",
@@ -447,4 +458,161 @@ export const PALETTE_DIAMOND = {
   "#": "#5cc8ff",
   $: "#8ff5da",
   d: "#2b8fb0",
+};
+
+// --- Loup, paliers I à IV (le palier V "massif" reste séparé, déjà existant) ---
+
+export const SPRITE_WOLF_1 = [
+  "....kkkk....",
+  "...k####k...",
+  "..k######k..",
+  ".k#$####$#k.",
+  "..k######k..",
+  "...kkkkkk...",
+  "..k######k..",
+  ".k########k.",
+  ".k########k.",
+  "..k######k..",
+  "...k#..#k...",
+];
+export const PALETTE_WOLF_1 = {
+  k: PALETTE_COMMUNE.k,
+  "#": "#9db3aa",
+  $: "#6b7d74",
+};
+
+export const SPRITE_WOLF_2 = [
+  "k..kkkkkk..k.",
+  "k.k########k.",
+  "kk##########k",
+  "k#$$####$$#k.",
+  "k##k####k##k.",
+  ".k##########k",
+  "..k########k.",
+  "...kkkkkkkk..",
+  "..k########k.",
+  ".k##########k",
+  ".k##########k",
+  "..k########k.",
+];
+export const PALETTE_WOLF_2 = {
+  k: PALETTE_COMMUNE.k,
+  "#": "#9db3aa",
+  $: "#6b7d74",
+};
+
+export const SPRITE_WOLF_3 = [
+  "k..kkkkkkkk..k",
+  "k.k##########k",
+  "kk############k",
+  "k#$g####g$#k..",
+  "k##kk####kk#k.",
+  ".k############k",
+  "..k##########k.",
+  "...kkkkkkkkkk..",
+  "..k##########k.",
+  ".k############k",
+  ".k############k",
+  ".k####kk####k..",
+];
+export const PALETTE_WOLF_3 = {
+  k: PALETTE_COMMUNE.k,
+  "#": "#8ba396",
+  $: "#5c6e64",
+  g: "#f2c94c",
+};
+
+export const SPRITE_WOLF_4 = [
+  "k...kkkkkkkkk...k",
+  "k..k#$######$#k..",
+  "kk###############k",
+  "k#g#####gg#####gk",
+  "k##kkk#####kkk##k",
+  "k#################k",
+  ".k###############k.",
+  "..kkkkkkkkkkkkkkk..",
+  ".k###############k.",
+  "k#################k",
+  "k#################k",
+  "k####kk#####kk####k",
+];
+export const PALETTE_WOLF_4 = {
+  k: PALETTE_COMMUNE.k,
+  "#": "#7d968a",
+  $: "#4d5f56",
+  g: "#f2c94c",
+};
+
+// --- Ours, paliers I à IV (le palier V "massif" reste séparé, déjà existant) ---
+
+export const SPRITE_BEAR_1 = [
+  "..k......k..",
+  ".k#k....k#k.",
+  ".k##k..k##k.",
+  "..k########k.",
+  ".k##########k.",
+  ".k####kk####k.",
+  ".k##########k.",
+  "..k########k..",
+  "...k######k...",
+  "....k####k....",
+  ".....kkkk.....",
+];
+export const PALETTE_BEAR_1 = { k: PALETTE_COMMUNE.k, "#": "#8b6339" };
+
+export const SPRITE_BEAR_2 = [
+  "..k........k..",
+  ".k#k......k#k.",
+  ".k##k....k##k.",
+  "..k##########k.",
+  ".k############k",
+  ".k#####g######k",
+  ".k####kkk#####k",
+  ".k############k",
+  "..k##########k.",
+  "...k########k..",
+  "....k######k...",
+];
+export const PALETTE_BEAR_2 = {
+  k: PALETTE_COMMUNE.k,
+  "#": "#8b6339",
+  g: "#f2c94c",
+};
+
+export const SPRITE_BEAR_3 = [
+  "..k..........k..",
+  ".k#k........k#k.",
+  ".k##k......k##k.",
+  "..k############k.",
+  ".k##############k",
+  ".k####g####g####k",
+  ".k####kkk#kkk###k",
+  ".k##############k",
+  "..k############k.",
+  "...k##########k..",
+  "....k####kk####..",
+];
+export const PALETTE_BEAR_3 = {
+  k: PALETTE_COMMUNE.k,
+  "#": "#6f4f2d",
+  g: "#f2c94c",
+};
+
+export const SPRITE_BEAR_4 = [
+  "..k............k..",
+  ".k#k..........k#k.",
+  ".k##k........k##k.",
+  "..k##############k.",
+  ".k################k",
+  ".k####g######g####k",
+  ".k####kkk###kkk###k",
+  ".k################k",
+  "..k##############k.",
+  "...k############k..",
+  "....k##########k...",
+];
+export const PALETTE_BEAR_4 = {
+  k: PALETTE_COMMUNE.k,
+  "#": "#5c4326",
+  g: "#f2c94c",
 };

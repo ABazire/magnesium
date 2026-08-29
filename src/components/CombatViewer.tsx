@@ -2,21 +2,13 @@
 
 import { useState, useEffect } from "react";
 import type { CombatEvent } from "@/lib/combat";
-import {
-  PersonnageIcon,
-  WolfIcon,
-  BearIcon,
-  WolfMassifIcon,
-  BearMassifIcon,
-} from "@/components/pixel";
+import { PersonnageIcon, WolfTierIcon, BearTierIcon } from "@/components/pixel";
 import styles from "./CombatViewer.module.css";
 
 const ICONES: Record<string, typeof PersonnageIcon> = {
   personnage: PersonnageIcon,
-  loup: WolfIcon,
-  ours: BearIcon,
-  loup_massif: WolfMassifIcon,
-  ours_massif: BearMassifIcon,
+  loup: WolfTierIcon,
+  ours: BearTierIcon,
 };
 
 type Fighter = {
@@ -26,6 +18,7 @@ type Fighter = {
   iconKey?: string;
   couleur?: string;
   spriteVariant?: number;
+  tier?: number;
 };
 
 type Props = {
@@ -41,6 +34,7 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
   const [f1, f2] = fighters;
   const Icone1 = ICONES[f1.iconKey ?? "personnage"] ?? PersonnageIcon;
   const Icone2 = ICONES[f2.iconKey ?? "personnage"] ?? PersonnageIcon;
+
   const vie: Record<string, number> = {
     [f1.id]: f1.vieMax,
     [f2.id]: f2.vieMax,
@@ -78,6 +72,11 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
     return styles.sprite;
   }
 
+  const taille1 = f1.tier === 5 ? 220 : 160;
+  const taille2 = f2.tier === 5 ? 220 : 160;
+  const couleur1 = f1.couleur ?? "#9db3aa";
+  const couleur2 = f2.couleur ?? "#9db3aa";
+
   return (
     <div className={styles.viewer}>
       <div className={styles.hpRow}>
@@ -101,14 +100,20 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
       </div>
 
       <div className={styles.stage}>
-        <div className={styles.stageFloor} />
-
         <div className={`${styles.fighterWrapper} ${styles.left}`}>
+          <div className={styles.groundShadow} />
+          <div
+            className={styles.glow}
+            style={{
+              background: `radial-gradient(circle, ${couleur1}44, transparent 70%)`,
+            }}
+          />
           <div className={classeSprite(f1.id, "gauche")}>
             <Icone1
-              size={140}
+              size={taille1}
               couleur={f1.couleur}
               variant={f1.spriteVariant}
+              tier={f1.tier}
             />
           </div>
           {evenementActuel?.defenderId === f1.id &&
@@ -124,14 +129,22 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
         </div>
 
         <div className={`${styles.fighterWrapper} ${styles.right}`}>
+          <div className={styles.groundShadow} />
+          <div
+            className={styles.glow}
+            style={{
+              background: `radial-gradient(circle, ${couleur2}44, transparent 70%)`,
+            }}
+          />
           <div
             className={classeSprite(f2.id, "droite")}
             style={{ transform: "scaleX(-1)" }}
           >
             <Icone2
-              size={140}
+              size={taille2}
               couleur={f2.couleur}
               variant={f2.spriteVariant}
+              tier={f2.tier}
             />
           </div>
           {evenementActuel?.defenderId === f2.id &&
@@ -153,7 +166,7 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
         </p>
       ) : (
         <button onClick={passerAnimation} className={styles.skipButton}>
-          Passer l&apos;animation
+          Passer l'animation
         </button>
       )}
     </div>

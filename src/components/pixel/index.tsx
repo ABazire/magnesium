@@ -118,3 +118,39 @@ export function DiamondIcon({ size = 24 }: { size?: number }) {
     />
   );
 }
+
+export function WolfTierIcon({
+  size = 48,
+  tier = 1,
+}: {
+  size?: number;
+  tier?: number;
+}) {
+  const sprites = {
+    1: [S.SPRITE_WOLF_1, S.PALETTE_WOLF_1],
+    2: [S.SPRITE_WOLF_2, S.PALETTE_WOLF_2],
+    3: [S.SPRITE_WOLF_3, S.PALETTE_WOLF_3],
+    4: [S.SPRITE_WOLF_4, S.PALETTE_WOLF_4],
+    5: [S.SPRITE_WOLF_MASSIF, S.PALETTE_WOLF_MASSIF],
+  } as const;
+  const [grid, palette] = sprites[tier as 1 | 2 | 3 | 4 | 5] ?? sprites[1];
+  return <PixelSprite grid={grid} palette={palette} size={size} />;
+}
+
+export function BearTierIcon({
+  size = 48,
+  tier = 1,
+}: {
+  size?: number;
+  tier?: number;
+}) {
+  const sprites = {
+    1: [S.SPRITE_BEAR_1, S.PALETTE_BEAR_1],
+    2: [S.SPRITE_BEAR_2, S.PALETTE_BEAR_2],
+    3: [S.SPRITE_BEAR_3, S.PALETTE_BEAR_3],
+    4: [S.SPRITE_BEAR_4, S.PALETTE_BEAR_4],
+    5: [S.SPRITE_BEAR_MASSIF, S.PALETTE_BEAR_MASSIF],
+  } as const;
+  const [grid, palette] = sprites[tier as 1 | 2 | 3 | 4 | 5] ?? sprites[1];
+  return <PixelSprite grid={grid} palette={palette} size={size} />;
+}

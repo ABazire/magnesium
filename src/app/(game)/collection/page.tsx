@@ -47,7 +47,7 @@ export default async function CollectionPage() {
                   <span className={styles.cardLevel}>NIV. {p.level}</span>
                 </span>
                 <PersonnageIcon
-                  size={48}
+                  size={75}
                   couleur={p.color}
                   variant={p.spriteId}
                 />

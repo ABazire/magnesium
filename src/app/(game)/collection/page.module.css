@@ -15,7 +15,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 15px;
+  gap: 25px;
 }
 
 .cardForm {
@@ -32,7 +32,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 10px;
   border-radius: 12px;
   border: 1.5px solid;
   cursor: pointer;
@@ -42,7 +42,7 @@
 
 .cardLabel {
   color: #ffffff;
-  font-size: 8px;
+  font-size: 15px;
   font-weight: 700;
   text-align: center;
   line-height: 1.2;
@@ -51,12 +51,12 @@
 .cardLevel {
   display: block;
   opacity: 0.75;
-  font-size: 7px;
+  font-size: 10px;
 }
 
 .cardStars {
-  color: #f2c94c;
-  font-size: 8px;
+  color: #e0e58e;
+  font-size: 12px;
   letter-spacing: 0.5px;
 }
 
@@ -74,4 +74,7 @@
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1.5px solid rgba(255, 255, 255, 0.06);
+  width: 50%;
+  position: relative;
+  place-self: center;
 }

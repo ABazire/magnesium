@@ -18,7 +18,6 @@ import {
   desequiperObjet,
   getEquipementsDisponibles,
 } from "../../actions/equiper";
-import { definirFormation } from "../../actions/equipe";
 import type { Prisma } from "@prisma/client";
 import { xpRequisePourNiveauSuivant, niveauMax } from "@/lib/leveling";
 import Modal from "@/components/Modal";
@@ -87,15 +86,6 @@ export default function JouerClient({
 
   async function desequiper(equipmentId: string) {
     await desequiperObjet(equipmentId);
-    router.refresh();
-  }
-
-  async function basculerFormation() {
-    if (!selectionne) return;
-    await definirFormation(
-      selectionne.id,
-      selectionne.formationRow === "AVANT" ? "ARRIERE" : "AVANT",
-    );
     router.refresh();
   }
 
@@ -169,93 +159,119 @@ export default function JouerClient({
 
       {selectionne && stats && (
         <Modal onClose={fermerModal}>
-          <div className={styles.detailHead}>
-            <PersonnageIcon
-              size={110}
-              couleur={selectionne.color}
-              variant={selectionne.spriteId}
-            />
-            <span className={styles.detailName}>
-              {selectionne.name.toUpperCase()}
-            </span>
-            <span className={styles.stars}>
-              {"★".repeat(selectionne.rarity?.stars ?? 0)}
-            </span>
-          </div>
+          <div className={styles.cardLayout}>
+            <div className={styles.cardLeft}>
+              <PersonnageIcon
+                size={140}
+                couleur={selectionne.color}
+                variant={selectionne.spriteId}
+              />
+              <span className={styles.detailName}>
+                {selectionne.name.toUpperCase()}
+              </span>
+              <span className={styles.stars}>
+                {"★".repeat(selectionne.rarity?.stars ?? 0)}
+              </span>
+              <span className={styles.detailLevel}>
+                Niveau {selectionne.level}
+              </span>
 
-          <div className={styles.statContainer}>
-            <p>
-              <SwordIcon size={16} /> Force: {stats.force}
-            </p>
-            <p>
-              <BootsIcon size={16} /> Vitesse: {stats.vitesse}
-            </p>
-            <p>
-              <ArmorIcon size={16} /> Résistance: {stats.resistance}
-            </p>
-            <p>
-              <AmuletIcon size={16} /> Agilité: {stats.agilite}
-            </p>
-          </div>
+              <div className={styles.xpTrack}>
+                <div
+                  className={styles.xpFill}
+                  style={{
+                    width: `${
+                      xpRequisePourNiveauSuivant(selectionne.level) > 0
+                        ? Math.min(
+                            100,
+                            (selectionne.xp /
+                              xpRequisePourNiveauSuivant(selectionne.level)) *
+                              100,
+                          )
+                        : 100
+                    }%`,
+                  }}
+                />
+              </div>
+            </div>
 
-          <button onClick={basculerFormation} className={styles.positionButton}>
-            {selectionne.formationRow === "AVANT" ? "Avant" : "Arrière"}
-          </button>
+            <div className={styles.cardRight}>
+              <span className={styles.sectionLabel}>Statistiques</span>
+              <div className={styles.statContainer}>
+                <p>
+                  <SwordIcon size={16} /> Force: {stats.force}
+                </p>
+                <p>
+                  <BootsIcon size={16} /> Vitesse: {stats.vitesse}
+                </p>
+                <p>
+                  <ArmorIcon size={16} /> Résistance: {stats.resistance}
+                </p>
+                <p>
+                  <AmuletIcon size={16} /> Agilité: {stats.agilite}
+                </p>
+              </div>
 
-          <span className={styles.subLabel}>Équipement</span>
-          <div className={styles.slotGrid}>
-            {SLOTS.map((slot) => {
-              const lien = selectionne.equipment.find((e) => e.slot === slot);
-              const IconeObjet = ICONE_SLOT[slot] ?? ChestIcon;
+              <span className={styles.sectionLabel}>Équipement</span>
+              <div className={styles.slotGrid}>
+                {SLOTS.map((slot) => {
+                  const lien = selectionne.equipment.find(
+                    (e) => e.slot === slot,
+                  );
+                  const IconeObjet = ICONE_SLOT[slot] ?? ChestIcon;
 
-              return (
-                <div key={slot} className={styles.slotWrapper}>
-                  <button
-                    className={styles.slot}
-                    onClick={() =>
-                      lien ? desequiper(lien.equipment.id) : ouvrirSlot(slot)
-                    }
-                  >
-                    {lien ? (
-                      <>
-                        <IconeObjet size={28} />
-                        <span className={styles.slotFilled}>
-                          {lien.equipment.name}
-                        </span>
-                      </>
-                    ) : (
-                      <span className={styles.slotEmpty}>+</span>
-                    )}
-                  </button>
+                  return (
+                    <div key={slot} className={styles.slotWrapper}>
+                      <button
+                        className={styles.slot}
+                        onClick={() =>
+                          lien
+                            ? desequiper(lien.equipment.id)
+                            : ouvrirSlot(slot)
+                        }
+                      >
+                        {lien ? (
+                          <>
+                            <IconeObjet size={28} />
+                            <span className={styles.slotFilled}>
+                              {lien.equipment.name}
+                            </span>
+                          </>
+                        ) : (
+                          <span className={styles.slotEmpty}>+</span>
+                        )}
+                      </button>
 
-                  {slotOuvert === slot && (
-                    <div className={styles.picker}>
-                      {chargement && (
-                        <span className={styles.pickerEmpty}>
-                          Chargement...
-                        </span>
+                      {slotOuvert === slot && (
+                        <div className={styles.picker}>
+                          {chargement && (
+                            <span className={styles.pickerEmpty}>
+                              Chargement...
+                            </span>
+                          )}
+                          {!chargement && disponibles.length === 0 && (
+                            <span className={styles.pickerEmpty}>
+                              Aucun objet disponible
+                            </span>
+                          )}
+                          {!chargement &&
+                            disponibles.map((e) => (
+                              <button
+                                key={e.id}
+                                onClick={() => equiper(e.id)}
+                                className={styles.pickerItem}
+                              >
+                                {"★".repeat(e.rarity.stars)} {e.name} (+
+                                {e.bonusValue} {e.bonusStat})
+                              </button>
+                            ))}
+                        </div>
                       )}
-                      {!chargement && disponibles.length === 0 && (
-                        <span className={styles.pickerEmpty}>
-                          Aucun objet disponible
-                        </span>
-                      )}
-                      {!chargement &&
-                        disponibles.map((e) => (
-                          <button
-                            key={e.id}
-                            onClick={() => equiper(e.id)}
-                            className={styles.pickerItem}
-                          >
-                            {"★".repeat(e.rarity.stars)} {e.name} (+
-                            {e.bonusValue} {e.bonusStat})
-                          </button>
-                        ))}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </Modal>
       )}

@@ -154,185 +154,190 @@ export default function GatchaClient({
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Recrutement</h1>
-      <p className={styles.currency}>
-        Monnaie : <span className={styles.currencyValue}>{currency}</span>
-      </p>
-      {erreur && <p className={styles.error}>{erreur}</p>}
-      {phase !== "reveal" && (
-        <>
+      <div className={styles.panel}>
+        <p className={styles.currency}>
+          Monnaie : <span className={styles.currencyValue}>{currency}</span>
+        </p>
+        {erreur && <p className={styles.error}>{erreur}</p>}
+        {phase !== "reveal" && (
+          <>
+            <div
+              className={`${styles.orb} ${phase === "tirage" ? styles.orbActive : ""}`}
+            >
+              <StarIcon size={40} />
+            </div>
+            <button
+              onClick={tirer}
+              className={styles.pullButton}
+              disabled={currency < COUT_TIRAGE || phase === "tirage"}
+            >
+              {phase === "tirage"
+                ? "Recrutement en cours..."
+                : `Recruter (${COUT_TIRAGE} monnaie)`}
+            </button>
+          </>
+        )}
+        {phase === "reveal" && resultat && (
           <div
-            className={`${styles.orb} ${phase === "tirage" ? styles.orbActive : ""}`}
+            className={styles.resultCard}
+            style={{
+              borderColor: couleurRarete,
+              boxShadow: `0 0 30px ${couleurRarete}44`,
+            }}
           >
-            <StarIcon size={40} />
-          </div>
-          <button
-            onClick={tirer}
-            className={styles.pullButton}
-            disabled={currency < COUT_TIRAGE || phase === "tirage"}
-          >
-            {phase === "tirage"
-              ? "Recrutement en cours..."
-              : `Recruter (${COUT_TIRAGE} monnaie)`}
-          </button>
-        </>
-      )}
-      {phase === "reveal" && resultat && (
-        <div
-          className={styles.resultCard}
-          style={{
-            borderColor: couleurRarete,
-            boxShadow: `0 0 30px ${couleurRarete}44`,
-          }}
-        >
-          <span className={styles.resultLabel} style={{ color: couleurRarete }}>
-            Nouveau personnage recruté{" "}
-          </span>
+            <span
+              className={styles.resultLabel}
+              style={{ color: couleurRarete }}
+            >
+              Nouveau personnage recruté{" "}
+            </span>
 
-          <div className={styles.spriteNav}>
-            <button onClick={spritePrecedent} className={styles.navArrow}>
-              ◄
-            </button>
-            <PersonnageIcon
-              size={80}
-              couleur={couleurChoisie}
-              variant={spriteChoisi}
-            />
-            <button onClick={spriteSuivant} className={styles.navArrow}>
-              ►
-            </button>
-          </div>
-
-          <input
-            value={nomChoisi}
-            onChange={(e) => setNomChoisi(e.target.value)}
-            maxLength={20}
-            className={styles.nameInput}
-          />
-
-          <div className={styles.colorRow}>
-            {COULEURS_CHOIX.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCouleurChoisie(c)}
-                className={`${styles.colorSwatch} ${couleurChoisie === c ? styles.colorSwatchActive : ""}`}
-                style={{ backgroundColor: c }}
+            <div className={styles.spriteNav}>
+              <button onClick={spritePrecedent} className={styles.navArrow}>
+                ◄
+              </button>
+              <PersonnageIcon
+                size={80}
+                couleur={couleurChoisie}
+                variant={spriteChoisi}
               />
-            ))}
+              <button onClick={spriteSuivant} className={styles.navArrow}>
+                ►
+              </button>
+            </div>
+
+            <input
+              value={nomChoisi}
+              onChange={(e) => setNomChoisi(e.target.value)}
+              maxLength={20}
+              className={styles.nameInput}
+            />
+
+            <div className={styles.colorRow}>
+              {COULEURS_CHOIX.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCouleurChoisie(c)}
+                  className={`${styles.colorSwatch} ${couleurChoisie === c ? styles.colorSwatchActive : ""}`}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+
+            <span className={styles.resultStars}>
+              {"★".repeat(resultat.stars)}
+            </span>
+
+            <div className={styles.resultStats}>
+              <span>Vie {resultat.vie}</span>
+              <span>Force {resultat.force}</span>
+              <span>Vitesse {resultat.vitesse}</span>
+              <span>Résistance {resultat.resistance}</span>
+              <span>Agilité {resultat.agilite}</span>
+            </div>
+
+            <button
+              onClick={confirmer}
+              className={styles.pullButton}
+              disabled={enregistrement}
+            >
+              {enregistrement ? "Enregistrement..." : "Confirmer"}
+            </button>
           </div>
-
-          <span className={styles.resultStars}>
-            {"★".repeat(resultat.stars)}
-          </span>
-
-          <div className={styles.resultStats}>
-            <span>Vie {resultat.vie}</span>
-            <span>Force {resultat.force}</span>
-            <span>Vitesse {resultat.vitesse}</span>
-            <span>Résistance {resultat.resistance}</span>
-            <span>Agilité {resultat.agilite}</span>
-          </div>
-
-          <button
-            onClick={confirmer}
-            className={styles.pullButton}
-            disabled={enregistrement}
-          >
-            {enregistrement ? "Enregistrement..." : "Confirmer"}
-          </button>
-        </div>
-      )}
-      <div className={styles.sectionDivider} />
-      <h2 className={styles.sectionTitle}>Recrutement premium</h2>{" "}
-      <p className={styles.currency}>
-        <DiamondIcon size={18} /> Diamants :{" "}
-        <span className={styles.currencyValue}>{diamonds}</span>
-      </p>
-      {phasePremium !== "reveal" && (
-        <>
+        )}
+        <div className={styles.sectionDivider} />
+        <h2 className={styles.sectionTitle}>Recrutement premium</h2>{" "}
+        <p className={styles.currency}>
+          <DiamondIcon size={18} /> Diamants :{" "}
+          <span className={styles.currencyValue}>{diamonds}</span>
+        </p>
+        {phasePremium !== "reveal" && (
+          <>
+            <div
+              className={`${styles.orb} ${styles.orbPremium} ${phasePremium === "tirage" ? styles.orbActive : ""}`}
+            >
+              <DiamondIcon size={40} />
+            </div>
+            <button
+              onClick={tirerPremium}
+              className={styles.pullButtonPremium}
+              disabled={diamonds < 1 || phasePremium === "tirage"}
+            >
+              {phasePremium === "tirage"
+                ? "Recrutement en cours..."
+                : "Recruter (1 diamant, 3★ garanti)"}
+            </button>
+          </>
+        )}
+        {phasePremium === "reveal" && resultatPremium && (
           <div
-            className={`${styles.orb} ${styles.orbPremium} ${phasePremium === "tirage" ? styles.orbActive : ""}`}
+            className={styles.resultCard}
+            style={{
+              borderColor: RARITY_COLORS[resultatPremium.stars],
+              boxShadow: `0 0 30px ${RARITY_COLORS[resultatPremium.stars]}44`,
+            }}
           >
-            <DiamondIcon size={40} />
-          </div>
-          <button
-            onClick={tirerPremium}
-            className={styles.pullButtonPremium}
-            disabled={diamonds < 1 || phasePremium === "tirage"}
-          >
-            {phasePremium === "tirage"
-              ? "Recrutement en cours..."
-              : "Recruter (1 diamant, 3★ garanti)"}
-          </button>
-        </>
-      )}
-      {phasePremium === "reveal" && resultatPremium && (
-        <div
-          className={styles.resultCard}
-          style={{
-            borderColor: RARITY_COLORS[resultatPremium.stars],
-            boxShadow: `0 0 30px ${RARITY_COLORS[resultatPremium.stars]}44`,
-          }}
-        >
-          <span
-            className={styles.resultLabel}
-            style={{ color: RARITY_COLORS[resultatPremium.stars] }}
-          >
-            Nouveau personnage recruté{" "}
-          </span>
+            <span
+              className={styles.resultLabel}
+              style={{ color: RARITY_COLORS[resultatPremium.stars] }}
+            >
+              Nouveau personnage recruté{" "}
+            </span>
 
-          <div className={styles.spriteNav}>
-            <button onClick={spritePrecedent} className={styles.navArrow}>
-              ◄
-            </button>
-            <PersonnageIcon
-              size={80}
-              couleur={couleurChoisie}
-              variant={spriteChoisi}
-            />
-            <button onClick={spriteSuivant} className={styles.navArrow}>
-              ►
-            </button>
-          </div>
-
-          <input
-            value={nomChoisi}
-            onChange={(e) => setNomChoisi(e.target.value)}
-            maxLength={20}
-            className={styles.nameInput}
-          />
-
-          <div className={styles.colorRow}>
-            {COULEURS_CHOIX.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCouleurChoisie(c)}
-                className={`${styles.colorSwatch} ${couleurChoisie === c ? styles.colorSwatchActive : ""}`}
-                style={{ backgroundColor: c }}
+            <div className={styles.spriteNav}>
+              <button onClick={spritePrecedent} className={styles.navArrow}>
+                ◄
+              </button>
+              <PersonnageIcon
+                size={80}
+                couleur={couleurChoisie}
+                variant={spriteChoisi}
               />
-            ))}
+              <button onClick={spriteSuivant} className={styles.navArrow}>
+                ►
+              </button>
+            </div>
+
+            <input
+              value={nomChoisi}
+              onChange={(e) => setNomChoisi(e.target.value)}
+              maxLength={20}
+              className={styles.nameInput}
+            />
+
+            <div className={styles.colorRow}>
+              {COULEURS_CHOIX.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCouleurChoisie(c)}
+                  className={`${styles.colorSwatch} ${couleurChoisie === c ? styles.colorSwatchActive : ""}`}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+
+            <span className={styles.resultStars}>
+              {"★".repeat(resultatPremium.stars)}
+            </span>
+
+            <div className={styles.resultStats}>
+              <span>Vie {resultatPremium.vie}</span>
+              <span>Force {resultatPremium.force}</span>
+              <span>Vitesse {resultatPremium.vitesse}</span>
+              <span>Résistance {resultatPremium.resistance}</span>
+              <span>Agilité {resultatPremium.agilite}</span>
+            </div>
+
+            <button
+              onClick={confirmerPersonnalisationPremium}
+              className={styles.pullButtonPremium}
+              disabled={enregistrement}
+            >
+              {enregistrement ? "Enregistrement..." : "Confirmer"}
+            </button>
           </div>
-
-          <span className={styles.resultStars}>
-            {"★".repeat(resultatPremium.stars)}
-          </span>
-
-          <div className={styles.resultStats}>
-            <span>Vie {resultatPremium.vie}</span>
-            <span>Force {resultatPremium.force}</span>
-            <span>Vitesse {resultatPremium.vitesse}</span>
-            <span>Résistance {resultatPremium.resistance}</span>
-            <span>Agilité {resultatPremium.agilite}</span>
-          </div>
-
-          <button
-            onClick={confirmerPersonnalisationPremium}
-            className={styles.pullButtonPremium}
-            disabled={enregistrement}
-          >
-            {enregistrement ? "Enregistrement..." : "Confirmer"}
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </main>
   );
 }

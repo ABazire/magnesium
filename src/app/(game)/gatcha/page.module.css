@@ -1,6 +1,5 @@
 .page {
   padding: 24px 16px;
-  max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
   display: flex;
@@ -231,4 +230,13 @@
   border-radius: 999px;
   padding: 16px;
   cursor: pointer;
+}
+
+.panel {
+  max-width: 460px;
+  margin: 32px auto 0;
+  background: #16241f;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 20px;
+  padding: 28px 24px;
 }

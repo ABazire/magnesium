@@ -1,6 +1,5 @@
 .page {
   padding: 24px 16px;
-  max-width: 600px;
   margin: 0 auto;
   min-height: 100vh;
 }
@@ -67,8 +66,8 @@
 }
 
 .list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
@@ -141,4 +140,12 @@
   display: block;
   color: #4d7266;
   font-size: 11px;
+}
+
+.panel {
+  margin: 32px auto 0;
+  background: #16241f86;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 20px;
+  padding: 28px 24px;
 }

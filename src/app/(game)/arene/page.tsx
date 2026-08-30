@@ -22,27 +22,28 @@ export default async function ArenePage({
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Arène</h1>
-
-      <div className={styles.tabs}>
-        <Link
-          href="/arene?mode=1v1"
-          className={!mode3v3 ? styles.tabActive : styles.tab}
-        >
-          1v1
-        </Link>
-        <Link
-          href="/arene?mode=3v3"
-          className={mode3v3 ? styles.tabActive : styles.tab}
-        >
-          3v3
-        </Link>
+      <div className={styles.panel}>
+        {" "}
+        <div className={styles.tabs}>
+          <Link
+            href="/arene?mode=1v1"
+            className={!mode3v3 ? styles.tabActive : styles.tab}
+          >
+            1v1
+          </Link>
+          <Link
+            href="/arene?mode=3v3"
+            className={mode3v3 ? styles.tabActive : styles.tab}
+          >
+            3v3
+          </Link>
+        </div>
+        {mode3v3 ? (
+          <Arene3v3 userId={session.user.id} />
+        ) : (
+          <Arene1v1 userId={session.user.id} mine={mine} />
+        )}
       </div>
-
-      {mode3v3 ? (
-        <Arene3v3 userId={session.user.id} />
-      ) : (
-        <Arene1v1 userId={session.user.id} mine={mine} />
-      )}
     </main>
   );
 }
@@ -105,7 +106,7 @@ async function Arene1v1({ userId, mine }: { userId: string; mine?: string }) {
             Math.abs(a.puissance - maPuissance!) -
             Math.abs(b.puissance - maPuissance!),
         )
-        .slice(0, 3);
+        .slice(0, 6);
     }
   }
 

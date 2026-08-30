@@ -19,7 +19,6 @@ async function chargerEquipe(userId: string): Promise<PersonnageCombat3v3[]> {
   return personnages.map((p) => ({
     id: p.id,
     name: p.name,
-    row: p.formationRow,
     ...statsEffectives(p),
   }));
 }

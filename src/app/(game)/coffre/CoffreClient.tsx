@@ -80,56 +80,57 @@ export default function CoffreClient({
     <main className={styles.page}>
       <h1 className={styles.title}>Coffres</h1>
 
-      <p className={styles.currency}>
-        Monnaie : <span className={styles.currencyValue}>{currency}</span>
-      </p>
+      <div className={styles.panel}>
+        <p className={styles.currency}>
+          Monnaie : <span className={styles.currencyValue}>{currency}</span>
+        </p>
+        {erreur && <p className={styles.error}>{erreur}</p>}
 
-      {erreur && <p className={styles.error}>{erreur}</p>}
+        {phase !== "reveal" && (
+          <>
+            <div
+              className={`${styles.chestWrapper} ${phase === "ouverture" ? styles.chestActive : ""}`}
+            >
+              <ChestIcon size={80} />
+            </div>
 
-      {phase !== "reveal" && (
-        <>
+            <button
+              onClick={ouvrir}
+              className={styles.openButton}
+              disabled={currency < COUT_COFFRE || phase === "ouverture"}
+            >
+              {phase === "ouverture"
+                ? "Ouverture en cours..."
+                : `Ouvrir un coffre (${COUT_COFFRE} monnaie)`}
+            </button>
+          </>
+        )}
+
+        {phase === "reveal" && resultat && (
           <div
-            className={`${styles.chestWrapper} ${phase === "ouverture" ? styles.chestActive : ""}`}
+            className={styles.resultCard}
+            style={{ borderColor: couleur, boxShadow: `0 0 30px ${couleur}44` }}
           >
-            <ChestIcon size={80} />
+            <span className={styles.resultLabel} style={{ color: couleur }}>
+              Objet obtenu
+            </span>
+
+            <IconeObjet size={64} />
+
+            <span className={styles.resultName}>{resultat.name}</span>
+            <span className={styles.resultStars}>
+              {"★".repeat(resultat.stars)}
+            </span>
+            <span className={styles.resultBonus}>
+              +{resultat.bonusValue} {resultat.bonusStat}
+            </span>
+
+            <button onClick={continuer} className={styles.openButton}>
+              Continuer
+            </button>
           </div>
-
-          <button
-            onClick={ouvrir}
-            className={styles.openButton}
-            disabled={currency < COUT_COFFRE || phase === "ouverture"}
-          >
-            {phase === "ouverture"
-              ? "Ouverture en cours..."
-              : `Ouvrir un coffre (${COUT_COFFRE} monnaie)`}
-          </button>
-        </>
-      )}
-
-      {phase === "reveal" && resultat && (
-        <div
-          className={styles.resultCard}
-          style={{ borderColor: couleur, boxShadow: `0 0 30px ${couleur}44` }}
-        >
-          <span className={styles.resultLabel} style={{ color: couleur }}>
-            Objet obtenu
-          </span>
-
-          <IconeObjet size={64} />
-
-          <span className={styles.resultName}>{resultat.name}</span>
-          <span className={styles.resultStars}>
-            {"★".repeat(resultat.stars)}
-          </span>
-          <span className={styles.resultBonus}>
-            +{resultat.bonusValue} {resultat.bonusStat}
-          </span>
-
-          <button onClick={continuer} className={styles.openButton}>
-            Continuer
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </main>
   );
 }

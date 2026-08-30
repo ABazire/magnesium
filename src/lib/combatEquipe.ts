@@ -8,7 +8,6 @@ export type PersonnageCombat3v3 = {
   vitesse: number;
   resistance: number;
   agilite: number;
-  row: "AVANT" | "ARRIERE";
 };
 
 export type CombatEvent3v3 =
@@ -79,13 +78,6 @@ export function simulerCombatEquipe(
     return tous.filter((p) => camp[p.id] === c && pv[p.id] > 0);
   }
 
-  function choisirCible(campAdverse: "A" | "B"): PersonnageCombat3v3 | null {
-    const avant = vivants(campAdverse).filter((p) => p.row === "AVANT");
-    const pool = avant.length > 0 ? avant : vivants(campAdverse);
-    if (pool.length === 0) return null;
-    return pool[Math.floor(random() * pool.length)];
-  }
-
   const events: CombatEvent3v3[] = [];
   let tours = 0;
 
@@ -100,8 +92,10 @@ export function simulerCombatEquipe(
     enVie.sort((a, b) => compteur[a.id] - compteur[b.id]);
     const attaquant = enVie[0];
 
-    const defenseur = choisirCible(camp[attaquant.id] === "A" ? "B" : "A");
-    if (!defenseur) break;
+    const campAdverse = camp[attaquant.id] === "A" ? "B" : "A";
+    const pool = vivants(campAdverse);
+    if (pool.length === 0) break;
+    const defenseur = pool[Math.floor(random() * pool.length)];
 
     const chance = chanceEsquive(defenseur.agilite, attaquant.force);
     const jet = random() * 100;

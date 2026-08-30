@@ -32,17 +32,34 @@ export async function toggleEquipe(personnageId: string) {
   revalidatePath("/collection");
 }
 
-export async function definirFormation(
-  personnageId: string,
-  row: "AVANT" | "ARRIERE",
+export async function getEquipeActuelle() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non connecté");
+
+  return prisma.personnage.findMany({
+    where: { ownerId: session.user.id, inTeam: true },
+    select: { id: true, name: true, color: true, spriteId: true, level: true },
+  });
+}
+
+export async function remplacerMembreEquipe(
+  sortantId: string,
+  entrantId: string,
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non connecté");
 
-  await prisma.personnage.update({
-    where: { id: personnageId, ownerId: session.user.id },
-    data: { formationRow: row },
-  });
+  await prisma.$transaction([
+    prisma.personnage.update({
+      where: { id: sortantId, ownerId: session.user.id },
+      data: { inTeam: false },
+    }),
+    prisma.personnage.update({
+      where: { id: entrantId, ownerId: session.user.id },
+      data: { inTeam: true },
+    }),
+  ]);
 
   revalidatePath("/jouer");
+  revalidatePath("/collection");
 }

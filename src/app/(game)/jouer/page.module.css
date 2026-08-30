@@ -179,20 +179,6 @@
   margin: 0;
 }
 
-.positionButton {
-  align-self: center;
-  background: transparent;
-  border: 1.5px solid #10b981;
-  color: #10b981;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  border-radius: 999px;
-  padding: 6px 16px;
-  cursor: pointer;
-  margin-bottom: 16px;
-}
-
 .subLabel {
   display: block;
   color: #10b981;
@@ -276,4 +262,62 @@
   color: #4d7266;
   font-size: 11px;
   padding: 6px 8px;
+}
+
+.cardLayout {
+  display: flex;
+  gap: 28px;
+}
+
+.cardLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.detailLevel {
+  color: #4d7266;
+  font-size: 12px;
+}
+
+.xpTrack {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #1e3a2f;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.xpFill {
+  height: 100%;
+  background: linear-gradient(90deg, #5cc8ff, #10b981);
+}
+
+.cardRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionLabel {
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.sectionLabel:first-child {
+  margin-top: 0;
+}
+
+@media (max-width: 560px) {
+  .cardLayout {
+    flex-direction: column;
+    align-items: center;
+  }
 }

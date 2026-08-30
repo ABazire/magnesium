@@ -33,11 +33,6 @@ model Rarity {
   equipments Equipment[]
 }
 
-enum FormationRow {
-  AVANT
-  ARRIERE
-}
-
 model Personnage {
   id      String @id @default(cuid())
   name    String
@@ -60,8 +55,6 @@ model Personnage {
 
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String
-
-  formationRow FormationRow @default(AVANT)
 
   spriteId Int    @default(0)
   color    String @default("#10b981")

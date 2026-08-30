@@ -7,10 +7,9 @@ export default async function AventurePage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/");
 
-  const [personnages, monstres] = await Promise.all([
-    prisma.personnage.findMany({ where: { ownerId: session.user.id } }),
-    prisma.monster.findMany(),
-  ]);
+  const personnages = await prisma.personnage.findMany({
+    where: { ownerId: session.user.id },
+  });
 
-  return <AventureClient personnages={personnages} monstres={monstres} />;
+  return <AventureClient personnages={personnages} />;
 }

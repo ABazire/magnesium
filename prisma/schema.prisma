@@ -167,11 +167,3 @@ model TeamFight {
   fightersA Json // snapshot des 3 combattants du camp A
   fightersB Json // snapshot des 3 combattants du camp B
 }
-
-model AdventureAttempt {
-  id           String   @id @default(cuid())
-  playedAt     DateTime @default(now())
-  personnageId String
-  monsterId    String
-  victory Boolean @default(false)
-}

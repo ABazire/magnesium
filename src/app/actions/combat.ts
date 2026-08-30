@@ -12,8 +12,6 @@ import { revalidatePath } from "next/cache";
 import { tirerGainDiamants } from "@/lib/diamond";
 import { obtenirCouponsActuels, COUPONS_COUT_COMBAT } from "@/lib/energy";
 
-const LIMITE_PVP_PAR_JOUR = 6;
-
 export async function lancerCombat(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non connecté");
@@ -122,18 +120,4 @@ export async function lancerCombat(formData: FormData) {
 
   revalidatePath("/arene");
   redirect(`/combat/${fight.id}`);
-}
-
-export async function getCombatsPvpRestants(personnageId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Non connecté");
-
-  const utilises = await prisma.fight.count({
-    where: {
-      attackerPersonnageId: personnageId,
-      playedAt: { gte: debutDeJournee() },
-    },
-  });
-
-  return Math.max(0, LIMITE_PVP_PAR_JOUR - utilises);
 }

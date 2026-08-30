@@ -51,13 +51,6 @@ export async function affronterMonstre(
     throw new Error("Énergie insuffisante");
   }
 
-  const tentativesAujourdhui = await prisma.adventureAttempt.count({
-    where: { personnageId, monsterId, playedAt: { gte: debutDeJournee() } },
-  });
-  if (tentativesAujourdhui >= LIMITE_PAR_MOB) {
-    throw new Error("Limite quotidienne atteinte pour ce monstre");
-  }
-
   const [personnage, monstre] = await Promise.all([
     prisma.personnage.findUniqueOrThrow({
       where: { id: personnageId, ownerId: session.user.id },
@@ -116,9 +109,6 @@ export async function affronterMonstre(
         energy: { decrement: ENERGY_COUT_COMBAT },
         ...(gainDiamants > 0 ? { diamonds: { increment: gainDiamants } } : {}),
       },
-    }),
-    prisma.adventureAttempt.create({
-      data: { personnageId, monsterId, victory: victoire },
     }),
     ...(victoire
       ? [
@@ -190,31 +180,6 @@ export async function affronterMonstre(
       },
     ],
   };
-}
-
-export async function getTentativesRestantes(personnageId: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Non connecté");
-
-  const monstres = await prisma.monster.findMany();
-
-  const resultats = await Promise.all(
-    monstres.map(async (m) => {
-      const utilisees = await prisma.adventureAttempt.count({
-        where: {
-          personnageId,
-          monsterId: m.id,
-          playedAt: { gte: debutDeJournee() },
-        },
-      });
-      return {
-        monsterId: m.id,
-        restantes: Math.max(0, LIMITE_PAR_MOB - utilisees),
-      };
-    }),
-  );
-
-  return resultats;
 }
 
 export async function getMonstresDisponibles() {

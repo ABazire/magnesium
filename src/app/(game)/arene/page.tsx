@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { statsEffectives, puissance } from "@/lib/personnage";
-import { lancerCombat, getCombatsPvpRestants } from "../../actions/combat";
+import { lancerCombat } from "../../actions/combat";
 import { lancerCombat3v3 } from "../../actions/combat3v3";
 import { debutDeJournee } from "@/lib/date";
 import styles from "./page.module.css";
@@ -60,11 +60,8 @@ async function Arene1v1({ userId, mine }: { userId: string; mine?: string }) {
     ownerUsername: string;
   }[] = [];
   let maPuissance: number | null = null;
-  let combatsRestants: number | null = null;
 
   if (mine) {
-    combatsRestants = await getCombatsPvpRestants(mine);
-
     const monPersonnage = await prisma.personnage.findUnique({
       where: { id: mine },
       include: { equipment: { include: { equipment: true } } },
@@ -140,12 +137,6 @@ async function Arene1v1({ userId, mine }: { userId: string; mine?: string }) {
           <span className={styles.puissanceValue}>{maPuissance}</span>
         </p>
       )}
-      {combatsRestants !== null && (
-        <p className={styles.puissance}>
-          Combats restants :{" "}
-          <span className={styles.puissanceValue}>{combatsRestants}</span>
-        </p>
-      )}
 
       {mine && adversaires.length === 0 && (
         <p className={styles.empty}>Aucun adversaire trouvé.</p>
@@ -164,11 +155,7 @@ async function Arene1v1({ userId, mine }: { userId: string; mine?: string }) {
             <form action={lancerCombat}>
               <input type="hidden" name="a" value={mine} />
               <input type="hidden" name="b" value={adv.id} />
-              <button
-                type="submit"
-                className={styles.fightLink}
-                disabled={combatsRestants === 0}
-              >
+              <button type="submit" className={styles.fightLink}>
                 Combattre
               </button>
             </form>

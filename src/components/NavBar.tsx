@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   IdCard,
@@ -34,7 +35,6 @@ const LIENS = [
     href: "/arene",
     label: "Arène",
     Icone: Swords,
-    actif: true,
   },
   {
     href: "/classement",
@@ -66,6 +66,8 @@ export default function NavBar({
   energy,
   coupons,
 }: NavBarProps) {
+  const pathname = usePathname();
+
   return (
     <header className={styles.header}>
       <div></div>
@@ -75,16 +77,20 @@ export default function NavBar({
 
         {/* Les boutons */}
         <div className={styles.items}>
-          {LIENS.map(({ href, label, Icone, actif }) => (
-            <Link
-              key={href}
-              href={href}
-              aria-label={label}
-              className={`${styles.item} ${actif ? styles.itemActive : ""}`}
-            >
-              <Icone className={styles.icon} strokeWidth={2} />
-            </Link>
-          ))}
+          {LIENS.map(({ href, label, Icone }) => {
+            const actif = pathname === href || pathname.startsWith(`${href}/`);
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-label={label}
+                className={`${styles.item} ${actif ? styles.itemActive : ""}`}
+              >
+                <Icone className={styles.icon} strokeWidth={2} />
+              </Link>
+            );
+          })}
         </div>
       </nav>
 

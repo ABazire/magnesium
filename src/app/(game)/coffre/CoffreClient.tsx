@@ -9,6 +9,8 @@ import {
   BootsIcon,
   AmuletIcon,
 } from "@/components/pixel";
+import { Flame, HeartPulse, Snowflake, Shield, Sparkles } from "lucide-react";
+import { descriptionSort } from "@/lib/spell";
 import type { ComponentType } from "react";
 import styles from "./page.module.css";
 
@@ -30,13 +32,33 @@ const ICONE_SLOT: Record<string, ComponentType<{ size?: number }>> = {
   AMULETTE: AmuletIcon,
 };
 
-type Resultat = {
+const ICONE_EFFET: Record<string, ComponentType<{ size?: number }>> = {
+  DEGATS: Flame,
+  SOIN: HeartPulse,
+  ETOURDISSEMENT: Snowflake,
+  BONUS_STAT: Sparkles,
+  REDUCTION_DEGATS: Shield,
+};
+
+type ResultatEquipement = {
+  kind: "equipment";
   name: string;
   slot: string;
   bonusStat: string;
   bonusValue: number;
   stars: number;
 };
+
+type ResultatSort = {
+  kind: "spell";
+  name: string;
+  effect: string;
+  value: number;
+  targetStat: string | null;
+  stars: number;
+};
+
+type Resultat = ResultatEquipement | ResultatSort;
 
 export default function CoffreClient({
   currencyInitiale,
@@ -57,7 +79,11 @@ export default function CoffreClient({
       const res = await ouvrirCoffre();
       setCurrency(res.newCurrency);
       setTimeout(() => {
-        setResultat(res.equipment);
+        setResultat(
+          res.kind === "spell"
+            ? { kind: "spell", ...res.spell }
+            : { kind: "equipment", ...res.equipment },
+        );
         setPhase("reveal");
       }, 1300);
     } catch (e) {
@@ -72,9 +98,12 @@ export default function CoffreClient({
   }
 
   const couleur = resultat ? RARITY_COLORS[resultat.stars] : "#f2c94c";
-  const IconeObjet = resultat
-    ? (ICONE_SLOT[resultat.slot] ?? ChestIcon)
-    : ChestIcon;
+  const IconeObjet =
+    resultat?.kind === "spell"
+      ? (ICONE_EFFET[resultat.effect] ?? Sparkles)
+      : resultat?.kind === "equipment"
+        ? (ICONE_SLOT[resultat.slot] ?? ChestIcon)
+        : ChestIcon;
 
   return (
     <main className={styles.page}>
@@ -112,7 +141,7 @@ export default function CoffreClient({
             style={{ borderColor: couleur, boxShadow: `0 0 30px ${couleur}44` }}
           >
             <span className={styles.resultLabel} style={{ color: couleur }}>
-              Objet obtenu
+              {resultat.kind === "spell" ? "Sort obtenu" : "Objet obtenu"}
             </span>
 
             <IconeObjet size={64} />
@@ -122,7 +151,9 @@ export default function CoffreClient({
               {"★".repeat(resultat.stars)}
             </span>
             <span className={styles.resultBonus}>
-              +{resultat.bonusValue} {resultat.bonusStat}
+              {resultat.kind === "spell"
+                ? descriptionSort(resultat)
+                : `+${resultat.bonusValue} ${resultat.bonusStat}`}
             </span>
 
             <button onClick={continuer} className={styles.openButton}>

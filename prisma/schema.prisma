@@ -20,6 +20,7 @@ model User {
 
   personnages Personnage[]
   equipments Equipment[]
+  spells      Spell[]
 }
 
 model Rarity {
@@ -31,6 +32,7 @@ model Rarity {
 
   personnages Personnage[]
   equipments Equipment[]
+  spells      Spell[]
 }
 
 model Personnage {
@@ -60,6 +62,7 @@ model Personnage {
   color    String @default("#10b981")
 
   equipment PersonnageEquipment[]
+  spells    PersonnageSpell[]
 }
 
 enum EquipmentSlot {
@@ -74,6 +77,26 @@ enum StatType {
   VITESSE
   RESISTANCE
   AGILITE
+}
+
+enum SpellType {
+  ACTIF
+  PASSIF
+}
+
+enum SpellEffect {
+  DEGATS
+  SOIN
+  ETOURDISSEMENT
+  BONUS_STAT
+  REDUCTION_DEGATS
+}
+
+enum SpellSlot {
+  SORT_1
+  SORT_2
+  SORT_3
+  PASSIF
 }
 
 model Equipment {
@@ -105,6 +128,53 @@ model PersonnageEquipment {
   slot EquipmentSlot
 
   @@unique([personnageId, slot])
+}
+
+model Spell {
+  id     String      @id @default(cuid())
+  name   String
+  type   SpellType
+  effect SpellEffect
+
+  // Dégâts : % de dégâts bonus. Soin : PV rendus. Étourdissement : nb de tours sautés.
+  // Bonus stat : valeur ajoutée à targetStat. Réduction dégâts : % de dégâts subis en moins.
+  value Int
+
+  targetStat StatType?
+  cooldown   Int        @default(3)
+
+  rarity   Rarity @relation(fields: [rarityId], references: [id])
+  rarityId String
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  equippedOn PersonnageSpell?
+}
+
+model PersonnageSpell {
+  id String @id @default(cuid())
+
+  personnage   Personnage @relation(fields: [personnageId], references: [id])
+  personnageId String
+
+  spell   Spell  @relation(fields: [spellId], references: [id])
+  spellId String @unique
+
+  slot SpellSlot
+
+  @@unique([personnageId, slot])
+}
+
+// Table orpheline : ancien suivi des limites quotidiennes par monstre,
+// remplacé par le système d'énergie. Conservée ici pour ne pas supprimer
+// les 131 lignes historiques existantes ; aucun code n'y écrit plus.
+model AdventureAttempt {
+  id           String   @id @default(cuid())
+  playedAt     DateTime @default(now())
+  personnageId String
+  monsterId    String
+  victory      Boolean  @default(false)
 }
 
 model Monster {

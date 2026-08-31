@@ -7,7 +7,11 @@ import {
   simulerCombatEquipe,
   type PersonnageCombat3v3,
 } from "@/lib/combatEquipe";
-import { statsEffectives } from "@/lib/personnage";
+import {
+  statsEffectives,
+  sortsActifsCombat,
+  reductionDegatsPassive,
+} from "@/lib/personnage";
 import { gagnerXp } from "@/lib/leveling";
 import { calculerNouveauxRangs } from "@/lib/elo";
 import { revalidatePath } from "next/cache";
@@ -15,13 +19,18 @@ import { revalidatePath } from "next/cache";
 async function chargerEquipe(userId: string): Promise<PersonnageCombat3v3[]> {
   const personnages = await prisma.personnage.findMany({
     where: { ownerId: userId, inTeam: true },
-    include: { equipment: { include: { equipment: true } } },
+    include: {
+      equipment: { include: { equipment: true } },
+      spells: { include: { spell: true } },
+    },
   });
 
   return personnages.map((p) => ({
     id: p.id,
     name: p.name,
     ...statsEffectives(p),
+    sortsActifs: sortsActifsCombat(p),
+    reductionDegats: reductionDegatsPassive(p),
   }));
 }
 

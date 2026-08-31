@@ -9,7 +9,11 @@ export default async function JouerPage() {
 
   const equipe = await prisma.personnage.findMany({
     where: { ownerId: session.user.id, inTeam: true },
-    include: { rarity: true, equipment: { include: { equipment: true } } },
+    include: {
+      rarity: true,
+      equipment: { include: { equipment: true } },
+      spells: { include: { spell: true } },
+    },
   });
 
   return <JouerClient equipe={equipe} />;

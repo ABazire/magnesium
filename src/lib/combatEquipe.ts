@@ -1,4 +1,5 @@
 import { creerRng } from "./rng";
+import type { SortActifCombat } from "./personnage";
 
 export type PersonnageCombat3v3 = {
   id: string;
@@ -8,6 +9,8 @@ export type PersonnageCombat3v3 = {
   vitesse: number;
   resistance: number;
   agilite: number;
+  sortsActifs?: SortActifCombat[];
+  reductionDegats?: number;
 };
 
 export type CombatEvent3v3 =
@@ -19,7 +22,30 @@ export type CombatEvent3v3 =
       damage: number;
       defenderHpAfter: number;
     }
-  | { type: "ko"; personnageId: string };
+  | { type: "ko"; personnageId: string }
+  | {
+      type: "spellDegats";
+      attackerId: string;
+      defenderId: string;
+      spellName: string;
+      damage: number;
+      defenderHpAfter: number;
+    }
+  | {
+      type: "spellSoin";
+      casterId: string;
+      spellName: string;
+      heal: number;
+      casterHpAfter: number;
+    }
+  | {
+      type: "spellEtourdissement";
+      casterId: string;
+      targetId: string;
+      spellName: string;
+      tours: number;
+    }
+  | { type: "stun"; personnageId: string; toursRestants: number };
 
 const BASE_TICK = 100;
 const FACTEUR_REDUCTION = 0.5;
@@ -45,6 +71,11 @@ function calculerDegats(
   );
 }
 
+function appliquerReductionDegats(degats: number, reductionPct: number): number {
+  if (reductionPct <= 0) return degats;
+  return Math.max(1, Math.round(degats * (1 - reductionPct / 100)));
+}
+
 export function simulerCombatEquipe(
   equipeA: [PersonnageCombat3v3, PersonnageCombat3v3, PersonnageCombat3v3],
   equipeB: [PersonnageCombat3v3, PersonnageCombat3v3, PersonnageCombat3v3],
@@ -58,21 +89,21 @@ export function simulerCombatEquipe(
   const intervalle: Record<string, number> = {};
   const parId: Record<string, PersonnageCombat3v3> = {};
   const camp: Record<string, "A" | "B"> = {};
+  const stun: Record<string, number> = {};
+  const cooldowns: Record<string, Record<string, number>> = {};
 
-  for (const p of equipeA) {
+  for (const p of tous) {
     pv[p.id] = p.vie;
     compteur[p.id] = 0;
     intervalle[p.id] = BASE_TICK / p.vitesse;
     parId[p.id] = p;
-    camp[p.id] = "A";
+    stun[p.id] = 0;
+    cooldowns[p.id] = Object.fromEntries(
+      (p.sortsActifs ?? []).map((s) => [s.id, 0]),
+    );
   }
-  for (const p of equipeB) {
-    pv[p.id] = p.vie;
-    compteur[p.id] = 0;
-    intervalle[p.id] = BASE_TICK / p.vitesse;
-    parId[p.id] = p;
-    camp[p.id] = "B";
-  }
+  for (const p of equipeA) camp[p.id] = "A";
+  for (const p of equipeB) camp[p.id] = "B";
 
   function vivants(c: "A" | "B") {
     return tous.filter((p) => camp[p.id] === c && pv[p.id] > 0);
@@ -92,32 +123,102 @@ export function simulerCombatEquipe(
     enVie.sort((a, b) => compteur[a.id] - compteur[b.id]);
     const attaquant = enVie[0];
 
+    if (stun[attaquant.id] > 0) {
+      stun[attaquant.id] -= 1;
+      events.push({
+        type: "stun",
+        personnageId: attaquant.id,
+        toursRestants: stun[attaquant.id],
+      });
+      compteur[attaquant.id] += intervalle[attaquant.id];
+      continue;
+    }
+
     const campAdverse = camp[attaquant.id] === "A" ? "B" : "A";
     const pool = vivants(campAdverse);
     if (pool.length === 0) break;
     const defenseur = pool[Math.floor(random() * pool.length)];
 
-    const chance = chanceEsquive(defenseur.agilite, attaquant.force);
-    const jet = random() * 100;
+    for (const sort of attaquant.sortsActifs ?? []) {
+      if (cooldowns[attaquant.id][sort.id] > 0) {
+        cooldowns[attaquant.id][sort.id] -= 1;
+      }
+    }
 
-    if (jet < chance) {
-      events.push({
-        type: "dodge",
-        attackerId: attaquant.id,
-        defenderId: defenseur.id,
-      });
+    const sortPret = (attaquant.sortsActifs ?? []).find(
+      (s) => cooldowns[attaquant.id][s.id] === 0,
+    );
+
+    if (sortPret) {
+      cooldowns[attaquant.id][sortPret.id] = sortPret.cooldown;
+
+      if (sortPret.effect === "DEGATS") {
+        const base = calculerDegats(attaquant.force, defenseur.resistance);
+        const bonus = Math.round(base * (sortPret.value / 100));
+        const degats = appliquerReductionDegats(
+          base + bonus,
+          defenseur.reductionDegats ?? 0,
+        );
+        pv[defenseur.id] = Math.max(0, pv[defenseur.id] - degats);
+        events.push({
+          type: "spellDegats",
+          attackerId: attaquant.id,
+          defenderId: defenseur.id,
+          spellName: sortPret.name,
+          damage: degats,
+          defenderHpAfter: pv[defenseur.id],
+        });
+        if (pv[defenseur.id] === 0) {
+          events.push({ type: "ko", personnageId: defenseur.id });
+        }
+      } else if (sortPret.effect === "SOIN") {
+        // v1 : le soin ne cible que le lanceur, pas d'assistance aux alliés
+        const heal = Math.round(attaquant.vie * (sortPret.value / 100));
+        pv[attaquant.id] = Math.min(attaquant.vie, pv[attaquant.id] + heal);
+        events.push({
+          type: "spellSoin",
+          casterId: attaquant.id,
+          spellName: sortPret.name,
+          heal,
+          casterHpAfter: pv[attaquant.id],
+        });
+      } else {
+        stun[defenseur.id] = (stun[defenseur.id] ?? 0) + sortPret.value;
+        events.push({
+          type: "spellEtourdissement",
+          casterId: attaquant.id,
+          targetId: defenseur.id,
+          spellName: sortPret.name,
+          tours: sortPret.value,
+        });
+      }
     } else {
-      const degats = calculerDegats(attaquant.force, defenseur.resistance);
-      pv[defenseur.id] = Math.max(0, pv[defenseur.id] - degats);
-      events.push({
-        type: "hit",
-        attackerId: attaquant.id,
-        defenderId: defenseur.id,
-        damage: degats,
-        defenderHpAfter: pv[defenseur.id],
-      });
-      if (pv[defenseur.id] === 0) {
-        events.push({ type: "ko", personnageId: defenseur.id });
+      const chance = chanceEsquive(defenseur.agilite, attaquant.force);
+      const jet = random() * 100;
+
+      if (jet < chance) {
+        events.push({
+          type: "dodge",
+          attackerId: attaquant.id,
+          defenderId: defenseur.id,
+        });
+      } else {
+        const base = calculerDegats(attaquant.force, defenseur.resistance);
+        const degats = appliquerReductionDegats(
+          base,
+          defenseur.reductionDegats ?? 0,
+        );
+        pv[defenseur.id] = Math.max(0, pv[defenseur.id] - degats);
+        events.push({
+          type: "hit",
+          attackerId: attaquant.id,
+          defenderId: defenseur.id,
+          damage: degats,
+          defenderHpAfter: pv[defenseur.id],
+        });
+        if (pv[defenseur.id] === 0) {
+          events.push({ type: "ko", personnageId: defenseur.id });
+        }
       }
     }
 

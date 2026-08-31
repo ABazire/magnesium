@@ -213,6 +213,38 @@
   pointer-events: none;
 }
 
+.healPopup {
+  position: absolute;
+  top: -10px;
+  right: -8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: #34d399;
+  font-weight: 800;
+  font-size: 16px;
+  animation: floatUp 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+.statusPopup {
+  position: absolute;
+  top: -10px;
+  right: -8px;
+  color: #f2c94c;
+  font-weight: 700;
+  font-size: 12px;
+  animation: floatUp 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+.spellName {
+  font-size: 9px;
+  font-weight: 600;
+  color: #cfe3da;
+  text-transform: uppercase;
+}
+
 @keyframes floatUp {
   from {
     opacity: 1;

@@ -3,8 +3,7 @@ import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import CombatViewer from "@/components/CombatViewer";
 import type { CombatEvent } from "@/lib/combat";
-import styles from "../page.module.css";
-import { PersonnageIcon } from "@/components/pixel";
+import styles from "./page.module.css";
 
 export default async function CombatResultPage({
   params,

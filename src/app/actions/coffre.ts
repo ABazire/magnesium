@@ -5,25 +5,41 @@ import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { tirerRarete } from "@/lib/rarity";
 import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
+import { genererSort } from "@/lib/spell";
 import { EquipmentSlot } from "@prisma/client";
 
 const COUT_COFFRE = 80;
 const SLOTS = Object.values(EquipmentSlot);
+const CHANCE_SORT = 0.5;
 
 function randomStat(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-type ResultatCoffre = {
-  equipment: {
-    name: string;
-    slot: string;
-    bonusStat: string;
-    bonusValue: number;
-    stars: number;
-  };
-  newCurrency: number;
-};
+type ResultatCoffre =
+  | {
+      kind: "equipment";
+      equipment: {
+        name: string;
+        slot: string;
+        bonusStat: string;
+        bonusValue: number;
+        stars: number;
+      };
+      newCurrency: number;
+    }
+  | {
+      kind: "spell";
+      spell: {
+        name: string;
+        type: string;
+        effect: string;
+        value: number;
+        targetStat: string | null;
+        stars: number;
+      };
+      newCurrency: number;
+    };
 
 export async function ouvrirCoffre(): Promise<ResultatCoffre> {
   const session = await auth();
@@ -35,6 +51,38 @@ export async function ouvrirCoffre(): Promise<ResultatCoffre> {
   if (user.currency < COUT_COFFRE) throw new Error("Monnaie insuffisante");
 
   const rarete = await tirerRarete();
+
+  if (Math.random() < CHANCE_SORT) {
+    const sort = genererSort(rarete);
+
+    const [updatedUser] = await prisma.$transaction([
+      prisma.user.update({
+        where: { id: session.user.id },
+        data: { currency: { decrement: COUT_COFFRE } },
+      }),
+      prisma.spell.create({
+        data: { ...sort, ownerId: session.user.id },
+      }),
+    ]);
+
+    revalidatePath("/coffre");
+    revalidatePath("/jouer");
+    revalidatePath("/inventaire");
+
+    return {
+      kind: "spell",
+      spell: {
+        name: sort.name,
+        type: sort.type,
+        effect: sort.effect,
+        value: sort.value,
+        targetStat: sort.targetStat,
+        stars: rarete.stars,
+      },
+      newCurrency: updatedUser.currency,
+    };
+  }
+
   const slot = SLOTS[Math.floor(Math.random() * SLOTS.length)];
   const noms = NOMS_PAR_SLOT[slot];
   const name = noms[Math.floor(Math.random() * noms.length)];
@@ -59,8 +107,10 @@ export async function ouvrirCoffre(): Promise<ResultatCoffre> {
 
   revalidatePath("/coffre");
   revalidatePath("/jouer");
+  revalidatePath("/inventaire");
 
   return {
+    kind: "equipment",
     equipment: {
       name,
       slot,

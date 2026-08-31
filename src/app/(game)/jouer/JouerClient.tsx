@@ -12,20 +12,29 @@ import {
   PersonnageIcon,
   SwordIcon,
 } from "@/components/pixel";
-import { Box } from "lucide-react";
+import { Box, Flame, HeartPulse, Snowflake, Shield, Sparkles } from "lucide-react";
 import {
   equiperObjet,
   desequiperObjet,
   getEquipementsDisponibles,
 } from "../../actions/equiper";
-import type { Prisma } from "@prisma/client";
-import { xpRequisePourNiveauSuivant, niveauMax } from "@/lib/leveling";
+import {
+  equiperSort,
+  desequiperSort,
+  getSortsDisponibles,
+} from "../../actions/sorts";
+import type { Prisma, SpellSlot } from "@prisma/client";
+import { descriptionSort } from "@/lib/spell";
+import { xpRequisePourNiveauSuivant } from "@/lib/leveling";
 import Modal from "@/components/Modal";
 import styles from "./page.module.css";
-import WolfSprite from "@/components/WolfSprite";
 
 type PersonnageAvecRelations = Prisma.PersonnageGetPayload<{
-  include: { rarity: true; equipment: { include: { equipment: true } } };
+  include: {
+    rarity: true;
+    equipment: { include: { equipment: true } };
+    spells: { include: { spell: true } };
+  };
 }>;
 
 type EquipementDisponible = {
@@ -33,6 +42,16 @@ type EquipementDisponible = {
   name: string;
   bonusValue: number;
   bonusStat: string;
+  rarity: { stars: number };
+};
+
+type SortDisponible = {
+  id: string;
+  name: string;
+  effect: string;
+  value: number;
+  targetStat: string | null;
+  cooldown: number;
   rarity: { stars: number };
 };
 
@@ -46,6 +65,22 @@ const ICONE_SLOT: Record<string, ComponentType<{ size?: number }>> = {
   AMULETTE: AmuletIcon,
 };
 
+const SORT_SLOTS: { slot: SpellSlot; label: string }[] = [
+  { slot: "SORT_1", label: "Sort 1" },
+  { slot: "SORT_2", label: "Sort 2" },
+  { slot: "SORT_3", label: "Sort 3" },
+  { slot: "PASSIF", label: "Passif" },
+];
+
+const ICONE_EFFET: Record<string, ComponentType<{ size?: number }>> = {
+  DEGATS: Flame,
+  SOIN: HeartPulse,
+  ETOURDISSEMENT: Snowflake,
+  BONUS_STAT: Sparkles,
+  REDUCTION_DEGATS: Shield,
+};
+
+
 export default function JouerClient({
   equipe,
 }: {
@@ -57,12 +92,17 @@ export default function JouerClient({
   const [disponibles, setDisponibles] = useState<EquipementDisponible[]>([]);
   const [chargement, setChargement] = useState(false);
 
+  const [sortSlotOuvert, setSortSlotOuvert] = useState<SpellSlot | null>(null);
+  const [sortsDisponibles, setSortsDisponibles] = useState<SortDisponible[]>([]);
+  const [chargementSorts, setChargementSorts] = useState(false);
+
   const selectionne = equipe.find((p) => p.id === selectionneId);
   const stats = selectionne ? statsEffectives(selectionne) : null;
 
   function fermerModal() {
     setSelectionneId(null);
     setSlotOuvert(null);
+    setSortSlotOuvert(null);
   }
 
   async function ouvrirSlot(slot: string) {
@@ -89,6 +129,30 @@ export default function JouerClient({
     router.refresh();
   }
 
+  async function ouvrirSortSlot(slot: SpellSlot) {
+    if (sortSlotOuvert === slot) {
+      setSortSlotOuvert(null);
+      return;
+    }
+    setSortSlotOuvert(slot);
+    setChargementSorts(true);
+    const data = await getSortsDisponibles(slot);
+    setSortsDisponibles(data);
+    setChargementSorts(false);
+  }
+
+  async function equiperSortHandler(spellId: string) {
+    if (!selectionne || !sortSlotOuvert) return;
+    await equiperSort(selectionne.id, spellId, sortSlotOuvert);
+    setSortSlotOuvert(null);
+    router.refresh();
+  }
+
+  async function desequiperSortHandler(spellId: string) {
+    await desequiperSort(spellId);
+    router.refresh();
+  }
+
   return (
     <main className={styles.page}>
       <div className={styles.teamRow}>
@@ -107,7 +171,6 @@ export default function JouerClient({
             );
           }
 
-          const max = niveauMax(p.rarity?.stars ?? 1);
           const xpRequise = xpRequisePourNiveauSuivant(p.level);
 
           return (
@@ -263,6 +326,69 @@ export default function JouerClient({
                               >
                                 {"★".repeat(e.rarity.stars)} {e.name} (+
                                 {e.bonusValue} {e.bonusStat})
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <span className={styles.sectionLabel}>Sorts</span>
+              <div className={styles.slotGrid}>
+                {SORT_SLOTS.map(({ slot, label }) => {
+                  const lien = selectionne.spells.find((s) => s.slot === slot);
+                  const IconeSort = lien
+                    ? (ICONE_EFFET[lien.spell.effect] ?? Sparkles)
+                    : null;
+
+                  return (
+                    <div key={slot} className={styles.slotWrapper}>
+                      <button
+                        className={styles.slot}
+                        onClick={() =>
+                          lien
+                            ? desequiperSortHandler(lien.spell.id)
+                            : ouvrirSortSlot(slot)
+                        }
+                      >
+                        {lien && IconeSort ? (
+                          <>
+                            <IconeSort size={28} />
+                            <span className={styles.slotFilled}>
+                              {lien.spell.name}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className={styles.slotEmpty}>+</span>
+                            <span className={styles.slotFilled}>{label}</span>
+                          </>
+                        )}
+                      </button>
+
+                      {sortSlotOuvert === slot && (
+                        <div className={styles.picker}>
+                          {chargementSorts && (
+                            <span className={styles.pickerEmpty}>
+                              Chargement...
+                            </span>
+                          )}
+                          {!chargementSorts && sortsDisponibles.length === 0 && (
+                            <span className={styles.pickerEmpty}>
+                              Aucun sort disponible
+                            </span>
+                          )}
+                          {!chargementSorts &&
+                            sortsDisponibles.map((s) => (
+                              <button
+                                key={s.id}
+                                onClick={() => equiperSortHandler(s.id)}
+                                className={styles.pickerItem}
+                              >
+                                {"★".repeat(s.rarity.stars)} {s.name} (
+                                {descriptionSort(s)})
                               </button>
                             ))}
                         </div>

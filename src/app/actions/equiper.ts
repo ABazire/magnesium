@@ -4,6 +4,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { EquipmentSlot } from "@prisma/client";
 
 export async function equiperObjet(personnageId: string, equipmentId: string) {
   const session = await auth();
@@ -45,8 +46,16 @@ export async function getEquipementsDisponibles(slot: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non connecté");
 
+  if (!Object.values(EquipmentSlot).includes(slot as EquipmentSlot)) {
+    throw new Error("Emplacement invalide");
+  }
+
   return prisma.equipment.findMany({
-    where: { ownerId: session.user.id, slot: slot as any, equippedOn: null },
+    where: {
+      ownerId: session.user.id,
+      slot: slot as EquipmentSlot,
+      equippedOn: null,
+    },
     include: { rarity: true },
   });
 }

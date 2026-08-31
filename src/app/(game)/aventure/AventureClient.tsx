@@ -5,7 +5,7 @@ import {
   affronterMonstre,
   getMonstresDisponibles,
 } from "../../actions/aventure";
-import { WolfTierIcon, BearTierIcon, PersonnageIcon } from "@/components/pixel";
+import { WolfTierIcon, BearTierIcon } from "@/components/pixel";
 import CombatViewer from "@/components/CombatViewer";
 import Modal from "@/components/Modal";
 import type { CombatEvent } from "@/lib/combat";

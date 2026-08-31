@@ -36,7 +36,7 @@ export default async function GameLayout({
         energy={ressources.energy}
         coupons={ressources.coupons}
       />
-      <div style={{ paddingBottom: "70px" }}>{children}</div>
+      <div>{children}</div>
     </div>
   );
 }

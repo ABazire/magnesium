@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Magnesium
 
-## Getting Started
+Magnesium est un RPG idle/gacha en navigateur : on recrute des personnages, on les équipe,
+on les fait monter en niveau via l'aventure (PvE) et l'arène (PvP 1v1 et 3v3), et on grimpe
+au classement.
 
-First, run the development server:
+## Fonctionnalités
+
+- **Recrutement (gatcha)** — tirage pondéré par rareté (1★ à 6★) contre de la monnaie ou des diamants
+- **Collection & inventaire** — gestion des personnages et de leur équipement (arme, armure, bottes, amulette)
+- **Aventure (PvE)** — combats contre des monstres à difficulté croissante, débloqués progressivement, limités par un système d'énergie
+- **Arène (PvP)** — matchmaking par puissance proche en 1v1, et en 3v3 par classement Elo, limité par des coupons
+- **Classement** — leaderboards 1v1 et 3v3
+- **Coffres** — récompenses aléatoires d'équipement
+- **Tutoriel** — parcours d'accueil pour les nouveaux joueurs
+
+Le moteur de combat est déterministe (RNG seedée), et chaque combat est journalisé
+(tour par tour) en base pour être rejoué côté client.
+
+## Stack technique
+
+- [Next.js](https://nextjs.org) (App Router) + React 19
+- [Prisma](https://www.prisma.io) + PostgreSQL
+- [NextAuth](https://authjs.dev) pour l'authentification
+- CSS Modules pour le style (pas de framework CSS global)
+
+> Ce projet utilise une version modifiée de Next.js dont les conventions diffèrent du
+> Next.js standard — voir [AGENTS.md](./AGENTS.md) avant de contribuer.
+
+## Démarrer en local
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Nécessite une base PostgreSQL accessible via `DATABASE_URL` (voir `prisma/schema.prisma`).
+Les migrations sont appliquées automatiquement au démarrage de `next dev` / via `prisma migrate`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` — serveur de développement
+- `npm run build` — build de production
+- `npm run start` — lance le build de production
+- `npm run lint` — linting ESLint

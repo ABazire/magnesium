@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { ComponentType } from "react";
-import Link from "next/link";
 import {
   SwordIcon,
   ArmorIcon,
@@ -11,7 +10,14 @@ import {
   ChestIcon,
 } from "@/components/pixel";
 import { desequiperObjet } from "../../actions/equiper";
+import FilterBar from "@/components/FilterBar";
+import Pagination from "@/components/Pagination";
 import styles from "./page.module.css";
+import type { Prisma } from "@prisma/client";
+
+type EquipementAvecRelations = Prisma.EquipmentGetPayload<{
+  include: { rarity: true; equippedOn: { include: { personnage: true } } };
+}>;
 
 const PAR_PAGE = 24;
 
@@ -33,17 +39,70 @@ const RARITY_COLORS: Record<number, string> = {
 
 const SLOTS = ["ARME", "ARMURE", "BOTTES", "AMULETTE"];
 
+const STATUT_OPTIONS = [
+  { value: "", label: "Tous" },
+  { value: "equipe", label: "Équipé" },
+  { value: "libre", label: "Disponible" },
+];
+
+const STATS_BONUS = [
+  { value: "", label: "Toutes" },
+  { value: "FORCE", label: "Force" },
+  { value: "VITESSE", label: "Vitesse" },
+  { value: "RESISTANCE", label: "Résistance" },
+  { value: "AGILITE", label: "Agilité" },
+];
+
+const CHAMPS_TRI = [
+  { value: "stars", label: "Étoiles" },
+  { value: "bonus", label: "Bonus" },
+] as const;
+
+type ChampTri = (typeof CHAMPS_TRI)[number]["value"];
+
+const TRI_OPTIONS = [
+  { value: "", label: "Tri : aucun" },
+  ...CHAMPS_TRI.flatMap((c) => [
+    { value: `${c.value}-desc`, label: `${c.label} ↓` },
+    { value: `${c.value}-asc`, label: `${c.label} ↑` },
+  ]),
+];
+
+function valeurTri(e: EquipementAvecRelations, champ: ChampTri): number {
+  if (champ === "stars") return e.rarity?.stars ?? 0;
+  return e.bonusValue;
+}
+
 export default async function InventairePage({
   searchParams,
 }: {
-  searchParams: Promise<{ minStars?: string; slot?: string; page?: string }>;
+  searchParams: Promise<{
+    minStars?: string;
+    slot?: string;
+    statut?: string;
+    bonusStat?: string;
+    tri?: string;
+    q?: string;
+    page?: string;
+  }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/");
 
-  const { minStars, slot, page } = await searchParams;
+  const { minStars, slot, statut, bonusStat, tri, q, page } =
+    await searchParams;
   const minStarsNum = minStars ? Number(minStars) : 0;
   const pageActuelle = page ? Math.max(1, Number(page)) : 1;
+
+  let champTri: ChampTri | null = null;
+  let sensTri: "asc" | "desc" = "desc";
+  if (tri) {
+    const [champ, sens] = tri.split("-");
+    if (CHAMPS_TRI.some((c) => c.value === champ)) {
+      champTri = champ as ChampTri;
+      sensTri = sens === "asc" ? "asc" : "desc";
+    }
+  }
 
   const tousLesEquipements = await prisma.equipment.findMany({
     where: { ownerId: session.user.id },
@@ -54,8 +113,22 @@ export default async function InventairePage({
   let filtres = tousLesEquipements.filter(
     (e) => (e.rarity?.stars ?? 0) >= minStarsNum,
   );
-  if (slot) {
-    filtres = filtres.filter((e) => e.slot === slot);
+  if (slot) filtres = filtres.filter((e) => e.slot === slot);
+  if (statut === "equipe") filtres = filtres.filter((e) => !!e.equippedOn);
+  if (statut === "libre") filtres = filtres.filter((e) => !e.equippedOn);
+  if (bonusStat) filtres = filtres.filter((e) => e.bonusStat === bonusStat);
+
+  if (q) {
+    const qLower = q.toLowerCase();
+    filtres = filtres.filter((e) => e.name.toLowerCase().includes(qLower));
+  }
+
+  if (champTri) {
+    const facteur = sensTri === "asc" ? 1 : -1;
+    const champ = champTri;
+    filtres = [...filtres].sort(
+      (a, b) => (valeurTri(a, champ) - valeurTri(b, champ)) * facteur,
+    );
   }
 
   const totalPages = Math.max(1, Math.ceil(filtres.length / PAR_PAGE));
@@ -67,139 +140,141 @@ export default async function InventairePage({
     (COLONNES - (equipementsPage.length % COLONNES)) % COLONNES;
 
   function construireLien(params: Record<string, string | number>) {
-    const q = new URLSearchParams({
+    const qs = new URLSearchParams({
       minStars: String(minStarsNum),
       ...(slot ? { slot } : {}),
+      ...(statut ? { statut } : {}),
+      ...(bonusStat ? { bonusStat } : {}),
+      ...(tri ? { tri } : {}),
+      ...(q ? { q } : {}),
       page: String(pageActuelle),
       ...Object.fromEntries(
         Object.entries(params).map(([k, v]) => [k, String(v)]),
       ),
     });
-    return `/inventaire?${q.toString()}`;
+    return `/inventaire?${qs.toString()}`;
   }
 
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Inventaire</h1>
 
-      <div className={styles.filters}>
-        <div className={styles.filterGroup}>
-          <span className={styles.filterLabel}>Étoiles min.</span>
-          <div className={styles.filterOptions}>
-            {[0, 1, 2, 3, 4, 5, 6].map((n) => (
-              <Link
-                key={n}
-                href={construireLien({ minStars: n, page: 1 })}
-                className={
-                  minStarsNum === n ? styles.filterActive : styles.filterOption
-                }
+      <FilterBar
+        action="/inventaire"
+        fields={[
+          {
+            name: "minStars",
+            label: "Étoiles min.",
+            value: String(minStarsNum),
+            options: [0, 1, 2, 3, 4, 5, 6].map((n) => ({
+              value: String(n),
+              label: n === 0 ? "Toutes" : `${n}★+`,
+            })),
+          },
+          {
+            name: "slot",
+            label: "Emplacement",
+            value: slot ?? "",
+            options: [
+              { value: "", label: "Tous" },
+              ...SLOTS.map((s) => ({ value: s, label: s })),
+            ],
+          },
+          {
+            name: "statut",
+            label: "Statut",
+            value: statut ?? "",
+            options: STATUT_OPTIONS,
+          },
+          {
+            name: "bonusStat",
+            label: "Bonus",
+            value: bonusStat ?? "",
+            options: STATS_BONUS,
+          },
+          {
+            name: "tri",
+            label: "Trier par",
+            value: tri ?? "",
+            options: TRI_OPTIONS,
+          },
+        ]}
+        search={{
+          name: "q",
+          value: q,
+          placeholder: "Nom de l'objet...",
+        }}
+      />
+
+      {filtres.length === 0 ? (
+        <p className={styles.empty}>
+          Aucun équipement ne correspond à ces filtres.
+        </p>
+      ) : (
+        <div className={styles.grid}>
+          {equipementsPage.map((e) => {
+            const couleur = RARITY_COLORS[e.rarity?.stars ?? 1];
+            const Icone = ICONE_SLOT[e.slot] ?? ChestIcon;
+            const estEquipe = !!e.equippedOn;
+
+            const carte = (
+              <div
+                className={styles.card}
+                style={{
+                  background: `linear-gradient(160deg, ${couleur}bb, ${couleur}55)`,
+                  borderColor: couleur,
+                }}
               >
-                {n === 0 ? "Tous" : `${n}★+`}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.filterGroup}>
-          <span className={styles.filterLabel}>Emplacement</span>
-          <div className={styles.filterOptions}>
-            <Link
-              href={construireLien({ slot: "", page: 1 })}
-              className={!slot ? styles.filterActive : styles.filterOption}
-            >
-              Tous
-            </Link>
-            {SLOTS.map((s) => (
-              <Link
-                key={s}
-                href={construireLien({ slot: s, page: 1 })}
-                className={
-                  slot === s ? styles.filterActive : styles.filterOption
-                }
-              >
-                {s}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        {equipementsPage.map((e) => {
-          const couleur = RARITY_COLORS[e.rarity?.stars ?? 1];
-          const Icone = ICONE_SLOT[e.slot] ?? ChestIcon;
-          const estEquipe = !!e.equippedOn;
-
-          const carte = (
-            <div
-              className={styles.card}
-              style={{
-                background: `linear-gradient(160deg, ${couleur}bb, ${couleur}55)`,
-                borderColor: couleur,
-              }}
-            >
-              <span className={styles.cardLabel}>{e.name.toUpperCase()}</span>
-              <Icone size={40} />
-              <span className={styles.cardBonus}>
-                +{e.bonusValue} {e.bonusStat}
-              </span>
-              <span className={styles.cardStars}>
-                {"★".repeat(e.rarity?.stars ?? 0)}
-              </span>
-              {estEquipe && (
-                <span className={styles.equippedBadge}>
-                  {e.equippedOn!.personnage.name}
+                <span className={styles.cardLabel}>{e.name.toUpperCase()}</span>
+                <Icone size={40} />
+                <span className={styles.cardBonus}>
+                  +{e.bonusValue} {e.bonusStat}
                 </span>
-              )}
-            </div>
-          );
-
-          if (!estEquipe) {
-            return (
-              <div key={e.id} className={styles.cardWrapper}>
-                {carte}
+                <span className={styles.cardStars}>
+                  {"★".repeat(e.rarity?.stars ?? 0)}
+                </span>
+                {estEquipe && (
+                  <span className={styles.equippedBadge}>
+                    {e.equippedOn!.personnage.name}
+                  </span>
+                )}
               </div>
             );
-          }
 
-          return (
-            <form
-              key={e.id}
-              action={async () => {
-                "use server";
-                await desequiperObjet(e.id);
-              }}
-            >
-              <button type="submit" className={styles.cardButton}>
-                {carte}
-              </button>
-            </form>
-          );
-        })}
+            if (!estEquipe) {
+              return (
+                <div key={e.id} className={styles.cardWrapper}>
+                  {carte}
+                </div>
+              );
+            }
 
-        {Array.from({ length: cellulesVides }).map((_, i) => (
-          <div key={`vide-${i}`} className={styles.cardEmpty} />
-        ))}
-      </div>
-
-      {totalPages > 1 && (
-        <div className={styles.pagination}>
-          {Array.from({ length: totalPages }).map((_, i) => {
-            const num = i + 1;
             return (
-              <Link
-                key={num}
-                href={construireLien({ page: num })}
-                className={
-                  pageActuelle === num ? styles.pageActive : styles.pageLink
-                }
+              <form
+                key={e.id}
+                action={async () => {
+                  "use server";
+                  await desequiperObjet(e.id);
+                }}
               >
-                {num}
-              </Link>
+                <button type="submit" className={styles.cardButton}>
+                  {carte}
+                </button>
+              </form>
             );
           })}
+
+          {Array.from({ length: cellulesVides }).map((_, i) => (
+            <div key={`vide-${i}`} className={styles.cardEmpty} />
+          ))}
         </div>
       )}
+
+      <Pagination
+        page={pageActuelle}
+        totalPages={totalPages}
+        buildHref={(p) => construireLien({ page: p })}
+      />
     </main>
   );
 }

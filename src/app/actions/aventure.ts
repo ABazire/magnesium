@@ -4,17 +4,19 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { CombatEvent, simulerCombat } from "@/lib/combat";
-import { statsEffectives } from "@/lib/personnage";
+import {
+  statsEffectives,
+  sortsActifsCombat,
+  reductionDegatsPassive,
+} from "@/lib/personnage";
 import { tirerRarete } from "@/lib/rarity";
 import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
 import { gagnerXp } from "@/lib/leveling";
 import { EquipmentSlot } from "@prisma/client";
-import { debutDeJournee } from "@/lib/date";
 import { tirerGainDiamants } from "@/lib/diamond";
 import { obtenirEnergieActuelle, ENERGY_COUT_COMBAT } from "@/lib/energy";
 
 const CHANCE_COFFRE = 0.2;
-const LIMITE_PAR_MOB = 10;
 
 function randomStat(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -54,7 +56,11 @@ export async function affronterMonstre(
   const [personnage, monstre] = await Promise.all([
     prisma.personnage.findUniqueOrThrow({
       where: { id: personnageId, ownerId: session.user.id },
-      include: { rarity: true, equipment: { include: { equipment: true } } },
+      include: {
+        rarity: true,
+        equipment: { include: { equipment: true } },
+        spells: { include: { spell: true } },
+      },
     }),
     prisma.monster.findUniqueOrThrow({ where: { id: monsterId } }),
   ]);
@@ -75,6 +81,8 @@ export async function affronterMonstre(
     id: personnage.id,
     name: personnage.name,
     ...statsEffectives(personnage),
+    sortsActifs: sortsActifsCombat(personnage),
+    reductionDegats: reductionDegatsPassive(personnage),
   };
   const combatMonstre = {
     id: monstre.id,

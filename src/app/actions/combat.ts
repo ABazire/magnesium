@@ -4,7 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { simulerCombat } from "@/lib/combat";
-import { statsEffectives } from "@/lib/personnage";
+import {
+  statsEffectives,
+  sortsActifsCombat,
+  reductionDegatsPassive,
+} from "@/lib/personnage";
 import { debutDeJournee } from "@/lib/date";
 import { calculerNouveauxRangs } from "@/lib/elo";
 import { gagnerXp } from "@/lib/leveling";
@@ -41,14 +45,20 @@ export async function lancerCombat(formData: FormData) {
     throw new Error("Tu as déjà affronté cet adversaire aujourd'hui");
   }
 
+  const inclusionCombat = {
+    rarity: true,
+    equipment: { include: { equipment: true } },
+    spells: { include: { spell: true } },
+  } as const;
+
   const [perso1, perso2] = await Promise.all([
     prisma.personnage.findUniqueOrThrow({
       where: { id: a, ownerId: session.user.id },
-      include: { rarity: true, equipment: { include: { equipment: true } } },
+      include: inclusionCombat,
     }),
     prisma.personnage.findUniqueOrThrow({
       where: { id: b },
-      include: { rarity: true, equipment: { include: { equipment: true } } },
+      include: inclusionCombat,
     }),
   ]);
 
@@ -56,11 +66,15 @@ export async function lancerCombat(formData: FormData) {
     id: perso1.id,
     name: perso1.name,
     ...statsEffectives(perso1),
+    sortsActifs: sortsActifsCombat(perso1),
+    reductionDegats: reductionDegatsPassive(perso1),
   };
   const combat2 = {
     id: perso2.id,
     name: perso2.name,
     ...statsEffectives(perso2),
+    sortsActifs: sortsActifsCombat(perso2),
+    reductionDegats: reductionDegatsPassive(perso2),
   };
 
   const seed = Math.floor(Math.random() * 2147483647);

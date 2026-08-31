@@ -24,9 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <div style={{ width: "80%", margin: "0 auto", paddingBottom: "70px" }}>
-          {children}
-        </div>
+        <div style={{ width: "80%", margin: "0 auto" }}>{children}</div>
       </body>
     </html>
   );

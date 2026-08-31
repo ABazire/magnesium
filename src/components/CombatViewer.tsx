@@ -54,7 +54,11 @@ export default function CombatViewer({
   };
   for (let i = 0; i < step; i++) {
     const ev = events[i];
-    if (ev.type === "hit") vie[ev.defenderId] = ev.defenderHpAfter;
+    if (ev.type === "hit" || ev.type === "spellDegats") {
+      vie[ev.defenderId] = ev.defenderHpAfter;
+    } else if (ev.type === "spellSoin") {
+      vie[ev.casterId] = ev.casterHpAfter;
+    }
   }
 
   const termine = step >= events.length;
@@ -72,15 +76,33 @@ export default function CombatViewer({
 
   const nom = (id: string) => (id === f1.id ? f1.name : f2.name);
 
+  // Normalise les événements (attaquant/cible ou lanceur/cible) pour l'affichage.
+  function acteurCible(ev: CombatEvent): { acteur: string; cible?: string } {
+    switch (ev.type) {
+      case "dodge":
+      case "hit":
+      case "spellDegats":
+        return { acteur: ev.attackerId, cible: ev.defenderId };
+      case "spellSoin":
+        return { acteur: ev.casterId, cible: ev.casterId };
+      case "spellEtourdissement":
+        return { acteur: ev.casterId, cible: ev.targetId };
+      case "stun":
+        return { acteur: ev.personnageId };
+    }
+  }
+
   function classeSprite(id: string, cote: "gauche" | "droite") {
     if (termine || !evenementActuel) return styles.sprite;
-    const estAttaquant = evenementActuel.attackerId === id;
-    const estDefenseur = evenementActuel.defenderId === id;
-    if (estAttaquant)
+    const { acteur, cible } = acteurCible(evenementActuel);
+    const estActeur = acteur === id;
+    const estCible = cible === id;
+
+    if (estActeur && (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats" || evenementActuel.type === "spellEtourdissement"))
       return `${styles.sprite} ${cote === "gauche" ? styles.lungeRight : styles.lungeLeft}`;
-    if (estDefenseur && evenementActuel.type === "hit")
+    if (estCible && (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats"))
       return `${styles.sprite} ${styles.hitFlash}`;
-    if (estDefenseur && evenementActuel.type === "dodge")
+    if (estCible && evenementActuel.type === "dodge")
       return `${styles.sprite} ${cote === "gauche" ? styles.dodgeLeft : styles.dodgeRight}`;
     return styles.sprite;
   }
@@ -141,16 +163,9 @@ export default function CombatViewer({
               tier={f1.tier}
             />
           </div>
-          {evenementActuel?.defenderId === f1.id &&
-            evenementActuel.type === "hit" &&
-            !termine && (
-              <span className={styles.damagePopup}>
-                -{evenementActuel.damage}
-              </span>
-            )}
-          {evenementActuel?.defenderId === f1.id &&
-            evenementActuel.type === "dodge" &&
-            !termine && <span className={styles.dodgePopup}>Esquive !</span>}
+          {!termine && evenementActuel && (
+            <EvenementPopup ev={evenementActuel} personnageId={f1.id} />
+          )}
         </div>
         <div className={`${styles.fighterWrapper} ${styles.right}`}>
           <div className={styles.groundShadow} />
@@ -171,16 +186,9 @@ export default function CombatViewer({
               tier={f2.tier}
             />
           </div>
-          {evenementActuel?.defenderId === f2.id &&
-            evenementActuel.type === "hit" &&
-            !termine && (
-              <span className={styles.damagePopup}>
-                -{evenementActuel.damage}
-              </span>
-            )}
-          {evenementActuel?.defenderId === f2.id &&
-            evenementActuel.type === "dodge" &&
-            !termine && <span className={styles.dodgePopup}>Esquive !</span>}
+          {!termine && evenementActuel && (
+            <EvenementPopup ev={evenementActuel} personnageId={f2.id} />
+          )}
         </div>
       </div>
 
@@ -190,9 +198,50 @@ export default function CombatViewer({
         </p>
       ) : (
         <button onClick={passerAnimation} className={styles.skipButton}>
-          Passer l'animation
+          Passer l’animation
         </button>
       )}
     </div>
   );
+}
+
+function EvenementPopup({
+  ev,
+  personnageId,
+}: {
+  ev: CombatEvent;
+  personnageId: string;
+}) {
+  switch (ev.type) {
+    case "hit":
+      if (ev.defenderId !== personnageId) return null;
+      return <span className={styles.damagePopup}>-{ev.damage}</span>;
+    case "dodge":
+      if (ev.defenderId !== personnageId) return null;
+      return <span className={styles.dodgePopup}>Esquive !</span>;
+    case "spellDegats":
+      if (ev.defenderId !== personnageId) return null;
+      return (
+        <span className={styles.damagePopup}>
+          -{ev.damage}
+          <span className={styles.spellName}>{ev.spellName}</span>
+        </span>
+      );
+    case "spellSoin":
+      if (ev.casterId !== personnageId) return null;
+      return (
+        <span className={styles.healPopup}>
+          +{ev.heal}
+          <span className={styles.spellName}>{ev.spellName}</span>
+        </span>
+      );
+    case "spellEtourdissement":
+      if (ev.targetId !== personnageId) return null;
+      return <span className={styles.statusPopup}>Étourdi !</span>;
+    case "stun":
+      if (ev.personnageId !== personnageId) return null;
+      return <span className={styles.statusPopup}>Ne peut pas agir</span>;
+    default:
+      return null;
+  }
 }

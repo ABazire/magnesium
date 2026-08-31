@@ -32,9 +32,15 @@ type Props = {
   fighters: [Fighter, Fighter];
   events: CombatEvent[];
   winnerId: string;
+  background?: string;
 };
 
-export default function CombatViewer({ fighters, events, winnerId }: Props) {
+export default function CombatViewer({
+  fighters,
+  events,
+  winnerId,
+  background,
+}: Props) {
   const [step, setStep] = useState(0);
   const vitesse = 900;
 
@@ -106,7 +112,19 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
         })}
       </div>
 
-      <div className={styles.stage}>
+      <div
+        className={styles.stage}
+        style={
+          background
+            ? {
+                backgroundImage: `linear-gradient(180deg, rgba(15,26,22,0.15) 0%, rgba(15,26,22,0.6) 100%), url(${background})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : undefined
+        }
+      >
+        {" "}
         <div className={`${styles.fighterWrapper} ${styles.left}`}>
           <div className={styles.groundShadow} />
           <div
@@ -134,7 +152,6 @@ export default function CombatViewer({ fighters, events, winnerId }: Props) {
             evenementActuel.type === "dodge" &&
             !termine && <span className={styles.dodgePopup}>Esquive !</span>}
         </div>
-
         <div className={`${styles.fighterWrapper} ${styles.right}`}>
           <div className={styles.groundShadow} />
           <div

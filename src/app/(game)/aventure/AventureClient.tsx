@@ -67,6 +67,14 @@ export default function AventureClient({
     null,
   );
 
+  const SCENES: Record<string, string> = {
+    Loup: "/scenes/foret.jpg",
+  };
+
+  const sceneActuelle = dernierMonstre
+    ? SCENES[dernierMonstre.baseName]
+    : undefined;
+
   useEffect(() => {
     getMonstresDisponibles().then(setMonstresDispo);
   }, [resultat]);
@@ -188,6 +196,7 @@ export default function AventureClient({
                 ? personnageId
                 : resultat.fighters.find((f) => f.id !== personnageId)!.id
             }
+            background={sceneActuelle}
           />
 
           <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>

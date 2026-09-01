@@ -1,10 +1,15 @@
 import { prisma } from "@/lib/prisma";
-import { ENERGY_MAX, ENERGY_COUT_COMBAT, COUPONS_MAX, COUPONS_COUT_COMBAT } from "@/lib/energyConstants";
+import {
+  ENERGY_MAX,
+  ENERGY_COUT_COMBAT,
+  COUPONS_MAX,
+  COUPONS_COUT_COMBAT,
+} from "@/lib/energyConstants";
 
 export { ENERGY_MAX, ENERGY_COUT_COMBAT, COUPONS_MAX, COUPONS_COUT_COMBAT };
 
-const ENERGY_INTERVALLE_MS = 2 * 60 * 1000; // 2 minutes par point
-const COUPONS_INTERVALLE_MS = 30 * 60 * 1000; // 30 minutes par point
+const ENERGY_INTERVALLE_MS = 1 * 60 * 1000; // 1 minute par point
+const COUPONS_INTERVALLE_MS = 15 * 60 * 1000; // 15 minutes par point
 
 function calculerRegen(
   valeur: number,

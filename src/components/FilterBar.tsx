@@ -13,13 +13,24 @@ export default function FilterBar({
   action,
   fields,
   search,
+  hidden,
 }: {
   action: string;
   fields: FilterField[];
   search?: { name: string; value?: string; placeholder?: string };
+  hidden?: Record<string, string>;
 }) {
+  const hiddenEntries = Object.entries(hidden ?? {});
+  const resetHref = hiddenEntries.length
+    ? `${action}?${new URLSearchParams(hidden).toString()}`
+    : action;
+
   return (
     <form method="get" action={action} className={styles.bar}>
+      {hiddenEntries.map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
+
       {fields.map((f) => (
         <label key={f.name} className={styles.field}>
           <span className={styles.fieldLabel}>{f.label}</span>
@@ -53,7 +64,7 @@ export default function FilterBar({
       <button type="submit" className={styles.applyButton}>
         Filtrer
       </button>
-      <Link href={action} className={styles.reset}>
+      <Link href={resetHref} className={styles.reset}>
         Réinitialiser
       </Link>
     </form>

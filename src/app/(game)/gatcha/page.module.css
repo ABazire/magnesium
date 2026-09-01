@@ -210,6 +210,15 @@
   margin: 24px 0;
 }
 
+.sectionTitle {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
 .orbPremium {
   background: radial-gradient(
     circle,

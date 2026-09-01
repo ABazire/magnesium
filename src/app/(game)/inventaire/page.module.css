@@ -11,20 +11,72 @@
   margin-bottom: 20px;
 }
 
-.materiaux {
+.tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #1e3a2f;
+  padding-bottom: 12px;
 }
 
-.materiauBadge {
-  color: #cfe3da;
-  font-size: 11px;
+.tab {
+  color: #4d7266;
+  font-size: 13px;
   font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding-bottom: 4px;
+}
+
+.tabActive {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  border-bottom: 2px solid #10b981;
+  padding-bottom: 4px;
+}
+
+.materiauxGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.materiauCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid #10b981;
+  border-radius: 12px;
+  padding: 18px 10px;
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.materiauCardVide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   border: 1.5px solid #1e3a2f;
-  border-radius: 999px;
-  padding: 5px 12px;
+  border-radius: 12px;
+  padding: 18px 10px;
+  opacity: 0.5;
+}
+
+.materiauNom {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.materiauQuantite {
+  color: #f2c94c;
+  font-size: 20px;
+  font-weight: 800;
 }
 
 .grid {

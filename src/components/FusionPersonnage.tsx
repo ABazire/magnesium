@@ -26,9 +26,15 @@ export default function FusionPersonnage({
 
   useEffect(() => {
     let annule = false;
-    getFragments().then((f) => {
-      if (!annule) setFragments(f[stars] ?? 0);
-    });
+    getFragments()
+      .then((f) => {
+        if (!annule) setFragments(f[stars] ?? 0);
+      })
+      .catch((e) => {
+        if (!annule) {
+          setErreur(e instanceof Error ? e.message : "Erreur inconnue");
+        }
+      });
     return () => {
       annule = true;
     };

@@ -80,7 +80,10 @@ function sansTier(Icone: ComponentType<{ size?: number }>) {
   };
 }
 
-const ICONE_BASE: Record<string, ComponentType<{ size?: number; tier?: number }>> = {
+const ICONE_BASE: Record<
+  string,
+  ComponentType<{ size?: number; tier?: number }>
+> = {
   Loup: WolfTierIcon,
   Ours: BearTierIcon,
   Slime: sansTier(Droplets),
@@ -124,6 +127,7 @@ const ZONES = [
 
 const SCENES: Record<string, string> = {
   Loup: "/scenes/foret.jpg",
+  Ours: "/scenes/montage.png",
 };
 
 export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
@@ -146,7 +150,9 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
     : undefined;
 
   useEffect(() => {
-    getMonstresDisponibles().then(setMonstresDispo);
+    getMonstresDisponibles()
+      .then(setMonstresDispo)
+      .catch((e) => setErreur(e instanceof Error ? e.message : "Erreur inconnue"));
   }, [resultat]);
 
   async function combattre(monstre: MonstreDispo) {
@@ -222,16 +228,18 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
 
       {equipeId && !equipePrete && (
         <p className={styles.avertissement}>
-          Cette équipe n’a aucun personnage — ajoutes-en au moins un sur la
-          page d’accueil avant de partir à l’aventure.
+          Cette équipe n’a aucun personnage — ajoutes-en au moins un sur la page
+          d’accueil avant de partir à l’aventure.
         </p>
       )}
-      {equipeId && equipePrete && (equipeSelectionnee?.membres.length ?? 0) < 3 && (
-        <p className={styles.info}>
-          Équipe incomplète ({equipeSelectionnee?.membres.length}/3) — jouable,
-          mais plus risqué face aux monstres.
-        </p>
-      )}
+      {equipeId &&
+        equipePrete &&
+        (equipeSelectionnee?.membres.length ?? 0) < 3 && (
+          <p className={styles.info}>
+            Équipe incomplète ({equipeSelectionnee?.membres.length}/3) —
+            jouable, mais plus risqué face aux monstres.
+          </p>
+        )}
 
       <div className={styles.map}>
         {ZONES.map((zone) => {
@@ -299,7 +307,9 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
 
           {animationTerminee ? (
             <>
-              <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>
+              <p
+                className={resultat.victoire ? styles.gainWin : styles.gainLose}
+              >
                 +{resultat.gain} monnaie
               </p>
 
@@ -313,8 +323,9 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
 
               {resultat.loot && (
                 <p className={styles.lootWin}>
-                  🎁 Objet trouvé : {resultat.loot.name} ({"★".repeat(resultat.loot.stars)})
-                  — +{resultat.loot.bonusValue} {resultat.loot.bonusStat}
+                  🎁 Objet trouvé : {resultat.loot.name} (
+                  {"★".repeat(resultat.loot.stars)}) — +
+                  {resultat.loot.bonusValue} {resultat.loot.bonusStat}
                 </p>
               )}
 

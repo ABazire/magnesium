@@ -181,6 +181,92 @@
   gap: 8px;
 }
 
+.slotWrapper {
+  position: relative;
+}
+
+.picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 10;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #0f1a16;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.pickerItem {
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pickerItem:hover {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.pickerEmpty {
+  color: #4d7266;
+  font-size: 11px;
+  padding: 6px 8px;
+}
+
+.cardLayout {
+  display: flex;
+  gap: 28px;
+}
+
+.cardLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.cardRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionLabel {
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.sectionLabel:first-child {
+  margin-top: 0;
+}
+
+.erreurAction {
+  color: #ef4444;
+  font-size: 12px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .cardLayout {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 .slot {
   width: 100%;
   aspect-ratio: 1;

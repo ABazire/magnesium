@@ -1,0 +1,66 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 80px 24px;
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.message {
+  color: #9db8b1;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.retryButton {
+  background: #059669;
+  color: #0f1a16;
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background: #10b981;
+}
+
+.homeLink {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 999px;
+  padding: 10px 22px;
+}
+
+.homeLink:hover {
+  border-color: #10b981;
+}
+
+.digest {
+  color: #4d7266;
+  font-size: 11px;
+  margin-top: 12px;
+}

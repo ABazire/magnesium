@@ -171,7 +171,7 @@ export default function CombatViewer({
         }
       >
         {" "}
-        <div className={`${styles.fighterWrapper} ${styles.left}`}>
+        <div className={styles.fighterWrapper}>
           <div className={styles.groundShadow} />
           <div
             className={styles.glow}
@@ -191,7 +191,7 @@ export default function CombatViewer({
             <EvenementPopup ev={evenementActuel} personnageId={f1.id} />
           )}
         </div>
-        <div className={`${styles.fighterWrapper} ${styles.right}`}>
+        <div className={styles.fighterWrapper}>
           <div className={styles.groundShadow} />
           <div
             className={styles.glow}

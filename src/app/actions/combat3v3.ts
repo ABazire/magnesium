@@ -74,7 +74,7 @@ export async function lancerCombat3v3(defenderUserId: string) {
     const { newLevel, newXp } = gagnerXp(
       personnage.level,
       personnage.xp,
-      personnage.rarity!.stars,
+      personnage.rarity?.stars ?? 1,
     );
     misesAJourNiveau.push(
       prisma.personnage.update({

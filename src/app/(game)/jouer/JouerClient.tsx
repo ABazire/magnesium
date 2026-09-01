@@ -157,12 +157,26 @@ export default function JouerClient({
   const [sortsDisponibles, setSortsDisponibles] = useState<SortDisponible[]>([]);
   const [chargementSorts, setChargementSorts] = useState(false);
 
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [suppressionEnCours, setSuppressionEnCours] = useState(false);
+
+  function messageErreur(e: unknown) {
+    return e instanceof Error ? e.message : "Erreur inconnue";
+  }
+
   async function ouvrirDetail(personnageId: string) {
+    setErreur(null);
     setPersonnageDetailId(personnageId);
     setChargementDetail(true);
-    const data = await getPersonnageDetail(personnageId);
-    setPersonnageDetail(data);
-    setChargementDetail(false);
+    try {
+      const data = await getPersonnageDetail(personnageId);
+      setPersonnageDetail(data);
+    } catch (e) {
+      setErreur(messageErreur(e));
+      setPersonnageDetailId(null);
+    } finally {
+      setChargementDetail(false);
+    }
   }
 
   function fermerDetail() {
@@ -185,23 +199,40 @@ export default function JouerClient({
     }
     setSlotOuvert(slot);
     setChargement(true);
-    const data = await getEquipementsDisponibles(slot);
-    setDisponibles(data);
-    setChargement(false);
+    setErreur(null);
+    try {
+      const data = await getEquipementsDisponibles(slot);
+      setDisponibles(data);
+    } catch (e) {
+      setErreur(messageErreur(e));
+      setSlotOuvert(null);
+    } finally {
+      setChargement(false);
+    }
   }
 
   async function equiper(equipmentId: string) {
     if (!personnageDetail) return;
-    await equiperObjet(personnageDetail.id, equipmentId);
-    setSlotOuvert(null);
-    await rafraichirDetail();
-    router.refresh();
+    setErreur(null);
+    try {
+      await equiperObjet(personnageDetail.id, equipmentId);
+      setSlotOuvert(null);
+      await rafraichirDetail();
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    }
   }
 
   async function desequiper(equipmentId: string) {
-    await desequiperObjet(equipmentId);
-    await rafraichirDetail();
-    router.refresh();
+    setErreur(null);
+    try {
+      await desequiperObjet(equipmentId);
+      await rafraichirDetail();
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    }
   }
 
   async function ouvrirSortSlot(slot: SpellSlot) {
@@ -211,70 +242,120 @@ export default function JouerClient({
     }
     setSortSlotOuvert(slot);
     setChargementSorts(true);
-    const data = await getSortsDisponibles(slot);
-    setSortsDisponibles(data);
-    setChargementSorts(false);
+    setErreur(null);
+    try {
+      const data = await getSortsDisponibles(slot);
+      setSortsDisponibles(data);
+    } catch (e) {
+      setErreur(messageErreur(e));
+      setSortSlotOuvert(null);
+    } finally {
+      setChargementSorts(false);
+    }
   }
 
   async function equiperSortHandler(spellId: string) {
     if (!personnageDetail || !sortSlotOuvert) return;
-    await equiperSort(personnageDetail.id, spellId, sortSlotOuvert);
-    setSortSlotOuvert(null);
-    await rafraichirDetail();
-    router.refresh();
+    setErreur(null);
+    try {
+      await equiperSort(personnageDetail.id, spellId, sortSlotOuvert);
+      setSortSlotOuvert(null);
+      await rafraichirDetail();
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    }
   }
 
   async function desequiperSortHandler(spellId: string) {
-    await desequiperSort(spellId);
-    await rafraichirDetail();
-    router.refresh();
+    setErreur(null);
+    try {
+      await desequiperSort(spellId);
+      await rafraichirDetail();
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    }
   }
 
   async function creerEquipeHandler() {
     if (!nouvelleEquipeNom.trim()) return;
     setCreationEnCours(true);
+    setErreur(null);
     const nouvelIndex = equipes.length;
-    await creerEquipe(nouvelleEquipeNom.trim());
-    setNouvelleEquipeNom("");
-    setCreationOuverte(false);
-    setCreationEnCours(false);
-    setEquipeIndex(nouvelIndex);
-    router.refresh();
+    try {
+      await creerEquipe(nouvelleEquipeNom.trim());
+      setNouvelleEquipeNom("");
+      setCreationOuverte(false);
+      setEquipeIndex(nouvelIndex);
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    } finally {
+      setCreationEnCours(false);
+    }
   }
 
   async function validerRenommage(teamId: string) {
     if (renommageValeur.trim()) {
-      await renommerEquipe(teamId, renommageValeur.trim());
-      router.refresh();
+      setErreur(null);
+      try {
+        await renommerEquipe(teamId, renommageValeur.trim());
+        router.refresh();
+      } catch (e) {
+        setErreur(messageErreur(e));
+      }
     }
     setRenommageId(null);
   }
 
   async function supprimerHandler(teamId: string) {
-    await supprimerEquipe(teamId);
-    router.refresh();
+    if (suppressionEnCours) return;
+    setSuppressionEnCours(true);
+    setErreur(null);
+    try {
+      await supprimerEquipe(teamId);
+      setEquipeIndex(0);
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    } finally {
+      setSuppressionEnCours(false);
+    }
   }
 
   async function assignerMembre(personnageId: string) {
     if (!slotPickerOuvert) return;
-    await definirMembreEquipe(
-      slotPickerOuvert.teamId,
-      slotPickerOuvert.position,
-      personnageId,
-    );
-    setSlotPickerOuvert(null);
-    router.refresh();
+    setErreur(null);
+    try {
+      await definirMembreEquipe(
+        slotPickerOuvert.teamId,
+        slotPickerOuvert.position,
+        personnageId,
+      );
+      setSlotPickerOuvert(null);
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    }
   }
 
   async function retirerMembre(teamId: string, position: number) {
-    await definirMembreEquipe(teamId, position, null);
-    router.refresh();
+    setErreur(null);
+    try {
+      await definirMembreEquipe(teamId, position, null);
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    }
   }
 
   const stats = personnageDetail ? statsEffectives(personnageDetail) : null;
 
   return (
     <main className={styles.page}>
+      {erreur && <p className={styles.erreurAction}>{erreur}</p>}
+
       {equipes.length === 0 ? (
         <div className={styles.emptyState}>
           <p>Tu n’as pas encore d’équipe.</p>
@@ -348,6 +429,7 @@ export default function JouerClient({
 
             <button
               onClick={() => supprimerHandler(equipeActuelle.id)}
+              disabled={suppressionEnCours}
               className={styles.supprimerButton}
               aria-label="Supprimer l'équipe"
             >

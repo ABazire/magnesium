@@ -6,6 +6,7 @@ import { statsEffectives, puissance } from "@/lib/personnage";
 import { lancerCombat } from "../../actions/combat";
 import { lancerCombat3v3 } from "../../actions/combat3v3";
 import { debutDeJournee } from "@/lib/date";
+import SubmitButton from "@/components/SubmitButton";
 import styles from "./page.module.css";
 
 export default async function ArenePage({
@@ -160,9 +161,9 @@ async function Arene1v1({ userId, mine }: { userId: string; mine?: string }) {
             <form action={lancerCombat}>
               <input type="hidden" name="a" value={mine} />
               <input type="hidden" name="b" value={adv.id} />
-              <button type="submit" className={styles.fightLink}>
+              <SubmitButton className={styles.fightLink}>
                 Combattre
-              </button>
+              </SubmitButton>
             </form>
           </li>
         ))}
@@ -223,9 +224,9 @@ async function Arene3v3({ userId }: { userId: string }) {
               </span>
             </span>
             <form action={lancerCombat3v3.bind(null, adv.id)}>
-              <button type="submit" className={styles.fightLink}>
+              <SubmitButton className={styles.fightLink}>
                 Combattre
-              </button>
+              </SubmitButton>
             </form>
           </li>
         ))}

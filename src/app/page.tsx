@@ -6,23 +6,33 @@ import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
+  const [enCours, setEnCours] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (username.trim().length === 0) return;
+    if (username.trim().length === 0 || enCours) return;
 
-    const result = await signIn("credentials", {
-      username,
-      redirect: false,
-    });
+    setErreur(null);
+    setEnCours(true);
 
-    console.log("Résultat signIn:", result);
+    try {
+      const result = await signIn("credentials", {
+        username,
+        redirect: false,
+      });
 
-    if (result?.ok) {
-      router.push("/jouer");
-    } else {
-      console.error("Échec de connexion:", result?.error);
+      if (result?.ok) {
+        router.push("/jouer");
+        return;
+      }
+
+      setErreur("Connexion impossible. Réessaie.");
+    } catch {
+      setErreur("Connexion impossible. Réessaie.");
+    } finally {
+      setEnCours(false);
     }
   }
 
@@ -34,10 +44,15 @@ export default function LoginPage() {
       >
         <button
           type="submit"
-          className="bg-emerald-600 text-emerald-950 font-extrabold text-3xl px-16 py-6 rounded-3xl mb-16"
+          disabled={enCours}
+          className="bg-emerald-600 text-emerald-950 font-extrabold text-3xl px-16 py-6 rounded-3xl mb-8 disabled:opacity-60"
         >
-          JOUER
+          {enCours ? "..." : "JOUER"}
         </button>
+
+        {erreur && (
+          <p className="text-red-400 text-sm mb-8">{erreur}</p>
+        )}
 
         <div className="flex flex-col gap-2 w-full max-w-md px-6">
           <label className="text-emerald-400 font-bold uppercase text-sm">

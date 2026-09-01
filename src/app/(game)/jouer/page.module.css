@@ -4,6 +4,13 @@
   width: 100%;
 }
 
+.erreurAction {
+  color: #ef4444;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
 .stars {
   color: #e9ec9f;
   font-size: 12px;

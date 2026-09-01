@@ -1,0 +1,161 @@
+.viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+  align-items: center;
+}
+
+.stage {
+  position: relative;
+  min-height: 340px;
+  border-radius: 16px;
+  border: 1.5px solid #1e3a2f;
+  overflow: hidden;
+  background: radial-gradient(ellipse 120% 80% at 50% 20%, #16241f 0%, #0f1a16 70%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px 40px;
+  width: 100%;
+}
+
+.equipeColonne {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.equipeNom {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.vs {
+  align-self: center;
+  color: #4d7266;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.carte {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1.5px solid #1e3a2f;
+  background: rgba(15, 26, 22, 0.55);
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.acteur {
+  border-color: #10b981;
+  transform: translateX(4px);
+}
+
+.cible {
+  border-color: #ef4444;
+  animation: shake 0.3s ease-out;
+}
+
+.ko {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  30% {
+    transform: translateX(-4px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+.infos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nom {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barreTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: #1e3a2f;
+  overflow: hidden;
+}
+
+.barreVie {
+  height: 100%;
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  transition: width 0.4s ease-out;
+}
+
+.barreMana {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  transition: width 0.4s ease-out;
+}
+
+.journal {
+  min-height: 22px;
+  text-align: center;
+  color: #cfe3da;
+  font-size: 13px;
+}
+
+.gagne {
+  color: #10b981;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.skipButton {
+  align-self: center;
+  background: transparent;
+  border: 1px solid #1e3a2f;
+  color: #4d7266;
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .stage {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .equipeColonne {
+    width: 100%;
+  }
+}

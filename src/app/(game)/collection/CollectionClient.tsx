@@ -98,6 +98,7 @@ export default function CollectionClient({
   const [disponibles, setDisponibles] = useState<EquipementDisponible[]>([]);
   const [chargement, setChargement] = useState(false);
   const [enCoursEquipe, setEnCoursEquipe] = useState(false);
+  const [erreurAction, setErreurAction] = useState<string | null>(null);
 
   const [sortSlotOuvert, setSortSlotOuvert] = useState<SpellSlot | null>(null);
   const [sortsDisponibles, setSortsDisponibles] = useState<SortDisponible[]>([]);
@@ -121,6 +122,7 @@ export default function CollectionClient({
     setSelectionneId(null);
     setSlotOuvert(null);
     setSortSlotOuvert(null);
+    setErreurAction(null);
   }
 
   async function ouvrirSortSlot(slot: SpellSlot) {
@@ -130,21 +132,38 @@ export default function CollectionClient({
     }
     setSortSlotOuvert(slot);
     setChargementSorts(true);
-    const data = await getSortsDisponibles(slot);
-    setSortsDisponibles(data);
-    setChargementSorts(false);
+    setErreurAction(null);
+    try {
+      const data = await getSortsDisponibles(slot);
+      setSortsDisponibles(data);
+    } catch (e) {
+      setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
+      setSortSlotOuvert(null);
+    } finally {
+      setChargementSorts(false);
+    }
   }
 
   async function equiperSortHandler(spellId: string) {
     if (!selectionne || !sortSlotOuvert) return;
-    await equiperSort(selectionne.id, spellId, sortSlotOuvert);
-    setSortSlotOuvert(null);
-    router.refresh();
+    setErreurAction(null);
+    try {
+      await equiperSort(selectionne.id, spellId, sortSlotOuvert);
+      setSortSlotOuvert(null);
+      router.refresh();
+    } catch (e) {
+      setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
+    }
   }
 
   async function desequiperSortHandler(spellId: string) {
-    await desequiperSort(spellId);
-    router.refresh();
+    setErreurAction(null);
+    try {
+      await desequiperSort(spellId);
+      router.refresh();
+    } catch (e) {
+      setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
+    }
   }
 
   async function ouvrirSlot(slot: string) {
@@ -154,31 +173,54 @@ export default function CollectionClient({
     }
     setSlotOuvert(slot);
     setChargement(true);
-    const data = await getEquipementsDisponibles(slot);
-    setDisponibles(data);
-    setChargement(false);
+    setErreurAction(null);
+    try {
+      const data = await getEquipementsDisponibles(slot);
+      setDisponibles(data);
+    } catch (e) {
+      setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
+      setSlotOuvert(null);
+    } finally {
+      setChargement(false);
+    }
   }
 
   async function equiper(equipmentId: string) {
     if (!selectionne) return;
-    await equiperObjet(selectionne.id, equipmentId);
-    setSlotOuvert(null);
-    router.refresh();
+    setErreurAction(null);
+    try {
+      await equiperObjet(selectionne.id, equipmentId);
+      setSlotOuvert(null);
+      router.refresh();
+    } catch (e) {
+      setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
+    }
   }
 
   async function desequiper(equipmentId: string) {
-    await desequiperObjet(equipmentId);
-    router.refresh();
+    setErreurAction(null);
+    try {
+      await desequiperObjet(equipmentId);
+      router.refresh();
+    } catch (e) {
+      setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
+    }
   }
 
   async function basculerEquipe() {
     if (!selectionne) return;
     setEnCoursEquipe(true);
+    setErreurAction(null);
 
     if (selectionne.inTeam) {
-      await toggleEquipe(selectionne.id);
-      router.refresh();
-      setEnCoursEquipe(false);
+      try {
+        await toggleEquipe(selectionne.id);
+        router.refresh();
+      } catch (e) {
+        setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
+      } finally {
+        setEnCoursEquipe(false);
+      }
       return;
     }
 
@@ -186,9 +228,13 @@ export default function CollectionClient({
       await toggleEquipe(selectionne.id);
       router.refresh();
     } catch {
-      const equipe = await getEquipeActuelle();
-      setEquipeActuelle(equipe);
-      setRemplacementOuvert(true);
+      try {
+        const equipe = await getEquipeActuelle();
+        setEquipeActuelle(equipe);
+        setRemplacementOuvert(true);
+      } catch (e2) {
+        setErreurAction(e2 instanceof Error ? e2.message : "Erreur inconnue");
+      }
     } finally {
       setEnCoursEquipe(false);
     }
@@ -197,10 +243,16 @@ export default function CollectionClient({
   async function confirmerRemplacement(sortantId: string) {
     if (!selectionne) return;
     setEnCoursEquipe(true);
-    await remplacerMembreEquipe(sortantId, selectionne.id);
-    setRemplacementOuvert(false);
-    router.refresh();
-    setEnCoursEquipe(false);
+    setErreurAction(null);
+    try {
+      await remplacerMembreEquipe(sortantId, selectionne.id);
+      setRemplacementOuvert(false);
+      router.refresh();
+    } catch (e) {
+      setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
+    } finally {
+      setEnCoursEquipe(false);
+    }
   }
   return (
     <>
@@ -234,6 +286,7 @@ export default function CollectionClient({
 
       {selectionne && stats && (
         <Modal onClose={fermerModal}>
+          {erreurAction && <p className={styles.erreurAction}>{erreurAction}</p>}
           <div className={styles.cardLayout}>
             <div className={styles.cardLeft}>
               <PersonnageIcon

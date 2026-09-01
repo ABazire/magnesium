@@ -44,18 +44,26 @@ function cooldownParRarete(stars: number): number {
   return Math.max(2, 8 - stars);
 }
 
+// Sorts plus rares = plus puissants mais aussi plus coûteux en mana.
+function manaCoutParRarete(stars: number): number {
+  return 10 + (stars - 1) * 4;
+}
+
 export function descriptionSort(s: {
   effect: string;
   value: number;
   targetStat: string | null;
+  manaCost?: number;
 }) {
+  const cout = s.manaCost ? ` · ${s.manaCost} mana` : "";
+
   switch (s.effect) {
     case "DEGATS":
-      return `+${s.value}% dégâts`;
+      return `+${s.value}% dégâts${cout}`;
     case "SOIN":
-      return `Soigne ${s.value}% PV`;
+      return `Soigne ${s.value}% PV${cout}`;
     case "ETOURDISSEMENT":
-      return `Étourdit ${s.value} tour(s)`;
+      return `Étourdit ${s.value} tour(s)${cout}`;
     case "REDUCTION_DEGATS":
       return `-${s.value}% dégâts subis`;
     case "BONUS_STAT":
@@ -72,6 +80,7 @@ export type SortGenere = {
   value: number;
   targetStat: StatType | null;
   cooldown: number;
+  manaCost: number;
   rarityId: string;
 };
 
@@ -84,6 +93,7 @@ export function genererSort(rarete: {
   const type = Math.random() < 0.75 ? SpellType.ACTIF : SpellType.PASSIF;
   const effect = pick(type === SpellType.ACTIF ? EFFETS_ACTIFS : EFFETS_PASSIFS);
   const cooldown = cooldownParRarete(rarete.stars);
+  const manaCost = type === SpellType.ACTIF ? manaCoutParRarete(rarete.stars) : 0;
 
   switch (effect) {
     case SpellEffect.DEGATS:
@@ -95,6 +105,7 @@ export function genererSort(rarete: {
         value: 20 + (rarete.stars - 1) * 20,
         targetStat: null,
         cooldown,
+        manaCost,
         rarityId: rarete.id,
       };
     case SpellEffect.SOIN:
@@ -106,6 +117,7 @@ export function genererSort(rarete: {
         value: 10 + (rarete.stars - 1) * 5,
         targetStat: null,
         cooldown,
+        manaCost,
         rarityId: rarete.id,
       };
     case SpellEffect.ETOURDISSEMENT:
@@ -117,6 +129,7 @@ export function genererSort(rarete: {
         value: 1,
         targetStat: null,
         cooldown,
+        manaCost,
         rarityId: rarete.id,
       };
     case SpellEffect.REDUCTION_DEGATS:
@@ -128,6 +141,7 @@ export function genererSort(rarete: {
         value: 5 + (rarete.stars - 1) * 5,
         targetStat: null,
         cooldown,
+        manaCost,
         rarityId: rarete.id,
       };
     case SpellEffect.BONUS_STAT: {
@@ -141,6 +155,7 @@ export function genererSort(rarete: {
           rarete.statMin,
         targetStat: stat,
         cooldown,
+        manaCost,
         rarityId: rarete.id,
       };
     }

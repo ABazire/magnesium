@@ -1,0 +1,60 @@
+.bloc {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.info {
+  color: #9db8b1;
+  font-size: 11px;
+}
+
+.erreur {
+  color: #ef4444;
+  font-size: 11px;
+}
+
+.fusionButton {
+  background: #059669;
+  color: #0f1a16;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.fusionButton:hover:not(:disabled) {
+  background: #10b981;
+}
+
+.fusionButton:disabled {
+  background: transparent;
+  border: 1.5px solid #1e3a2f;
+  color: #4d7266;
+  cursor: not-allowed;
+}
+
+.renvoyerButton {
+  background: transparent;
+  border: 1.5px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.renvoyerButton:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.renvoyerButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

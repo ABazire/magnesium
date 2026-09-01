@@ -25,6 +25,7 @@ export function statsEffectives(personnage: PersonnageAvecEquipement) {
     vitesse: personnage.vitesse + bonusNiveau,
     resistance: personnage.resistance + bonusNiveau,
     agilite: personnage.agilite + bonusNiveau,
+    mana: personnage.mana + bonusNiveau,
   };
 
   for (const pe of personnage.equipment) {
@@ -89,6 +90,7 @@ export type SortActifCombat = {
   effect: "DEGATS" | "SOIN" | "ETOURDISSEMENT";
   value: number;
   cooldown: number;
+  manaCost: number;
 };
 
 // Sorts actifs équipés (hors passif), dans l'ordre SORT_1 -> SORT_2 -> SORT_3.
@@ -104,5 +106,6 @@ export function sortsActifsCombat(
       effect: ps.spell.effect as "DEGATS" | "SOIN" | "ETOURDISSEMENT",
       value: ps.spell.value,
       cooldown: ps.spell.cooldown,
+      manaCost: ps.spell.manaCost,
     }));
 }

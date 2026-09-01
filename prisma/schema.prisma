@@ -13,7 +13,7 @@ model User {
   diamonds Int @default(0)
   rankPoints3v3 Int @default(1000)
   hasCompletedTutorial Boolean @default(false)
-  energy          Int      @default(300)
+  energy          Int      @default(600)
   energyUpdatedAt DateTime @default(now())
   coupons         Int      @default(10)
   couponsUpdatedAt DateTime @default(now())
@@ -21,6 +21,9 @@ model User {
   personnages Personnage[]
   equipments Equipment[]
   spells      Spell[]
+  teams       Team[]
+  materials   MaterialStack[]
+  fragments   PersonnageFragment[]
 }
 
 model Rarity {
@@ -44,6 +47,7 @@ model Personnage {
   vitesse    Int
   resistance Int
   agilite    Int
+  mana       Int @default(20)
 
   level Int @default(1)
   xp    Int @default(0)
@@ -61,8 +65,9 @@ model Personnage {
   spriteId Int    @default(0)
   color    String @default("#10b981")
 
-  equipment PersonnageEquipment[]
-  spells    PersonnageSpell[]
+  equipment    PersonnageEquipment[]
+  spells       PersonnageSpell[]
+  teamMembres  TeamMembre[]
 }
 
 enum EquipmentSlot {
@@ -142,6 +147,7 @@ model Spell {
 
   targetStat StatType?
   cooldown   Int        @default(3)
+  manaCost   Int        @default(10)
 
   rarity   Rarity @relation(fields: [rarityId], references: [id])
   rarityId String
@@ -164,6 +170,64 @@ model PersonnageSpell {
   slot SpellSlot
 
   @@unique([personnageId, slot])
+}
+
+model Team {
+  id   String @id @default(cuid())
+  name String
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  membres TeamMembre[]
+}
+
+model TeamMembre {
+  id       String @id @default(cuid())
+  position Int
+
+  team   Team   @relation(fields: [teamId], references: [id])
+  teamId String
+
+  personnage   Personnage @relation(fields: [personnageId], references: [id])
+  personnageId String
+
+  @@unique([teamId, position])
+  @@unique([teamId, personnageId])
+}
+
+enum MaterialType {
+  GRIFFE
+  CROC
+  OS
+  CUIR
+  ESSENCE_ELEMENTAIRE
+  PLUME
+  ECAILLE_CRISTAL
+}
+
+model MaterialStack {
+  id       String       @id @default(cuid())
+  type     MaterialType
+  quantity Int          @default(0)
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  @@unique([ownerId, type])
+}
+
+// Fragments obtenus en renvoyant un personnage : dépensés pour faire monter
+// un autre personnage du même palier de rareté au palier supérieur.
+model PersonnageFragment {
+  id       String @id @default(cuid())
+  stars    Int
+  quantity Int    @default(0)
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  @@unique([ownerId, stars])
 }
 
 // Table orpheline : ancien suivi des limites quotidiennes par monstre,
@@ -191,6 +255,7 @@ model Monster {
 
   gainVictoire Int @default(0)
   gainDefaite  Int @default(0)
+  xpGain       Int @default(20)
 
   @@unique([baseName, tier])
 }
@@ -212,6 +277,8 @@ model Fight {
   winnerId  String
   attackerVieMax Int
   defenderVieMax Int
+  attackerManaMax Int @default(0)
+  defenderManaMax Int @default(0)
 
   attackerPersonnageId String
   defenderPersonnageId String

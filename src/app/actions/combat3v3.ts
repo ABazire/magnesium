@@ -25,13 +25,17 @@ async function chargerEquipe(userId: string): Promise<PersonnageCombat3v3[]> {
     },
   });
 
-  return personnages.map((p) => ({
-    id: p.id,
-    name: p.name,
-    ...statsEffectives(p),
-    sortsActifs: sortsActifsCombat(p),
-    reductionDegats: reductionDegatsPassive(p),
-  }));
+  return personnages.map((p) => {
+    const stats = statsEffectives(p);
+    return {
+      id: p.id,
+      name: p.name,
+      ...stats,
+      manaMax: stats.mana,
+      sortsActifs: sortsActifsCombat(p),
+      reductionDegats: reductionDegatsPassive(p),
+    };
+  });
 }
 
 export async function lancerCombat3v3(defenderUserId: string) {
@@ -46,11 +50,7 @@ export async function lancerCombat3v3(defenderUserId: string) {
   }
 
   const seed = Math.floor(Math.random() * 2147483647);
-  const { events, winnerSide } = simulerCombatEquipe(
-    equipeA as [PersonnageCombat3v3, PersonnageCombat3v3, PersonnageCombat3v3],
-    equipeB as [PersonnageCombat3v3, PersonnageCombat3v3, PersonnageCombat3v3],
-    seed,
-  );
+  const { events, winnerSide } = simulerCombatEquipe(equipeA, equipeB, seed);
 
   const [attaquantUser, defenseurUser] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: session.user.id } }),

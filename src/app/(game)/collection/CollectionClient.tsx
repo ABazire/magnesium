@@ -11,7 +11,7 @@ import {
   PersonnageIcon,
   SwordIcon,
 } from "@/components/pixel";
-import { Flame, HeartPulse, Snowflake, Shield, Sparkles } from "lucide-react";
+import { Flame, HeartPulse, Snowflake, Shield, Sparkles, Droplet } from "lucide-react";
 import {
   equiperObjet,
   desequiperObjet,
@@ -25,6 +25,7 @@ import {
 import type { Prisma, SpellSlot } from "@prisma/client";
 import { descriptionSort } from "@/lib/spell";
 import Modal from "@/components/Modal";
+import FusionPersonnage from "@/components/FusionPersonnage";
 import styles from "./page.module.css";
 import {
   toggleEquipe,
@@ -55,6 +56,7 @@ type SortDisponible = {
   value: number;
   targetStat: string | null;
   cooldown: number;
+  manaCost: number;
   rarity: { stars: number };
 };
 
@@ -291,6 +293,16 @@ export default function CollectionClient({
                   </button>
                 </div>
               )}
+
+              <FusionPersonnage
+                personnageId={selectionne.id}
+                stars={selectionne.rarity?.stars ?? 1}
+                onFusion={() => router.refresh()}
+                onRenvoi={() => {
+                  setSelectionneId(null);
+                  router.refresh();
+                }}
+              />
             </div>
 
             <div className={styles.cardRight}>
@@ -307,6 +319,9 @@ export default function CollectionClient({
                 </p>
                 <p>
                   <AmuletIcon size={16} /> Agilité: {stats.agilite}
+                </p>
+                <p>
+                  <Droplet size={16} /> Mana: {stats.mana}
                 </p>
               </div>
 

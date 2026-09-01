@@ -3,7 +3,11 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { CombatEvent, simulerCombat } from "@/lib/combat";
+import {
+  simulerCombatEquipe,
+  type CombatEvent3v3,
+  type PersonnageCombat3v3,
+} from "@/lib/combatEquipe";
 import {
   statsEffectives,
   sortsActifsCombat,
@@ -11,12 +15,14 @@ import {
 } from "@/lib/personnage";
 import { tirerRarete } from "@/lib/rarity";
 import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
+import { tirerDropsMateriaux } from "@/lib/monsterDrops";
 import { gagnerXp } from "@/lib/leveling";
-import { EquipmentSlot } from "@prisma/client";
+import { EquipmentSlot, MaterialType } from "@prisma/client";
 import { tirerGainDiamants } from "@/lib/diamond";
 import { obtenirEnergieActuelle, ENERGY_COUT_COMBAT } from "@/lib/energy";
 
 const CHANCE_COFFRE = 0.2;
+const TAILLE_EQUIPE = 3;
 
 function randomStat(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -26,65 +32,93 @@ function getMonsterBaseName(monstre: { baseName: string; name: string }) {
   return monstre.baseName || monstre.name.replace(/\s+[IVXLCDM]+$/, "");
 }
 
-type Fighter = {
+type FighterEquipe = {
   id: string;
   name: string;
   vieMax: number;
+  manaMax: number;
   color?: string;
   spriteId?: number;
+};
+
+type FighterMonstre = {
+  id: string;
+  name: string;
+  vieMax: number;
   baseName?: string;
   tier?: number;
 };
 
 export async function affronterMonstre(
-  personnageId: string,
+  teamId: string,
   monsterId: string,
 ): Promise<{
-  events: CombatEvent[];
+  events: CombatEvent3v3[];
   victoire: boolean;
   gain: number;
-  fighters: [Fighter, Fighter];
+  materiaux: { type: MaterialType; quantity: number }[];
+  equipe: FighterEquipe[];
+  monstre: FighterMonstre;
 }> {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non connecté");
+  const userId = session.user.id;
 
-  const energieActuelle = await obtenirEnergieActuelle(session.user.id);
+  const energieActuelle = await obtenirEnergieActuelle(userId);
   if (energieActuelle < ENERGY_COUT_COMBAT) {
     throw new Error("Énergie insuffisante");
   }
 
-  const [personnage, monstre] = await Promise.all([
-    prisma.personnage.findUniqueOrThrow({
-      where: { id: personnageId, ownerId: session.user.id },
+  const [team, monstre] = await Promise.all([
+    prisma.team.findUniqueOrThrow({
+      where: { id: teamId, ownerId: userId },
       include: {
-        rarity: true,
-        equipment: { include: { equipment: true } },
-        spells: { include: { spell: true } },
+        membres: {
+          orderBy: { position: "asc" },
+          include: {
+            personnage: {
+              include: {
+                rarity: true,
+                equipment: { include: { equipment: true } },
+                spells: { include: { spell: true } },
+              },
+            },
+          },
+        },
       },
     }),
     prisma.monster.findUniqueOrThrow({ where: { id: monsterId } }),
   ]);
 
+  if (team.membres.length !== TAILLE_EQUIPE) {
+    throw new Error("L'équipe doit avoir 3 personnages pour partir à l'aventure");
+  }
+
   // Vérifie que ce palier est bien débloqué pour ce joueur
   const baseName = getMonsterBaseName(monstre);
   const unlock = await prisma.monsterUnlock.findUnique({
-    where: {
-      userId_baseName: { userId: session.user.id, baseName },
-    },
+    where: { userId_baseName: { userId, baseName } },
   });
   const tierDebloque = unlock?.highestTierUnlocked ?? 1;
   if (monstre.tier > tierDebloque) {
     throw new Error("Ce palier n'est pas encore débloqué");
   }
 
-  const combatPerso = {
-    id: personnage.id,
-    name: personnage.name,
-    ...statsEffectives(personnage),
-    sortsActifs: sortsActifsCombat(personnage),
-    reductionDegats: reductionDegatsPassive(personnage),
-  };
-  const combatMonstre = {
+  const personnages = team.membres.map((m) => m.personnage);
+
+  const combatEquipe: PersonnageCombat3v3[] = personnages.map((p) => {
+    const stats = statsEffectives(p);
+    return {
+      id: p.id,
+      name: p.name,
+      ...stats,
+      manaMax: stats.mana,
+      sortsActifs: sortsActifsCombat(p),
+      reductionDegats: reductionDegatsPassive(p),
+    };
+  });
+
+  const combatMonstre: PersonnageCombat3v3 = {
     id: monstre.id,
     name: monstre.name,
     vie: monstre.vie,
@@ -95,51 +129,61 @@ export async function affronterMonstre(
   };
 
   const seed = Math.floor(Math.random() * 2147483647);
-  const { events, winnerId } = simulerCombat(combatPerso, combatMonstre, seed);
-  const victoire = winnerId === personnage.id;
+  const { events, winnerSide } = simulerCombatEquipe(
+    combatEquipe,
+    [combatMonstre],
+    seed,
+  );
+  const victoire = winnerSide === "A";
   const gain = victoire ? monstre.gainVictoire : monstre.gainDefaite;
   const gainDiamants = victoire ? tirerGainDiamants() : 0;
+  const materiaux = victoire ? tirerDropsMateriaux(baseName) : [];
 
-  let xpInfo = { newLevel: personnage.level, newXp: personnage.xp };
-  if (victoire) {
-    xpInfo = gagnerXp(
-      personnage.level,
-      personnage.xp,
-      personnage.rarity?.stars ?? 1,
-    );
-  }
+  const misesAJourNiveau = victoire
+    ? personnages.map((p) => {
+        const { newLevel, newXp } = gagnerXp(
+          p.level,
+          p.xp,
+          p.rarity?.stars ?? 1,
+          monstre.xpGain,
+        );
+        return prisma.personnage.update({
+          where: { id: p.id },
+          data: { level: newLevel, xp: newXp },
+        });
+      })
+    : [];
+
+  const misesAJourMateriaux = materiaux.map((m) =>
+    prisma.materialStack.upsert({
+      where: { ownerId_type: { ownerId: userId, type: m.type } },
+      update: { quantity: { increment: m.quantity } },
+      create: { ownerId: userId, type: m.type, quantity: m.quantity },
+    }),
+  );
 
   await prisma.$transaction([
     prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: {
         currency: { increment: gain },
         energy: { decrement: ENERGY_COUT_COMBAT },
         ...(gainDiamants > 0 ? { diamonds: { increment: gainDiamants } } : {}),
       },
     }),
-    ...(victoire
-      ? [
-          prisma.personnage.update({
-            where: { id: personnageId },
-            data: { level: xpInfo.newLevel, xp: xpInfo.newXp },
-          }),
-        ]
-      : []),
+    ...misesAJourNiveau,
+    ...misesAJourMateriaux,
   ]);
 
   // Débloque le palier suivant si on vient de battre le palier max actuellement débloqué
   if (victoire && monstre.tier === tierDebloque && tierDebloque < 5) {
     await prisma.monsterUnlock.upsert({
       where: {
-        userId_baseName: {
-          userId: session.user.id,
-          baseName,
-        },
+        userId_baseName: { userId, baseName },
       },
       update: { highestTierUnlocked: tierDebloque + 1 },
       create: {
-        userId: session.user.id,
+        userId,
         baseName,
         highestTierUnlocked: 2,
       },
@@ -159,34 +203,35 @@ export async function affronterMonstre(
         bonusStat: SLOT_TO_STAT[slot],
         bonusValue: randomStat(rarete.statMin, rarete.statMax),
         rarityId: rarete.id,
-        ownerId: session.user.id,
+        ownerId: userId,
       },
     });
   }
 
   revalidatePath("/aventure");
   revalidatePath("/jouer");
+  revalidatePath("/inventaire");
 
   return {
     events,
     victoire,
     gain,
-    fighters: [
-      {
-        id: combatPerso.id,
-        name: combatPerso.name,
-        vieMax: combatPerso.vie,
-        color: personnage.color,
-        spriteId: personnage.spriteId,
-      },
-      {
-        id: combatMonstre.id,
-        name: combatMonstre.name,
-        vieMax: combatMonstre.vie,
-        baseName: monstre.baseName,
-        tier: monstre.tier,
-      },
-    ],
+    materiaux,
+    equipe: combatEquipe.map((c, i) => ({
+      id: c.id,
+      name: c.name,
+      vieMax: c.vie,
+      manaMax: c.manaMax ?? 0,
+      color: personnages[i].color,
+      spriteId: personnages[i].spriteId,
+    })),
+    monstre: {
+      id: combatMonstre.id,
+      name: combatMonstre.name,
+      vieMax: combatMonstre.vie,
+      baseName: monstre.baseName,
+      tier: monstre.tier,
+    },
   };
 }
 

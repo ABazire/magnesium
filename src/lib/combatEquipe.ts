@@ -9,18 +9,20 @@ export type PersonnageCombat3v3 = {
   vitesse: number;
   resistance: number;
   agilite: number;
+  manaMax?: number;
   sortsActifs?: SortActifCombat[];
   reductionDegats?: number;
 };
 
 export type CombatEvent3v3 =
-  | { type: "dodge"; attackerId: string; defenderId: string }
+  | { type: "dodge"; attackerId: string; defenderId: string; manaApres: number }
   | {
       type: "hit";
       attackerId: string;
       defenderId: string;
       damage: number;
       defenderHpAfter: number;
+      manaApres: number;
     }
   | { type: "ko"; personnageId: string }
   | {
@@ -30,6 +32,7 @@ export type CombatEvent3v3 =
       spellName: string;
       damage: number;
       defenderHpAfter: number;
+      manaApres: number;
     }
   | {
       type: "spellSoin";
@@ -37,6 +40,7 @@ export type CombatEvent3v3 =
       spellName: string;
       heal: number;
       casterHpAfter: number;
+      manaApres: number;
     }
   | {
       type: "spellEtourdissement";
@@ -44,14 +48,21 @@ export type CombatEvent3v3 =
       targetId: string;
       spellName: string;
       tours: number;
+      manaApres: number;
     }
-  | { type: "stun"; personnageId: string; toursRestants: number };
+  | {
+      type: "stun";
+      personnageId: string;
+      toursRestants: number;
+      manaApres: number;
+    };
 
 const BASE_TICK = 100;
 const FACTEUR_REDUCTION = 0.5;
 const ESQUIVE_MIN = 5;
 const ESQUIVE_MAX = 60;
 const MAX_TOURS = 400;
+const REGEN_MANA_PAR_TOUR = 15;
 
 function chanceEsquive(
   agiliteDefenseur: number,
@@ -76,9 +87,11 @@ function appliquerReductionDegats(degats: number, reductionPct: number): number 
   return Math.max(1, Math.round(degats * (1 - reductionPct / 100)));
 }
 
+// Accepte des tableaux (pas seulement des équipes de 3) pour pouvoir aussi
+// servir aux combats d'aventure en équipe (3 personnages contre 1 monstre).
 export function simulerCombatEquipe(
-  equipeA: [PersonnageCombat3v3, PersonnageCombat3v3, PersonnageCombat3v3],
-  equipeB: [PersonnageCombat3v3, PersonnageCombat3v3, PersonnageCombat3v3],
+  equipeA: PersonnageCombat3v3[],
+  equipeB: PersonnageCombat3v3[],
   seed: number,
 ) {
   const random = creerRng(seed);
@@ -91,6 +104,7 @@ export function simulerCombatEquipe(
   const camp: Record<string, "A" | "B"> = {};
   const stun: Record<string, number> = {};
   const cooldowns: Record<string, Record<string, number>> = {};
+  const mana: Record<string, number> = {};
 
   for (const p of tous) {
     pv[p.id] = p.vie;
@@ -101,6 +115,7 @@ export function simulerCombatEquipe(
     cooldowns[p.id] = Object.fromEntries(
       (p.sortsActifs ?? []).map((s) => [s.id, 0]),
     );
+    mana[p.id] = p.manaMax ?? 0;
   }
   for (const p of equipeA) camp[p.id] = "A";
   for (const p of equipeB) camp[p.id] = "B";
@@ -123,12 +138,18 @@ export function simulerCombatEquipe(
     enVie.sort((a, b) => compteur[a.id] - compteur[b.id]);
     const attaquant = enVie[0];
 
+    mana[attaquant.id] = Math.min(
+      attaquant.manaMax ?? 0,
+      mana[attaquant.id] + REGEN_MANA_PAR_TOUR,
+    );
+
     if (stun[attaquant.id] > 0) {
       stun[attaquant.id] -= 1;
       events.push({
         type: "stun",
         personnageId: attaquant.id,
         toursRestants: stun[attaquant.id],
+        manaApres: mana[attaquant.id],
       });
       compteur[attaquant.id] += intervalle[attaquant.id];
       continue;
@@ -146,11 +167,13 @@ export function simulerCombatEquipe(
     }
 
     const sortPret = (attaquant.sortsActifs ?? []).find(
-      (s) => cooldowns[attaquant.id][s.id] === 0,
+      (s) =>
+        cooldowns[attaquant.id][s.id] === 0 && mana[attaquant.id] >= s.manaCost,
     );
 
     if (sortPret) {
       cooldowns[attaquant.id][sortPret.id] = sortPret.cooldown;
+      mana[attaquant.id] -= sortPret.manaCost;
 
       if (sortPret.effect === "DEGATS") {
         const base = calculerDegats(attaquant.force, defenseur.resistance);
@@ -167,6 +190,7 @@ export function simulerCombatEquipe(
           spellName: sortPret.name,
           damage: degats,
           defenderHpAfter: pv[defenseur.id],
+          manaApres: mana[attaquant.id],
         });
         if (pv[defenseur.id] === 0) {
           events.push({ type: "ko", personnageId: defenseur.id });
@@ -181,6 +205,7 @@ export function simulerCombatEquipe(
           spellName: sortPret.name,
           heal,
           casterHpAfter: pv[attaquant.id],
+          manaApres: mana[attaquant.id],
         });
       } else {
         stun[defenseur.id] = (stun[defenseur.id] ?? 0) + sortPret.value;
@@ -190,6 +215,7 @@ export function simulerCombatEquipe(
           targetId: defenseur.id,
           spellName: sortPret.name,
           tours: sortPret.value,
+          manaApres: mana[attaquant.id],
         });
       }
     } else {
@@ -201,6 +227,7 @@ export function simulerCombatEquipe(
           type: "dodge",
           attackerId: attaquant.id,
           defenderId: defenseur.id,
+          manaApres: mana[attaquant.id],
         });
       } else {
         const base = calculerDegats(attaquant.force, defenseur.resistance);
@@ -215,6 +242,7 @@ export function simulerCombatEquipe(
           defenderId: defenseur.id,
           damage: degats,
           defenderHpAfter: pv[defenseur.id],
+          manaApres: mana[attaquant.id],
         });
         if (pv[defenseur.id] === 0) {
           events.push({ type: "ko", personnageId: defenseur.id });

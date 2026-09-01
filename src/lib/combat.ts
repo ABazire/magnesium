@@ -1,12 +1,7 @@
 import { creerRng } from "./rng";
+import type { SortActifCombat } from "./personnage";
 
-export type SortActifCombat = {
-  id: string;
-  name: string;
-  effect: "DEGATS" | "SOIN" | "ETOURDISSEMENT";
-  value: number;
-  cooldown: number;
-};
+export type { SortActifCombat };
 
 export type PersonnageCombat = {
   id: string;
@@ -16,18 +11,20 @@ export type PersonnageCombat = {
   vitesse: number;
   resistance: number;
   agilite: number;
+  manaMax?: number;
   sortsActifs?: SortActifCombat[];
   reductionDegats?: number;
 };
 
 export type CombatEvent =
-  | { type: "dodge"; attackerId: string; defenderId: string }
+  | { type: "dodge"; attackerId: string; defenderId: string; manaApres: number }
   | {
       type: "hit";
       attackerId: string;
       defenderId: string;
       damage: number;
       defenderHpAfter: number;
+      manaApres: number;
     }
   | {
       type: "spellDegats";
@@ -36,6 +33,7 @@ export type CombatEvent =
       spellName: string;
       damage: number;
       defenderHpAfter: number;
+      manaApres: number;
     }
   | {
       type: "spellSoin";
@@ -43,6 +41,7 @@ export type CombatEvent =
       spellName: string;
       heal: number;
       casterHpAfter: number;
+      manaApres: number;
     }
   | {
       type: "spellEtourdissement";
@@ -50,14 +49,21 @@ export type CombatEvent =
       targetId: string;
       spellName: string;
       tours: number;
+      manaApres: number;
     }
-  | { type: "stun"; personnageId: string; toursRestants: number };
+  | {
+      type: "stun";
+      personnageId: string;
+      toursRestants: number;
+      manaApres: number;
+    };
 
 const BASE_TICK = 100;
 const FACTEUR_REDUCTION = 0.5;
 const ESQUIVE_MIN = 5;
 const ESQUIVE_MAX = 60;
 const MAX_TOURS = 200;
+const REGEN_MANA_PAR_TOUR = 15;
 
 function chanceEsquive(
   agiliteDefenseur: number,
@@ -109,6 +115,10 @@ export function simulerCombat(
       (perso2.sortsActifs ?? []).map((s) => [s.id, 0]),
     ),
   };
+  const mana: Record<string, number> = {
+    [perso1.id]: perso1.manaMax ?? 0,
+    [perso2.id]: perso2.manaMax ?? 0,
+  };
 
   const events: CombatEvent[] = [];
   let tours = 0;
@@ -122,12 +132,18 @@ export function simulerCombat(
     const attaquant = parId[attaquantId];
     const defenseur = parId[defenseurId];
 
+    mana[attaquantId] = Math.min(
+      attaquant.manaMax ?? 0,
+      mana[attaquantId] + REGEN_MANA_PAR_TOUR,
+    );
+
     if (stun[attaquantId] > 0) {
       stun[attaquantId] -= 1;
       events.push({
         type: "stun",
         personnageId: attaquantId,
         toursRestants: stun[attaquantId],
+        manaApres: mana[attaquantId],
       });
       compteur[attaquantId] += intervalle[attaquantId];
       continue;
@@ -140,11 +156,12 @@ export function simulerCombat(
     }
 
     const sortPret = (attaquant.sortsActifs ?? []).find(
-      (s) => cooldowns[attaquantId][s.id] === 0,
+      (s) => cooldowns[attaquantId][s.id] === 0 && mana[attaquantId] >= s.manaCost,
     );
 
     if (sortPret) {
       cooldowns[attaquantId][sortPret.id] = sortPret.cooldown;
+      mana[attaquantId] -= sortPret.manaCost;
       const reductionDefenseur = defenseur.reductionDegats ?? 0;
 
       if (sortPret.effect === "DEGATS") {
@@ -159,6 +176,7 @@ export function simulerCombat(
           spellName: sortPret.name,
           damage: degats,
           defenderHpAfter: pv[defenseurId],
+          manaApres: mana[attaquantId],
         });
       } else if (sortPret.effect === "SOIN") {
         const heal = Math.round(attaquant.vie * (sortPret.value / 100));
@@ -169,6 +187,7 @@ export function simulerCombat(
           spellName: sortPret.name,
           heal,
           casterHpAfter: pv[attaquantId],
+          manaApres: mana[attaquantId],
         });
       } else {
         stun[defenseurId] = (stun[defenseurId] ?? 0) + sortPret.value;
@@ -178,6 +197,7 @@ export function simulerCombat(
           targetId: defenseurId,
           spellName: sortPret.name,
           tours: sortPret.value,
+          manaApres: mana[attaquantId],
         });
       }
     } else {
@@ -189,6 +209,7 @@ export function simulerCombat(
           type: "dodge",
           attackerId: attaquantId,
           defenderId: defenseurId,
+          manaApres: mana[attaquantId],
         });
       } else {
         const base = calculerDegats(attaquant.force, defenseur.resistance);
@@ -203,6 +224,7 @@ export function simulerCombat(
           defenderId: defenseurId,
           damage: degats,
           defenderHpAfter: pv[defenseurId],
+          manaApres: mana[attaquantId],
         });
       }
     }

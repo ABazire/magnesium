@@ -12,8 +12,11 @@ import {
 import { desequiperObjet } from "../../actions/equiper";
 import FilterBar from "@/components/FilterBar";
 import Pagination from "@/components/Pagination";
+import FusionEquipement from "@/components/FusionEquipement";
+import { NOMS_MATERIAU } from "@/lib/monsterDrops";
+import { SEUILS_FUSION } from "@/lib/fusion";
 import styles from "./page.module.css";
-import type { Prisma } from "@prisma/client";
+import type { Prisma, EquipmentSlot } from "@prisma/client";
 
 type EquipementAvecRelations = Prisma.EquipmentGetPayload<{
   include: { rarity: true; equippedOn: { include: { personnage: true } } };
@@ -104,11 +107,35 @@ export default async function InventairePage({
     }
   }
 
-  const tousLesEquipements = await prisma.equipment.findMany({
-    where: { ownerId: session.user.id },
-    orderBy: { id: "desc" },
-    include: { rarity: true, equippedOn: { include: { personnage: true } } },
-  });
+  const [tousLesEquipements, materiaux] = await Promise.all([
+    prisma.equipment.findMany({
+      where: { ownerId: session.user.id },
+      orderBy: { id: "desc" },
+      include: { rarity: true, equippedOn: { include: { personnage: true } } },
+    }),
+    prisma.materialStack.findMany({
+      where: { ownerId: session.user.id },
+      orderBy: { type: "asc" },
+    }),
+  ]);
+
+  const groupesFusion = new Map<
+    string,
+    { slot: EquipmentSlot; stars: number; ids: string[] }
+  >();
+  for (const e of tousLesEquipements) {
+    if (e.equippedOn) continue;
+    const stars = e.rarity?.stars ?? 0;
+    if (!SEUILS_FUSION[stars]) continue;
+    const key = `${e.slot}-${stars}`;
+    if (!groupesFusion.has(key)) {
+      groupesFusion.set(key, { slot: e.slot, stars, ids: [] });
+    }
+    groupesFusion.get(key)!.ids.push(e.id);
+  }
+  const groupesFusables = [...groupesFusion.values()].filter(
+    (g) => g.ids.length >= SEUILS_FUSION[g.stars],
+  );
 
   let filtres = tousLesEquipements.filter(
     (e) => (e.rarity?.stars ?? 0) >= minStarsNum,
@@ -158,6 +185,18 @@ export default async function InventairePage({
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Inventaire</h1>
+
+      {materiaux.length > 0 && (
+        <div className={styles.materiaux}>
+          {materiaux.map((m) => (
+            <span key={m.type} className={styles.materiauBadge}>
+              {NOMS_MATERIAU[m.type]} × {m.quantity}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <FusionEquipement groupes={groupesFusables} />
 
       <FilterBar
         action="/inventaire"

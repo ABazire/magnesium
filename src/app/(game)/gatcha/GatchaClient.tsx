@@ -37,6 +37,7 @@ type Resultat = {
   vitesse: number;
   resistance: number;
   agilite: number;
+  mana: number;
 };
 
 export default function GatchaClient({
@@ -234,6 +235,7 @@ export default function GatchaClient({
               <span>Vitesse {resultat.vitesse}</span>
               <span>Résistance {resultat.resistance}</span>
               <span>Agilité {resultat.agilite}</span>
+              <span>Mana {resultat.mana}</span>
             </div>
 
             <button
@@ -326,6 +328,7 @@ export default function GatchaClient({
               <span>Vitesse {resultatPremium.vitesse}</span>
               <span>Résistance {resultatPremium.resistance}</span>
               <span>Agilité {resultatPremium.agilite}</span>
+              <span>Mana {resultatPremium.mana}</span>
             </div>
 
             <button

@@ -16,6 +16,7 @@ export function gagnerXp(
   levelActuel: number,
   xpActuelle: number,
   starsRarete: number,
+  xpGagnee: number = XP_PAR_VICTOIRE,
 ): { newLevel: number; newXp: number; leveledUp: boolean } {
   const max = niveauMax(starsRarete);
 
@@ -24,7 +25,7 @@ export function gagnerXp(
   }
 
   let level = levelActuel;
-  let xp = xpActuelle + XP_PAR_VICTOIRE;
+  let xp = xpActuelle + xpGagnee;
   let leveledUp = false;
 
   while (level < max && xp >= xpRequisePourNiveauSuivant(level)) {

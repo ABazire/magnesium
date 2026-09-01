@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
+import Link from "next/link";
 import {
   affronterMonstre,
   getMonstresDisponibles,
 } from "../../actions/aventure";
-import { WolfTierIcon, BearTierIcon } from "@/components/pixel";
-import CombatViewer from "@/components/CombatViewer";
+import { WolfTierIcon, BearTierIcon, PersonnageIcon } from "@/components/pixel";
+import { Droplets, Sparkles, Feather, Gem } from "lucide-react";
+import TeamCombatViewer from "@/components/TeamCombatViewer";
 import Modal from "@/components/Modal";
-import type { CombatEvent } from "@/lib/combat";
+import { NOMS_MATERIAU } from "@/lib/monsterDrops";
+import type { CombatEvent3v3 } from "@/lib/combatEquipe";
+import type { MaterialType } from "@prisma/client";
 import styles from "./page.module.css";
 
 type MonstreDispo = {
@@ -19,58 +23,114 @@ type MonstreDispo = {
   debloque: boolean;
 };
 
-type Fighter = {
+type MembreEquipe = {
+  position: number;
+  personnage: {
+    id: string;
+    name: string;
+    color: string;
+    spriteId: number;
+  };
+};
+
+type Equipe = {
+  id: string;
+  name: string;
+  membres: MembreEquipe[];
+};
+
+type FighterEquipe = {
   id: string;
   name: string;
   vieMax: number;
+  manaMax: number;
   color?: string;
   spriteId?: number;
 };
 
-type ResultatCombat = {
-  events: CombatEvent[];
-  victoire: boolean;
-  gain: number;
-  fighters: [Fighter, Fighter];
+type FighterMonstre = {
+  id: string;
+  name: string;
+  vieMax: number;
+  baseName?: string;
+  tier?: number;
 };
 
-const ICONE_BASE: Record<string, typeof WolfTierIcon> = {
+type ResultatCombat = {
+  events: CombatEvent3v3[];
+  victoire: boolean;
+  gain: number;
+  materiaux: { type: MaterialType; quantity: number }[];
+  equipe: FighterEquipe[];
+  monstre: FighterMonstre;
+};
+
+function sansTier(Icone: ComponentType<{ size?: number }>) {
+  return function IconeSansTier({ size }: { size?: number; tier?: number }) {
+    return <Icone size={size} />;
+  };
+}
+
+const ICONE_BASE: Record<string, ComponentType<{ size?: number; tier?: number }>> = {
   Loup: WolfTierIcon,
   Ours: BearTierIcon,
+  Slime: sansTier(Droplets),
+  Élémentaire: sansTier(Sparkles),
+  Griffon: sansTier(Feather),
+  "Serpent de Cristal": sansTier(Gem),
 };
 
 const ZONES = [
   {
     baseName: "Loup",
     label: "Forêt des Hurlements",
-    position: { top: "28%", left: "22%" },
+    position: { top: "18%", left: "15%" },
   },
   {
     baseName: "Ours",
     label: "Antre de la Montagne",
-    position: { top: "55%", left: "68%" },
+    position: { top: "45%", left: "72%" },
+  },
+  {
+    baseName: "Slime",
+    label: "Marais Gluant",
+    position: { top: "78%", left: "18%" },
+  },
+  {
+    baseName: "Élémentaire",
+    label: "Plaine des Éclats",
+    position: { top: "15%", left: "68%" },
+  },
+  {
+    baseName: "Griffon",
+    label: "Pics du Griffon",
+    position: { top: "40%", left: "40%" },
+  },
+  {
+    baseName: "Serpent de Cristal",
+    label: "Grotte de Cristal",
+    position: { top: "75%", left: "60%" },
   },
 ];
 
-export default function AventureClient({
-  personnages,
-}: {
-  personnages: { id: string; name: string }[];
-}) {
-  const [personnageId, setPersonnageId] = useState("");
+const SCENES: Record<string, string> = {
+  Loup: "/scenes/foret.jpg",
+};
+
+export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
+  const [equipeId, setEquipeId] = useState("");
   const [monstresDispo, setMonstresDispo] = useState<MonstreDispo[]>([]);
   const [zoneOuverte, setZoneOuverte] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
   const [resultat, setResultat] = useState<ResultatCombat | null>(null);
+  const [erreur, setErreur] = useState<string | null>(null);
   const [fightKey, setFightKey] = useState(0);
   const [dernierMonstre, setDernierMonstre] = useState<MonstreDispo | null>(
     null,
   );
 
-  const SCENES: Record<string, string> = {
-    Loup: "/scenes/foret.jpg",
-  };
-
+  const equipeSelectionnee = equipes.find((e) => e.id === equipeId);
+  const equipeComplete = (equipeSelectionnee?.membres.length ?? 0) === 3;
   const sceneActuelle = dernierMonstre
     ? SCENES[dernierMonstre.baseName]
     : undefined;
@@ -79,19 +139,21 @@ export default function AventureClient({
     getMonstresDisponibles().then(setMonstresDispo);
   }, [resultat]);
 
-  function resolveIconKey(fighter: Fighter, baseName?: string) {
-    return baseName ? baseName.toLowerCase() : "personnage";
-  }
-
   async function combattre(monstre: MonstreDispo) {
-    if (!personnageId) return;
+    if (!equipeComplete) return;
+    setErreur(null);
     setEnCours(true);
     setDernierMonstre(monstre);
     setZoneOuverte(null);
-    const res = await affronterMonstre(personnageId, monstre.id);
-    setResultat(res);
-    setFightKey((k) => k + 1);
-    setEnCours(false);
+    try {
+      const res = await affronterMonstre(equipeId, monstre.id);
+      setResultat(res);
+      setFightKey((k) => k + 1);
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : "Erreur inconnue");
+    } finally {
+      setEnCours(false);
+    }
   }
 
   function fermerCombat() {
@@ -115,18 +177,44 @@ export default function AventureClient({
     <main className={styles.page}>
       <h1 className={styles.title}>Aventure</h1>
 
-      <select
-        value={personnageId}
-        onChange={(e) => setPersonnageId(e.target.value)}
-        className={styles.select}
-      >
-        <option value="">Choisis ton personnage</option>
-        {personnages.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-          </option>
-        ))}
-      </select>
+      <div className={styles.equipeSelecteur}>
+        <select
+          value={equipeId}
+          onChange={(e) => setEquipeId(e.target.value)}
+          className={styles.select}
+        >
+          <option value="">Choisis ton équipe</option>
+          {equipes.map((eq) => (
+            <option key={eq.id} value={eq.id}>
+              {eq.name} ({eq.membres.length}/3)
+            </option>
+          ))}
+        </select>
+
+        {equipeSelectionnee && (
+          <div className={styles.equipeApercu}>
+            {equipeSelectionnee.membres.map((m) => (
+              <PersonnageIcon
+                key={m.personnage.id}
+                size={32}
+                couleur={m.personnage.color}
+                variant={m.personnage.spriteId}
+              />
+            ))}
+          </div>
+        )}
+
+        <Link href="/jouer" className={styles.gererLien}>
+          Gérer mes équipes
+        </Link>
+      </div>
+
+      {equipeId && !equipeComplete && (
+        <p className={styles.avertissement}>
+          Cette équipe n’a pas encore 3 personnages — complète-la sur la page
+          d’accueil avant de partir à l’aventure.
+        </p>
+      )}
 
       <div className={styles.map}>
         {ZONES.map((zone) => {
@@ -140,7 +228,7 @@ export default function AventureClient({
               onClick={() => setZoneOuverte(zone.baseName)}
               className={styles.mapNode}
               style={{ top: zone.position.top, left: zone.position.left }}
-              disabled={!personnageId}
+              disabled={!equipeComplete}
             >
               <div className={styles.mapNodeIcon}>
                 <Icone size={44} tier={Math.max(1, nbDebloques)} />
@@ -154,6 +242,7 @@ export default function AventureClient({
       {zoneOuverte && (
         <Modal onClose={() => setZoneOuverte(null)}>
           <h2 className={styles.modalTitle}>{zoneOuverte}</h2>
+          {erreur && <p className={styles.avertissement}>{erreur}</p>}
           <div className={styles.tierList}>
             {monstresParZone(zoneOuverte).map((m) => (
               <button
@@ -177,31 +266,30 @@ export default function AventureClient({
 
       {resultat && dernierMonstre && (
         <div className={styles.combatOverlay}>
-          <CombatViewer
+          <TeamCombatViewer
             key={fightKey}
-            fighters={[
-              { ...resultat.fighters[0], iconKey: "personnage" },
-              {
-                ...resultat.fighters[1],
-                iconKey: resolveIconKey(
-                  resultat.fighters[1],
-                  dernierMonstre.baseName,
-                ),
-                tier: dernierMonstre.tier,
-              },
-            ]}
+            equipe={resultat.equipe}
+            monstre={{
+              ...resultat.monstre,
+              iconKey: dernierMonstre.baseName.toLowerCase(),
+              tier: dernierMonstre.tier,
+            }}
             events={resultat.events}
-            winnerId={
-              resultat.victoire
-                ? personnageId
-                : resultat.fighters.find((f) => f.id !== personnageId)!.id
-            }
+            victoire={resultat.victoire}
             background={sceneActuelle}
           />
 
           <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>
             +{resultat.gain} monnaie
           </p>
+
+          {resultat.materiaux.length > 0 && (
+            <p className={styles.gainWin}>
+              {resultat.materiaux
+                .map((m) => `+${m.quantity} ${NOMS_MATERIAU[m.type]}`)
+                .join(" · ")}
+            </p>
+          )}
 
           <div className={styles.postCombatActions}>
             <button

@@ -11,6 +11,22 @@
   margin-bottom: 20px;
 }
 
+.materiaux {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.materiauBadge {
+  color: #cfe3da;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);

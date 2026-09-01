@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { tirerRarete, tirerRaretePremium } from "@/lib/rarity";
 
 const COUT_TIRAGE = 100;
-const COUT_PREMIUM = 1;
+const COUT_PREMIUM = 75;
 const NOMS_ALEATOIRES = [
   "Kaeruun",
   "Vor'gath",
@@ -30,6 +30,7 @@ type ResultatGatcha = {
     vitesse: number;
     resistance: number;
     agilite: number;
+    mana: number;
   };
   newCurrency: number;
 };
@@ -53,6 +54,8 @@ export async function tirerGatcha(): Promise<ResultatGatcha> {
     vitesse: randomStat(rarete.statMin, rarete.statMax),
     resistance: randomStat(rarete.statMin, rarete.statMax),
     agilite: randomStat(rarete.statMin, rarete.statMax),
+    // Base garantie + jet de rareté, pour qu'aucun personnage ne naisse incapable de lancer un sort
+    mana: 20 + randomStat(rarete.statMin, rarete.statMax),
   };
 
   const [updatedUser, nouveauPersonnage] = await prisma.$transaction([
@@ -90,6 +93,7 @@ type ResultatGatchaPremium = {
     vitesse: number;
     resistance: number;
     agilite: number;
+    mana: number;
   };
   newDiamonds: number;
 };
@@ -113,6 +117,8 @@ export async function tirerGatchaPremium(): Promise<ResultatGatchaPremium> {
     vitesse: randomStat(rarete.statMin, rarete.statMax),
     resistance: randomStat(rarete.statMin, rarete.statMax),
     agilite: randomStat(rarete.statMin, rarete.statMax),
+    // Base garantie + jet de rareté, pour qu'aucun personnage ne naisse incapable de lancer un sort
+    mana: 20 + randomStat(rarete.statMin, rarete.statMax),
   };
 
   const [updatedUser, nouveauPersonnage] = await prisma.$transaction([

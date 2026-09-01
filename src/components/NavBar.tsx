@@ -14,6 +14,7 @@ import {
   Zap,
   Ticket,
   Package,
+  Hammer,
 } from "lucide-react";
 
 import styles from "./NavBar.module.css";
@@ -47,9 +48,9 @@ const LIENS = [
     Icone: Star,
   },
   {
-    href: "/coffre",
-    label: "Coffres",
-    Icone: Gem,
+    href: "/forge",
+    label: "Forge",
+    Icone: Hammer,
   },
 ];
 

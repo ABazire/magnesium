@@ -22,6 +22,7 @@ type Fighter = {
   id: string;
   name: string;
   vieMax: number;
+  manaMax?: number;
   iconKey?: string;
   couleur?: string;
   spriteVariant?: number;
@@ -52,6 +53,10 @@ export default function CombatViewer({
     [f1.id]: f1.vieMax,
     [f2.id]: f2.vieMax,
   };
+  const mana: Record<string, number> = {
+    [f1.id]: f1.manaMax ?? 0,
+    [f2.id]: f2.manaMax ?? 0,
+  };
   for (let i = 0; i < step; i++) {
     const ev = events[i];
     if (ev.type === "hit" || ev.type === "spellDegats") {
@@ -59,6 +64,8 @@ export default function CombatViewer({
     } else if (ev.type === "spellSoin") {
       vie[ev.casterId] = ev.casterHpAfter;
     }
+    const { acteur } = acteurCible(ev);
+    if (acteur in mana) mana[acteur] = ev.manaApres;
   }
 
   const termine = step >= events.length;
@@ -117,6 +124,10 @@ export default function CombatViewer({
       <div className={styles.hpRow}>
         {[f1, f2].map((f) => {
           const pct = Math.round((vie[f.id] / f.vieMax) * 100);
+          const pctMana =
+            (f.manaMax ?? 0) > 0
+              ? Math.round((mana[f.id] / (f.manaMax ?? 1)) * 100)
+              : 0;
           return (
             <div key={f.id} className={styles.hpBlock}>
               <span className={styles.fighterName}>{f.name}</span>
@@ -129,6 +140,19 @@ export default function CombatViewer({
               <span className={styles.hpValue}>
                 {vie[f.id]} / {f.vieMax}
               </span>
+              {(f.manaMax ?? 0) > 0 && (
+                <>
+                  <div className={styles.manaBarTrack}>
+                    <div
+                      className={styles.manaBarFill}
+                      style={{ width: `${pctMana}%` }}
+                    />
+                  </div>
+                  <span className={styles.hpValue}>
+                    {mana[f.id]} / {f.manaMax} mana
+                  </span>
+                </>
+              )}
             </div>
           );
         })}

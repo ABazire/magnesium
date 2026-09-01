@@ -65,7 +65,10 @@ async function Arene1v1({ userId, mine }: { userId: string; mine?: string }) {
   if (mine) {
     const monPersonnage = await prisma.personnage.findUnique({
       where: { id: mine },
-      include: { equipment: { include: { equipment: true } } },
+      include: {
+        equipment: { include: { equipment: true } },
+        spells: { include: { spell: true } },
+      },
     });
 
     if (monPersonnage) {
@@ -76,6 +79,7 @@ async function Arene1v1({ userId, mine }: { userId: string; mine?: string }) {
           where: { ownerId: { not: userId } },
           include: {
             equipment: { include: { equipment: true } },
+            spells: { include: { spell: true } },
             owner: { select: { username: true } },
           },
         }),

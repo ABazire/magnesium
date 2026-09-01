@@ -62,17 +62,22 @@ export async function lancerCombat(formData: FormData) {
     }),
   ]);
 
+  const stats1 = statsEffectives(perso1);
+  const stats2 = statsEffectives(perso2);
+
   const combat1 = {
     id: perso1.id,
     name: perso1.name,
-    ...statsEffectives(perso1),
+    ...stats1,
+    manaMax: stats1.mana,
     sortsActifs: sortsActifsCombat(perso1),
     reductionDegats: reductionDegatsPassive(perso1),
   };
   const combat2 = {
     id: perso2.id,
     name: perso2.name,
-    ...statsEffectives(perso2),
+    ...stats2,
+    manaMax: stats2.mana,
     sortsActifs: sortsActifsCombat(perso2),
     reductionDegats: reductionDegatsPassive(perso2),
   };
@@ -110,6 +115,8 @@ export async function lancerCombat(formData: FormData) {
       defenderPersonnageId: b,
       attackerVieMax: combat1.vie,
       defenderVieMax: combat2.vie,
+      attackerManaMax: combat1.manaMax,
+      defenderManaMax: combat2.manaMax,
     },
   });
 

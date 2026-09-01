@@ -26,6 +26,31 @@
   background: #0f1a16;
 }
 
+.equipeSelecteur {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.equipeApercu {
+  display: flex;
+  gap: 6px;
+}
+
+.gererLien {
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  margin-left: auto;
+}
+
+.avertissement {
+  color: #f2c94c;
+  font-size: 13px;
+}
+
 .monsterList {
   display: flex;
   flex-direction: column;

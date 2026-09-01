@@ -1,0 +1,148 @@
+.page {
+  padding: 24px 16px;
+  margin: 0 auto;
+  max-width: 900px;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.currency {
+  color: #9db8b1;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.currencyValue {
+  color: #f2c94c;
+  font-weight: 800;
+}
+
+.materiaux {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.materiauBadge {
+  color: #cfe3da;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.carte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 16px;
+  padding: 20px 14px;
+  background: rgba(15, 26, 22, 0.4);
+}
+
+.carteLabel {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.recette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin: 4px 0;
+}
+
+.ok {
+  color: #10b981;
+  font-size: 11px;
+}
+
+.manque {
+  color: #ef4444;
+  font-size: 11px;
+}
+
+.craftButton {
+  background: #059669;
+  color: #0f1a16;
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.craftButton:hover:not(:disabled) {
+  background: #10b981;
+}
+
+.craftButton:disabled {
+  background: transparent;
+  border: 1.5px solid #1e3a2f;
+  color: #4d7266;
+  cursor: not-allowed;
+}
+
+.resultCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 320px;
+  margin: 20px auto;
+}
+
+.resultLabel {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.resultName {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.resultStars {
+  color: #f2c94c;
+  font-size: 14px;
+}
+
+.resultBonus {
+  color: #cfe3da;
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-align: center;
+}

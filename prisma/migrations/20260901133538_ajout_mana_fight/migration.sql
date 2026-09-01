@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Fight" ADD COLUMN     "attackerManaMax" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "defenderManaMax" INTEGER NOT NULL DEFAULT 0;

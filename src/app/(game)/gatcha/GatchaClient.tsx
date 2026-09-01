@@ -267,7 +267,7 @@ export default function GatchaClient({
             >
               {phasePremium === "tirage"
                 ? "Recrutement en cours..."
-                : "Recruter (1 diamant, 3★ garanti)"}
+                : "Recruter (75 diamant, 3★ garanti)"}
             </button>
           </>
         )}

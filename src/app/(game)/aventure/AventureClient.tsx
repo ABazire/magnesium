@@ -130,7 +130,7 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
   );
 
   const equipeSelectionnee = equipes.find((e) => e.id === equipeId);
-  const equipeComplete = (equipeSelectionnee?.membres.length ?? 0) === 3;
+  const equipePrete = (equipeSelectionnee?.membres.length ?? 0) > 0;
   const sceneActuelle = dernierMonstre
     ? SCENES[dernierMonstre.baseName]
     : undefined;
@@ -140,7 +140,7 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
   }, [resultat]);
 
   async function combattre(monstre: MonstreDispo) {
-    if (!equipeComplete) return;
+    if (!equipePrete) return;
     setErreur(null);
     setEnCours(true);
     setDernierMonstre(monstre);
@@ -209,10 +209,16 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
         </Link>
       </div>
 
-      {equipeId && !equipeComplete && (
+      {equipeId && !equipePrete && (
         <p className={styles.avertissement}>
-          Cette équipe n’a pas encore 3 personnages — complète-la sur la page
-          d’accueil avant de partir à l’aventure.
+          Cette équipe n’a aucun personnage — ajoutes-en au moins un sur la
+          page d’accueil avant de partir à l’aventure.
+        </p>
+      )}
+      {equipeId && equipePrete && (equipeSelectionnee?.membres.length ?? 0) < 3 && (
+        <p className={styles.info}>
+          Équipe incomplète ({equipeSelectionnee?.membres.length}/3) — jouable,
+          mais plus risqué face aux monstres.
         </p>
       )}
 
@@ -228,7 +234,7 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
               onClick={() => setZoneOuverte(zone.baseName)}
               className={styles.mapNode}
               style={{ top: zone.position.top, left: zone.position.left }}
-              disabled={!equipeComplete}
+              disabled={!equipePrete}
             >
               <div className={styles.mapNodeIcon}>
                 <Icone size={44} tier={Math.max(1, nbDebloques)} />

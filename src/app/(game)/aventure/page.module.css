@@ -51,6 +51,11 @@
   font-size: 13px;
 }
 
+.info {
+  color: #4d7266;
+  font-size: 12px;
+}
+
 .monsterList {
   display: flex;
   flex-direction: column;

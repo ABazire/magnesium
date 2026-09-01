@@ -22,7 +22,6 @@ import { tirerGainDiamants } from "@/lib/diamond";
 import { obtenirEnergieActuelle, ENERGY_COUT_COMBAT } from "@/lib/energy";
 
 const CHANCE_COFFRE = 0.2;
-const TAILLE_EQUIPE = 3;
 
 function randomStat(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -90,8 +89,8 @@ export async function affronterMonstre(
     prisma.monster.findUniqueOrThrow({ where: { id: monsterId } }),
   ]);
 
-  if (team.membres.length !== TAILLE_EQUIPE) {
-    throw new Error("L'équipe doit avoir 3 personnages pour partir à l'aventure");
+  if (team.membres.length === 0) {
+    throw new Error("Ajoute au moins un personnage à cette équipe");
   }
 
   // Vérifie que ce palier est bien débloqué pour ce joueur

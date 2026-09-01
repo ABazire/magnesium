@@ -13,6 +13,7 @@ type PersonnageAvecRelations = Prisma.PersonnageGetPayload<{
     rarity: true;
     equipment: { include: { equipment: true } };
     spells: { include: { spell: true } };
+    teamMembres: true;
   };
 }>;
 
@@ -84,6 +85,7 @@ export default async function CollectionPage({
       rarity: true,
       equipment: { include: { equipment: true } },
       spells: { include: { spell: true } },
+      teamMembres: true,
     },
   });
 
@@ -91,8 +93,8 @@ export default async function CollectionPage({
     (p) => (p.rarity?.stars ?? 0) >= minStarsNum,
   );
 
-  if (equipe === "oui") filtres = filtres.filter((p) => p.inTeam);
-  if (equipe === "non") filtres = filtres.filter((p) => !p.inTeam);
+  if (equipe === "oui") filtres = filtres.filter((p) => p.teamMembres.length > 0);
+  if (equipe === "non") filtres = filtres.filter((p) => p.teamMembres.length === 0);
 
   if (q) {
     const qLower = q.toLowerCase();

@@ -130,3 +130,38 @@ export async function definirMembreEquipe(
   revalidatePath("/jouer");
   revalidatePath("/aventure");
 }
+
+// Bascule cette équipe comme équipe de défense pour le 3v3 (une seule à la
+// fois par joueur) ; recliquer sur l'équipe déjà désignée la retire.
+export async function definirEquipeDefense(teamId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Non connecté");
+  const userId = session.user.id;
+
+  const team = await prisma.team.findUniqueOrThrow({
+    where: { id: teamId, ownerId: userId },
+    include: { membres: true },
+  });
+
+  if (!team.estDefense && team.membres.length !== TAILLE_EQUIPE) {
+    throw new Error("L'équipe doit avoir 3 personnages pour défendre en 3v3");
+  }
+
+  await prisma.$transaction([
+    prisma.team.updateMany({
+      where: { ownerId: userId, estDefense: true },
+      data: { estDefense: false },
+    }),
+    ...(team.estDefense
+      ? []
+      : [
+          prisma.team.update({
+            where: { id: teamId },
+            data: { estDefense: true },
+          }),
+        ]),
+  ]);
+
+  revalidatePath("/jouer");
+  revalidatePath("/arene");
+}

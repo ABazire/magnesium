@@ -39,6 +39,7 @@ import {
   renommerEquipe,
   supprimerEquipe,
   definirMembreEquipe,
+  definirEquipeDefense,
   getPersonnageDetail,
 } from "../../actions/teams";
 import type { Prisma, SpellSlot } from "@prisma/client";
@@ -91,6 +92,7 @@ type MembreEquipe = PersonnageResume & {
 type Equipe = {
   id: string;
   name: string;
+  estDefense: boolean;
   membres: { position: number; personnage: MembreEquipe }[];
 };
 
@@ -159,6 +161,7 @@ export default function JouerClient({
 
   const [erreur, setErreur] = useState<string | null>(null);
   const [suppressionEnCours, setSuppressionEnCours] = useState(false);
+  const [defenseEnCours, setDefenseEnCours] = useState(false);
 
   function messageErreur(e: unknown) {
     return e instanceof Error ? e.message : "Erreur inconnue";
@@ -324,6 +327,20 @@ export default function JouerClient({
     }
   }
 
+  async function defenseHandler(teamId: string) {
+    if (defenseEnCours) return;
+    setDefenseEnCours(true);
+    setErreur(null);
+    try {
+      await definirEquipeDefense(teamId);
+      router.refresh();
+    } catch (e) {
+      setErreur(messageErreur(e));
+    } finally {
+      setDefenseEnCours(false);
+    }
+  }
+
   async function assignerMembre(personnageId: string) {
     if (!slotPickerOuvert) return;
     setErreur(null);
@@ -414,6 +431,11 @@ export default function JouerClient({
               <span className={styles.equipeCompteur}>
                 {indexActuel + 1} / {equipes.length}
               </span>
+              {equipeActuelle.estDefense && (
+                <span className={styles.defenseBadge}>
+                  <Shield size={11} /> Défense 3v3
+                </span>
+              )}
             </div>
 
             <button
@@ -425,6 +447,32 @@ export default function JouerClient({
               aria-label="Équipe suivante"
             >
               <ChevronRight size={20} />
+            </button>
+
+            <button
+              onClick={() => defenseHandler(equipeActuelle.id)}
+              disabled={
+                defenseEnCours ||
+                (!equipeActuelle.estDefense &&
+                  equipeActuelle.membres.length < TAILLE_EQUIPE)
+              }
+              className={
+                equipeActuelle.estDefense
+                  ? styles.defenseButtonActive
+                  : styles.defenseButton
+              }
+              aria-label={
+                equipeActuelle.estDefense
+                  ? "Retirer comme équipe de défense"
+                  : "Désigner comme équipe de défense"
+              }
+              title={
+                equipeActuelle.membres.length < TAILLE_EQUIPE
+                  ? "Équipe incomplète : impossible de la désigner pour le 3v3"
+                  : undefined
+              }
+            >
+              <Shield size={16} />
             </button>
 
             <button

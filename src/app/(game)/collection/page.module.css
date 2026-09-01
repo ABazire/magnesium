@@ -292,62 +292,9 @@
   padding: 0 4px;
 }
 
-.teamToggleButton {
+.inTeamNote {
   margin-top: 10px;
-  background: transparent;
-  border: 1.5px solid #10b981;
-  color: #10b981;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  border-radius: 999px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.teamToggleButton:hover {
-  background: rgba(16, 185, 129, 0.1);
-}
-
-.replaceBox {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-  margin-top: 10px;
-}
-
-.replaceLabel {
-  color: #f2c94c;
-  font-size: 10px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 4px;
-}
-
-.replaceOption {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: 1.5px solid #1e3a2f;
-  color: #ffffff;
-  font-size: 11px;
-  border-radius: 10px;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-.replaceOption:hover {
-  border-color: #10b981;
-}
-
-.replaceCancel {
-  background: transparent;
-  border: none;
   color: #4d7266;
   font-size: 10px;
-  text-decoration: underline;
-  cursor: pointer;
-  margin-top: 2px;
+  text-align: center;
 }

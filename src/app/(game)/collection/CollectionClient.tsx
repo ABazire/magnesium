@@ -27,17 +27,13 @@ import { descriptionSort } from "@/lib/spell";
 import Modal from "@/components/Modal";
 import FusionPersonnage from "@/components/FusionPersonnage";
 import styles from "./page.module.css";
-import {
-  toggleEquipe,
-  getEquipeActuelle,
-  remplacerMembreEquipe,
-} from "../../actions/equipe";
 
 type PersonnageAvecRelations = Prisma.PersonnageGetPayload<{
   include: {
     rarity: true;
     equipment: { include: { equipment: true } };
     spells: { include: { spell: true } };
+    teamMembres: true;
   };
 }>;
 
@@ -97,7 +93,6 @@ export default function CollectionClient({
   const [slotOuvert, setSlotOuvert] = useState<string | null>(null);
   const [disponibles, setDisponibles] = useState<EquipementDisponible[]>([]);
   const [chargement, setChargement] = useState(false);
-  const [enCoursEquipe, setEnCoursEquipe] = useState(false);
   const [erreurAction, setErreurAction] = useState<string | null>(null);
 
   const [sortSlotOuvert, setSortSlotOuvert] = useState<SpellSlot | null>(null);
@@ -106,17 +101,6 @@ export default function CollectionClient({
 
   const selectionne = personnages.find((p) => p.id === selectionneId);
   const stats = selectionne ? statsEffectives(selectionne) : null;
-
-  const [remplacementOuvert, setRemplacementOuvert] = useState(false);
-  const [equipeActuelle, setEquipeActuelle] = useState<
-    {
-      id: string;
-      name: string;
-      color: string;
-      spriteId: number;
-      level: number;
-    }[]
-  >([]);
 
   function fermerModal() {
     setSelectionneId(null);
@@ -207,53 +191,6 @@ export default function CollectionClient({
     }
   }
 
-  async function basculerEquipe() {
-    if (!selectionne) return;
-    setEnCoursEquipe(true);
-    setErreurAction(null);
-
-    if (selectionne.inTeam) {
-      try {
-        await toggleEquipe(selectionne.id);
-        router.refresh();
-      } catch (e) {
-        setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
-      } finally {
-        setEnCoursEquipe(false);
-      }
-      return;
-    }
-
-    try {
-      await toggleEquipe(selectionne.id);
-      router.refresh();
-    } catch {
-      try {
-        const equipe = await getEquipeActuelle();
-        setEquipeActuelle(equipe);
-        setRemplacementOuvert(true);
-      } catch (e2) {
-        setErreurAction(e2 instanceof Error ? e2.message : "Erreur inconnue");
-      }
-    } finally {
-      setEnCoursEquipe(false);
-    }
-  }
-
-  async function confirmerRemplacement(sortantId: string) {
-    if (!selectionne) return;
-    setEnCoursEquipe(true);
-    setErreurAction(null);
-    try {
-      await remplacerMembreEquipe(sortantId, selectionne.id);
-      setRemplacementOuvert(false);
-      router.refresh();
-    } catch (e) {
-      setErreurAction(e instanceof Error ? e.message : "Erreur inconnue");
-    } finally {
-      setEnCoursEquipe(false);
-    }
-  }
   return (
     <>
       <div className={styles.grid}>
@@ -275,7 +212,9 @@ export default function CollectionClient({
             <span className={styles.cardStars}>
               {"★".repeat(p.rarity?.stars ?? 0)}
             </span>
-            {p.inTeam && <span className={styles.inTeamBadge}>✓</span>}
+            {p.teamMembres.length > 0 && (
+              <span className={styles.inTeamBadge}>✓</span>
+            )}
           </button>
         ))}
 
@@ -304,47 +243,12 @@ export default function CollectionClient({
                 Niveau {selectionne.level}
               </span>
 
-              {!remplacementOuvert ? (
-                <button
-                  onClick={basculerEquipe}
-                  disabled={enCoursEquipe}
-                  className={styles.teamToggleButton}
-                >
-                  {enCoursEquipe
-                    ? "..."
-                    : selectionne.inTeam
-                      ? "Retirer de l'équipe"
-                      : "Ajouter à l'équipe"}
-                </button>
-              ) : (
-                <div className={styles.replaceBox}>
-                  <span className={styles.replaceLabel}>
-                    Équipe complète — remplacer qui ?
-                  </span>
-                  {equipeActuelle.map((membre) => (
-                    <button
-                      key={membre.id}
-                      onClick={() => confirmerRemplacement(membre.id)}
-                      disabled={enCoursEquipe}
-                      className={styles.replaceOption}
-                    >
-                      <PersonnageIcon
-                        size={24}
-                        couleur={membre.color}
-                        variant={membre.spriteId}
-                      />
-                      <span>
-                        {membre.name} (niv. {membre.level})
-                      </span>
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => setRemplacementOuvert(false)}
-                    className={styles.replaceCancel}
-                  >
-                    Annuler
-                  </button>
-                </div>
+              {selectionne.teamMembres.length > 0 && (
+                <span className={styles.inTeamNote}>
+                  Membre de {selectionne.teamMembres.length} équipe
+                  {selectionne.teamMembres.length > 1 ? "s" : ""} — gère ça
+                  depuis la page d’accueil.
+                </span>
               )}
 
               <FusionPersonnage

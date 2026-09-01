@@ -16,16 +16,29 @@ import { gagnerXp } from "@/lib/leveling";
 import { calculerNouveauxRangs } from "@/lib/elo";
 import { revalidatePath } from "next/cache";
 
-async function chargerEquipe(userId: string): Promise<PersonnageCombat3v3[]> {
-  const personnages = await prisma.personnage.findMany({
-    where: { ownerId: userId, inTeam: true },
+async function chargerEquipe(teamId: string): Promise<PersonnageCombat3v3[]> {
+  const team = await prisma.team.findUniqueOrThrow({
+    where: { id: teamId },
     include: {
-      equipment: { include: { equipment: true } },
-      spells: { include: { spell: true } },
+      membres: {
+        orderBy: { position: "asc" },
+        include: {
+          personnage: {
+            include: {
+              equipment: { include: { equipment: true } },
+              spells: { include: { spell: true } },
+            },
+          },
+        },
+      },
     },
   });
 
-  return personnages.map((p) => {
+  if (team.membres.length !== 3) {
+    throw new Error("Cette équipe doit avoir exactement 3 personnages");
+  }
+
+  return team.membres.map(({ personnage: p }) => {
     const stats = statsEffectives(p);
     return {
       id: p.id,
@@ -38,22 +51,32 @@ async function chargerEquipe(userId: string): Promise<PersonnageCombat3v3[]> {
   });
 }
 
-export async function lancerCombat3v3(defenderUserId: string) {
+export async function lancerCombat3v3(teamId: string, defenderUserId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non connecté");
+  const userId = session.user.id;
 
-  const equipeA = await chargerEquipe(session.user.id);
-  const equipeB = await chargerEquipe(defenderUserId);
+  const attaquantTeam = await prisma.team.findUniqueOrThrow({
+    where: { id: teamId, ownerId: userId },
+  });
 
-  if (equipeA.length !== 3 || equipeB.length !== 3) {
-    throw new Error("Les deux équipes doivent avoir exactement 3 personnages");
+  const defenseurTeam = await prisma.team.findFirst({
+    where: { ownerId: defenderUserId, estDefense: true },
+  });
+  if (!defenseurTeam) {
+    throw new Error("Cet adversaire n'a pas d'équipe de défense");
   }
+
+  const [equipeA, equipeB] = await Promise.all([
+    chargerEquipe(attaquantTeam.id),
+    chargerEquipe(defenseurTeam.id),
+  ]);
 
   const seed = Math.floor(Math.random() * 2147483647);
   const { events, winnerSide } = simulerCombatEquipe(equipeA, equipeB, seed);
 
   const [attaquantUser, defenseurUser] = await Promise.all([
-    prisma.user.findUniqueOrThrow({ where: { id: session.user.id } }),
+    prisma.user.findUniqueOrThrow({ where: { id: userId } }),
     prisma.user.findUniqueOrThrow({ where: { id: defenderUserId } }),
   ]);
 
@@ -89,7 +112,7 @@ export async function lancerCombat3v3(defenderUserId: string) {
       seed,
       events,
       winnerSide,
-      attackerUserId: session.user.id,
+      attackerUserId: userId,
       defenderUserId,
       fightersA: equipeA,
       fightersB: equipeB,
@@ -98,7 +121,7 @@ export async function lancerCombat3v3(defenderUserId: string) {
 
   await prisma.$transaction([
     prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: { rankPoints3v3: nouveauRankAttaquant },
     }),
     prisma.user.update({
@@ -108,6 +131,6 @@ export async function lancerCombat3v3(defenderUserId: string) {
     ...misesAJourNiveau,
   ]);
 
-  revalidatePath("/arene3v3");
+  revalidatePath("/arene");
   redirect(`/arene3v3/${fight.id}`);
 }

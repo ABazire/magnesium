@@ -52,8 +52,6 @@ model Personnage {
   level Int @default(1)
   xp    Int @default(0)
 
-  inTeam Boolean @default(false)
-
   rarity   Rarity? @relation(fields: [rarityId], references: [id])
   rarityId String?
 
@@ -173,8 +171,9 @@ model PersonnageSpell {
 }
 
 model Team {
-  id   String @id @default(cuid())
-  name String
+  id         String  @id @default(cuid())
+  name       String
+  estDefense Boolean @default(false)
 
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String

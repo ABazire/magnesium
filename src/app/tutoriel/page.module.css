@@ -24,12 +24,55 @@
   padding: 20px 24px;
 }
 
+.bubbleHead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #f2c94c;
+  margin-bottom: 10px;
+}
+
+.bubbleTitre {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .bubbleText {
   color: #ffffff;
   font-size: 15px;
   line-height: 1.6;
   text-align: center;
   margin: 0;
+}
+
+.erreur {
+  color: #ef4444;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.prevButton {
+  background: transparent;
+  color: #4d7266;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  border: 1.5px solid #1e3a2f;
+  border-radius: 999px;
+  padding: 14px 24px;
+  cursor: pointer;
+}
+
+.prevButton:hover {
+  border-color: #10b981;
+  color: #ffffff;
 }
 
 .progress {

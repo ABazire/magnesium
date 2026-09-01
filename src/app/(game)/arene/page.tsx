@@ -12,12 +12,12 @@ import styles from "./page.module.css";
 export default async function ArenePage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; mine?: string }>;
+  searchParams: Promise<{ mode?: string; mine?: string; mineTeam?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/");
 
-  const { mode, mine } = await searchParams;
+  const { mode, mine, mineTeam } = await searchParams;
   const mode3v3 = mode === "3v3";
 
   return (
@@ -40,7 +40,7 @@ export default async function ArenePage({
           </Link>
         </div>
         {mode3v3 ? (
-          <Arene3v3 userId={session.user.id} />
+          <Arene3v3 userId={session.user.id} mineTeam={mineTeam} />
         ) : (
           <Arene1v1 userId={session.user.id} mine={mine} />
         )}
@@ -172,42 +172,99 @@ async function Arene1v1({ userId, mine }: { userId: string; mine?: string }) {
   );
 }
 
-async function Arene3v3({ userId }: { userId: string }) {
+async function Arene3v3({
+  userId,
+  mineTeam,
+}: {
+  userId: string;
+  mineTeam?: string;
+}) {
   const moi = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
-  const monEquipe = await prisma.personnage.count({
-    where: { ownerId: userId, inTeam: true },
-  });
 
-  if (monEquipe !== 3) {
+  const mesEquipes = await prisma.team.findMany({
+    where: { ownerId: userId },
+    include: { membres: true },
+  });
+  const mesEquipesCompletes = mesEquipes.filter((e) => e.membres.length === 3);
+
+  if (mesEquipesCompletes.length === 0) {
     return (
       <p className={styles.empty}>
-        Il te faut une équipe complète de 3 personnages pour accéder au 3v3.
+        Il te faut une équipe complète de 3 personnages (formée sur la page
+        d’accueil) pour accéder au 3v3.
       </p>
     );
   }
 
-  const autresJoueurs = await prisma.user.findMany({
-    where: { id: { not: userId }, personnages: { some: { inTeam: true } } },
-    include: {
-      personnages: { where: { inTeam: true }, include: { rarity: true } },
-    },
-  });
+  let adversaires: {
+    id: string;
+    username: string;
+    rankPoints3v3: number;
+    membres: { name: string; stars: number }[];
+  }[] = [];
 
-  const adversaires = autresJoueurs
-    .filter((u) => u.personnages.length === 3)
-    .sort(
-      (a, b) =>
-        Math.abs(a.rankPoints3v3 - moi.rankPoints3v3) -
-        Math.abs(b.rankPoints3v3 - moi.rankPoints3v3),
-    )
-    .slice(0, 3);
+  if (mineTeam) {
+    const autresJoueurs = await prisma.user.findMany({
+      where: { id: { not: userId }, teams: { some: { estDefense: true } } },
+      include: {
+        teams: {
+          where: { estDefense: true },
+          include: { membres: { include: { personnage: { include: { rarity: true } } } } },
+        },
+      },
+    });
+
+    adversaires = autresJoueurs
+      .filter((u) => u.teams[0]?.membres.length === 3)
+      .sort(
+        (a, b) =>
+          Math.abs(a.rankPoints3v3 - moi.rankPoints3v3) -
+          Math.abs(b.rankPoints3v3 - moi.rankPoints3v3),
+      )
+      .slice(0, 3)
+      .map((u) => ({
+        id: u.id,
+        username: u.username,
+        rankPoints3v3: u.rankPoints3v3,
+        membres: u.teams[0].membres.map((m) => ({
+          name: m.personnage.name,
+          stars: m.personnage.rarity?.stars ?? 0,
+        })),
+      }));
+  }
 
   return (
     <>
+      <form method="get" className={styles.form}>
+        <input type="hidden" name="mode" value="3v3" />
+        <select
+          name="mineTeam"
+          className={styles.select}
+          defaultValue={mineTeam ?? ""}
+          required
+        >
+          <option value="">Choisis ton équipe</option>
+          {mesEquipesCompletes.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.name}
+            </option>
+          ))}
+        </select>
+        <button type="submit" className={styles.button}>
+          Chercher
+        </button>
+      </form>
+
       <p className={styles.puissance}>
         Ton classement 3v3 :{" "}
         <span className={styles.puissanceValue}>{moi.rankPoints3v3} pts</span>
       </p>
+
+      {mineTeam && adversaires.length === 0 && (
+        <p className={styles.empty}>
+          Aucun adversaire avec une équipe de défense trouvé.
+        </p>
+      )}
 
       <ul className={styles.list}>
         {adversaires.map((adv) => (
@@ -215,15 +272,15 @@ async function Arene3v3({ userId }: { userId: string }) {
             <span>
               <span className={styles.itemName}>{adv.username}</span>
               <span className={styles.itemOwner}>
-                {adv.personnages
-                  .map((p) => `${p.name} (${"★".repeat(p.rarity?.stars ?? 0)})`)
+                {adv.membres
+                  .map((p) => `${p.name} (${"★".repeat(p.stars)})`)
                   .join(" · ")}
               </span>
               <span className={styles.itemPuissance}>
                 {adv.rankPoints3v3} pts
               </span>
             </span>
-            <form action={lancerCombat3v3.bind(null, adv.id)}>
+            <form action={lancerCombat3v3.bind(null, mineTeam!, adv.id)}>
               <SubmitButton className={styles.fightLink}>
                 Combattre
               </SubmitButton>

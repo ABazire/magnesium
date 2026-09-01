@@ -24,19 +24,19 @@ export async function terminerTutoriel() {
     agilite: randomStat(rareteDepart.statMin, rareteDepart.statMax),
   };
 
+  const personnage = await prisma.personnage.create({
+    data: {
+      name: "Recrue",
+      ...statsPerso,
+      rarityId: rareteDepart.id,
+      ownerId: session.user.id,
+    },
+  });
+
   await prisma.$transaction([
     prisma.user.update({
       where: { id: session.user.id },
       data: { hasCompletedTutorial: true },
-    }),
-    prisma.personnage.create({
-      data: {
-        name: "Recrue",
-        ...statsPerso,
-        rarityId: rareteDepart.id,
-        ownerId: session.user.id,
-        inTeam: true,
-      },
     }),
     prisma.equipment.create({
       data: {
@@ -46,6 +46,13 @@ export async function terminerTutoriel() {
         bonusValue: randomStat(rareteDepart.statMin, rareteDepart.statMax),
         rarityId: rareteDepart.id,
         ownerId: session.user.id,
+      },
+    }),
+    prisma.team.create({
+      data: {
+        name: "Mon équipe",
+        ownerId: session.user.id,
+        membres: { create: { position: 0, personnageId: personnage.id } },
       },
     }),
   ]);

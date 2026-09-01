@@ -56,11 +56,20 @@ type FighterMonstre = {
   tier?: number;
 };
 
+type LootEquipement = {
+  name: string;
+  slot: string;
+  bonusStat: string;
+  bonusValue: number;
+  stars: number;
+};
+
 type ResultatCombat = {
   events: CombatEvent3v3[];
   victoire: boolean;
   gain: number;
   materiaux: { type: MaterialType; quantity: number }[];
+  loot: LootEquipement | null;
   equipe: FighterEquipe[];
   monstre: FighterMonstre;
 };
@@ -123,6 +132,7 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
   const [zoneOuverte, setZoneOuverte] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
   const [resultat, setResultat] = useState<ResultatCombat | null>(null);
+  const [animationTerminee, setAnimationTerminee] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [fightKey, setFightKey] = useState(0);
   const [dernierMonstre, setDernierMonstre] = useState<MonstreDispo | null>(
@@ -147,6 +157,7 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
     setZoneOuverte(null);
     try {
       const res = await affronterMonstre(equipeId, monstre.id);
+      setAnimationTerminee(false);
       setResultat(res);
       setFightKey((k) => k + 1);
     } catch (e) {
@@ -283,39 +294,53 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
             events={resultat.events}
             victoire={resultat.victoire}
             background={sceneActuelle}
+            onTermine={() => setAnimationTerminee(true)}
           />
 
-          <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>
-            +{resultat.gain} monnaie
-          </p>
+          {animationTerminee ? (
+            <>
+              <p className={resultat.victoire ? styles.gainWin : styles.gainLose}>
+                +{resultat.gain} monnaie
+              </p>
 
-          {resultat.materiaux.length > 0 && (
-            <p className={styles.gainWin}>
-              {resultat.materiaux
-                .map((m) => `+${m.quantity} ${NOMS_MATERIAU[m.type]}`)
-                .join(" · ")}
-            </p>
+              {resultat.materiaux.length > 0 && (
+                <p className={styles.gainWin}>
+                  {resultat.materiaux
+                    .map((m) => `+${m.quantity} ${NOMS_MATERIAU[m.type]}`)
+                    .join(" · ")}
+                </p>
+              )}
+
+              {resultat.loot && (
+                <p className={styles.lootWin}>
+                  🎁 Objet trouvé : {resultat.loot.name} ({"★".repeat(resultat.loot.stars)})
+                  — +{resultat.loot.bonusValue} {resultat.loot.bonusStat}
+                </p>
+              )}
+
+              <div className={styles.postCombatActions}>
+                <button
+                  onClick={() => combattre(dernierMonstre)}
+                  className={styles.actionButton}
+                >
+                  Recommencer
+                </button>
+                {resultat.victoire && palierSuivant?.debloque && (
+                  <button
+                    onClick={() => combattre(palierSuivant)}
+                    className={styles.actionButtonPrimary}
+                  >
+                    Niveau suivant
+                  </button>
+                )}
+                <button onClick={fermerCombat} className={styles.actionButton}>
+                  Retour à la carte
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className={styles.info}>Combat en cours...</p>
           )}
-
-          <div className={styles.postCombatActions}>
-            <button
-              onClick={() => combattre(dernierMonstre)}
-              className={styles.actionButton}
-            >
-              Recommencer
-            </button>
-            {resultat.victoire && palierSuivant?.debloque && (
-              <button
-                onClick={() => combattre(palierSuivant)}
-                className={styles.actionButtonPrimary}
-              >
-                Niveau suivant
-              </button>
-            )}
-            <button onClick={fermerCombat} className={styles.actionButton}>
-              Retour à la carte
-            </button>
-          </div>
         </div>
       )}
     </main>

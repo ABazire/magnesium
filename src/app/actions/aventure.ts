@@ -48,6 +48,14 @@ type FighterMonstre = {
   tier?: number;
 };
 
+type LootEquipement = {
+  name: string;
+  slot: string;
+  bonusStat: string;
+  bonusValue: number;
+  stars: number;
+};
+
 export async function affronterMonstre(
   teamId: string,
   monsterId: string,
@@ -56,6 +64,7 @@ export async function affronterMonstre(
   victoire: boolean;
   gain: number;
   materiaux: { type: MaterialType; quantity: number }[];
+  loot: LootEquipement | null;
   equipe: FighterEquipe[];
   monstre: FighterMonstre;
 }> {
@@ -189,22 +198,33 @@ export async function affronterMonstre(
     });
   }
 
+  let loot: LootEquipement | null = null;
   if (victoire && Math.random() < CHANCE_COFFRE) {
     const rarete = await tirerRarete();
     const slots = Object.values(EquipmentSlot);
     const slot = slots[Math.floor(Math.random() * slots.length)];
     const noms = NOMS_PAR_SLOT[slot];
+    const name = noms[Math.floor(Math.random() * noms.length)];
+    const bonusValue = randomStat(rarete.statMin, rarete.statMax);
 
     await prisma.equipment.create({
       data: {
-        name: noms[Math.floor(Math.random() * noms.length)],
+        name,
         slot,
         bonusStat: SLOT_TO_STAT[slot],
-        bonusValue: randomStat(rarete.statMin, rarete.statMax),
+        bonusValue,
         rarityId: rarete.id,
         ownerId: userId,
       },
     });
+
+    loot = {
+      name,
+      slot,
+      bonusStat: SLOT_TO_STAT[slot],
+      bonusValue,
+      stars: rarete.stars,
+    };
   }
 
   revalidatePath("/aventure");
@@ -216,6 +236,7 @@ export async function affronterMonstre(
     victoire,
     gain,
     materiaux,
+    loot,
     equipe: combatEquipe.map((c, i) => ({
       id: c.id,
       name: c.name,

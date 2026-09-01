@@ -46,6 +46,7 @@ type Props = {
   events: CombatEvent3v3[];
   victoire: boolean;
   background?: string;
+  onTermine?: () => void;
 };
 
 function acteurCible(ev: CombatEvent3v3): { acteur?: string; cible?: string } {
@@ -93,6 +94,7 @@ export default function TeamCombatViewer({
   events,
   victoire,
   background,
+  onTermine,
 }: Props) {
   const [step, setStep] = useState(0);
   const vitesse = 700;
@@ -132,6 +134,10 @@ export default function TeamCombatViewer({
     const timer = setTimeout(() => setStep((s) => s + 1), vitesse);
     return () => clearTimeout(timer);
   }, [step, termine]);
+
+  useEffect(() => {
+    if (termine) onTermine?.();
+  }, [termine, onTermine]);
 
   function passerAnimation() {
     setStep(events.length);

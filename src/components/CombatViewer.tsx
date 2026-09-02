@@ -1,22 +1,26 @@
 "use client";
 
-import { useState, useEffect, type ComponentType } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { CombatEvent } from "@/lib/combat";
-import { PersonnageIcon, WolfTierIcon, BearTierIcon } from "@/components/pixel";
+import { AnimatedSprite, EffetSprite } from "@/components/pixel/AnimatedSprite";
+import {
+  apparencePersonnage,
+  apparenceMonstre,
+  type ApparenceCombattant,
+} from "@/components/pixel/combattants";
+import {
+  EFFET_COUP,
+  PALETTE_COUP,
+  EFFET_IMPACT,
+  PALETTE_IMPACT,
+  EFFET_SOIN,
+  PALETTE_SOIN,
+  EFFET_ETOURDI,
+  PALETTE_ETOURDI,
+  EFFET_SORT,
+  PALETTE_SORT,
+} from "@/components/pixel/animations";
 import styles from "./CombatViewer.module.css";
-
-type IconeProps = {
-  size?: number;
-  couleur?: string;
-  variant?: number;
-  tier?: number;
-};
-
-const ICONES: Record<string, ComponentType<IconeProps>> = {
-  personnage: PersonnageIcon,
-  loup: WolfTierIcon,
-  ours: BearTierIcon,
-};
 
 type Fighter = {
   id: string;
@@ -36,6 +40,36 @@ type Props = {
   background?: string;
 };
 
+function acteurCible(ev: CombatEvent): { acteur: string; cible?: string } {
+  switch (ev.type) {
+    case "dodge":
+    case "hit":
+    case "spellDegats":
+      return { acteur: ev.attackerId, cible: ev.defenderId };
+    case "spellSoin":
+      return { acteur: ev.casterId, cible: ev.casterId };
+    case "spellEtourdissement":
+      return { acteur: ev.casterId, cible: ev.targetId };
+    case "stun":
+      return { acteur: ev.personnageId };
+  }
+}
+
+function estSort(ev: CombatEvent) {
+  return (
+    ev.type === "spellDegats" ||
+    ev.type === "spellSoin" ||
+    ev.type === "spellEtourdissement"
+  );
+}
+
+function apparenceDe(f: Fighter): ApparenceCombattant {
+  if (!f.iconKey || f.iconKey === "personnage") {
+    return apparencePersonnage(f.spriteVariant ?? 0, f.couleur);
+  }
+  return apparenceMonstre(f.iconKey, f.tier ?? 1);
+}
+
 export default function CombatViewer({
   fighters,
   events,
@@ -46,8 +80,9 @@ export default function CombatViewer({
   const vitesse = 900;
 
   const [f1, f2] = fighters;
-  const Icone1 = ICONES[f1.iconKey ?? "personnage"] ?? PersonnageIcon;
-  const Icone2 = ICONES[f2.iconKey ?? "personnage"] ?? PersonnageIcon;
+
+  const apparence1 = useMemo(() => apparenceDe(f1), [f1]);
+  const apparence2 = useMemo(() => apparenceDe(f2), [f2]);
 
   const vie: Record<string, number> = {
     [f1.id]: f1.vieMax,
@@ -83,39 +118,56 @@ export default function CombatViewer({
 
   const nom = (id: string) => (id === f1.id ? f1.name : f2.name);
 
-  // Normalise les événements (attaquant/cible ou lanceur/cible) pour l'affichage.
-  function acteurCible(ev: CombatEvent): { acteur: string; cible?: string } {
+  function etatDe(id: string): string {
+    if (vie[id] <= 0) return "ko";
+    if (termine || !evenementActuel) return "idle";
+
+    const { acteur, cible } = acteurCible(evenementActuel);
+    if (acteur === id) {
+      if (evenementActuel.type === "spellSoin") return "incantation";
+      if (evenementActuel.type === "stun") return "idle";
+      return "attaque";
+    }
+    if (
+      cible === id &&
+      (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats")
+    ) {
+      return "touche";
+    }
+    return "idle";
+  }
+
+  function effetDe(id: string) {
+    if (termine || !evenementActuel) return null;
+    const ev = evenementActuel;
+    const { acteur, cible } = acteurCible(ev);
+
+    if (estSort(ev) && acteur === id) {
+      return { frames: EFFET_SORT, palette: PALETTE_SORT, taille: 90 };
+    }
+    if (cible !== id) return null;
+
     switch (ev.type) {
-      case "dodge":
       case "hit":
+        return { frames: EFFET_COUP, palette: PALETTE_COUP, taille: 110 };
       case "spellDegats":
-        return { acteur: ev.attackerId, cible: ev.defenderId };
+        return { frames: EFFET_IMPACT, palette: PALETTE_IMPACT, taille: 120 };
       case "spellSoin":
-        return { acteur: ev.casterId, cible: ev.casterId };
+        return { frames: EFFET_SOIN, palette: PALETTE_SOIN, taille: 110 };
       case "spellEtourdissement":
-        return { acteur: ev.casterId, cible: ev.targetId };
-      case "stun":
-        return { acteur: ev.personnageId };
+        return { frames: EFFET_ETOURDI, palette: PALETTE_ETOURDI, taille: 100 };
+      default:
+        return null;
     }
   }
 
-  function classeSprite(id: string, cote: "gauche" | "droite") {
-    if (termine || !evenementActuel) return styles.sprite;
-    const { acteur, cible } = acteurCible(evenementActuel);
-    const estActeur = acteur === id;
-    const estCible = cible === id;
+  const secousse =
+    !termine &&
+    evenementActuel &&
+    (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats");
 
-    if (estActeur && (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats" || evenementActuel.type === "spellEtourdissement"))
-      return `${styles.sprite} ${cote === "gauche" ? styles.lungeRight : styles.lungeLeft}`;
-    if (estCible && (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats"))
-      return `${styles.sprite} ${styles.hitFlash}`;
-    if (estCible && evenementActuel.type === "dodge")
-      return `${styles.sprite} ${cote === "gauche" ? styles.dodgeLeft : styles.dodgeRight}`;
-    return styles.sprite;
-  }
-
-  const taille1 = f1.tier === 5 ? 220 : 160;
-  const taille2 = f2.tier === 5 ? 220 : 160;
+  const taille1 = f1.tier === 5 ? 200 : 150;
+  const taille2 = f2.tier === 5 ? 200 : 150;
   const couleur1 = f1.couleur ?? "#9db3aa";
   const couleur2 = f2.couleur ?? "#9db3aa";
 
@@ -134,18 +186,18 @@ export default function CombatViewer({
               <div className={styles.hpBarTrack}>
                 <div
                   className={styles.hpBarFill}
-                  style={{ width: `${pct}%` }}
+                  style={{ width: `${Math.max(0, pct)}%` }}
                 />
               </div>
               <span className={styles.hpValue}>
-                {vie[f.id]} / {f.vieMax}
+                {Math.max(0, vie[f.id])} / {f.vieMax}
               </span>
               {(f.manaMax ?? 0) > 0 && (
                 <>
                   <div className={styles.manaBarTrack}>
                     <div
                       className={styles.manaBarFill}
-                      style={{ width: `${pctMana}%` }}
+                      style={{ width: `${Math.max(0, pctMana)}%` }}
                     />
                   </div>
                   <span className={styles.hpValue}>
@@ -159,7 +211,7 @@ export default function CombatViewer({
       </div>
 
       <div
-        className={styles.stage}
+        className={`${styles.stage} ${secousse ? styles.stageShake : ""}`}
         style={
           background
             ? {
@@ -170,50 +222,52 @@ export default function CombatViewer({
             : undefined
         }
       >
-        {" "}
-        <div className={styles.fighterWrapper}>
-          <div className={styles.groundShadow} />
-          <div
-            className={styles.glow}
-            style={{
-              background: `radial-gradient(circle, ${couleur1}44, transparent 70%)`,
-            }}
-          />
-          <div className={classeSprite(f1.id, "gauche")}>
-            <Icone1
-              size={taille1}
-              couleur={f1.couleur}
-              variant={f1.spriteVariant}
-              tier={f1.tier}
-            />
-          </div>
-          {!termine && evenementActuel && (
-            <EvenementPopup ev={evenementActuel} personnageId={f1.id} />
-          )}
-        </div>
-        <div className={styles.fighterWrapper}>
-          <div className={styles.groundShadow} />
-          <div
-            className={styles.glow}
-            style={{
-              background: `radial-gradient(circle, ${couleur2}44, transparent 70%)`,
-            }}
-          />
-          <div
-            className={classeSprite(f2.id, "droite")}
-            style={{ transform: "scaleX(-1)" }}
-          >
-            <Icone2
-              size={taille2}
-              couleur={f2.couleur}
-              variant={f2.spriteVariant}
-              tier={f2.tier}
-            />
-          </div>
-          {!termine && evenementActuel && (
-            <EvenementPopup ev={evenementActuel} personnageId={f2.id} />
-          )}
-        </div>
+        {[
+          { f: f1, apparence: apparence1, taille: taille1, couleur: couleur1, flip: false },
+          { f: f2, apparence: apparence2, taille: taille2, couleur: couleur2, flip: true },
+        ].map(({ f, apparence, taille, couleur, flip }) => {
+          const effet = effetDe(f.id);
+          const etat = etatDe(f.id);
+
+          return (
+            <div key={f.id} className={styles.fighterWrapper}>
+              <div className={styles.groundShadow} />
+              <div
+                className={styles.glow}
+                style={{
+                  background: `radial-gradient(circle, ${couleur}44, transparent 70%)`,
+                }}
+              />
+
+              <div
+                className={`${styles.sprite} ${etat === "ko" ? styles.spriteKo : ""}`}
+              >
+                <AnimatedSprite
+                  animations={apparence.animations}
+                  etat={etat}
+                  palette={apparence.palette}
+                  size={taille}
+                  flip={flip}
+                />
+              </div>
+
+              {effet && (
+                <div key={step} className={styles.effetOverlay}>
+                  <EffetSprite
+                    frames={effet.frames}
+                    palette={effet.palette}
+                    size={effet.taille}
+                    fps={10}
+                  />
+                </div>
+              )}
+
+              {!termine && evenementActuel && (
+                <EvenementPopup ev={evenementActuel} personnageId={f.id} />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {termine ? (

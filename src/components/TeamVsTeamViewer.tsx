@@ -1,8 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { CombatEvent3v3 } from "@/lib/combatEquipe";
-import { PersonnageIcon } from "@/components/pixel";
+import { AnimatedSprite, EffetSprite } from "@/components/pixel/AnimatedSprite";
+import { apparencePersonnage } from "@/components/pixel/combattants";
+import {
+  EFFET_COUP,
+  PALETTE_COUP,
+  EFFET_IMPACT,
+  PALETTE_IMPACT,
+  EFFET_SOIN,
+  PALETTE_SOIN,
+  EFFET_ETOURDI,
+  PALETTE_ETOURDI,
+  EFFET_SORT,
+  PALETTE_SORT,
+} from "@/components/pixel/animations";
 import styles from "./TeamVsTeamViewer.module.css";
 
 type Fighter3v3 = {
@@ -41,6 +54,14 @@ function acteurCible(ev: CombatEvent3v3): { acteur?: string; cible?: string } {
   }
 }
 
+function estSort(ev: CombatEvent3v3) {
+  return (
+    ev.type === "spellDegats" ||
+    ev.type === "spellSoin" ||
+    ev.type === "spellEtourdissement"
+  );
+}
+
 function decrireEvenement(
   ev: CombatEvent3v3,
   nom: (id: string) => string,
@@ -75,7 +96,16 @@ export default function TeamVsTeamViewer({
   const [step, setStep] = useState(0);
   const vitesse = 700;
 
-  const tous = [...equipeA, ...equipeB];
+  const tous = useMemo(() => [...equipeA, ...equipeB], [equipeA, equipeB]);
+
+  const apparences = useMemo(
+    () =>
+      Object.fromEntries(
+        tous.map((f) => [f.id, apparencePersonnage(f.spriteId ?? 0, f.color)]),
+      ),
+    [tous],
+  );
+
   const nomParId: Record<string, string> = {};
   for (const f of tous) nomParId[f.id] = f.name;
   const nom = (id: string) => nomParId[id] ?? "?";
@@ -120,7 +150,47 @@ export default function TeamVsTeamViewer({
     setStep(events.length);
   }
 
-  function renderColonne(equipe: Fighter3v3[]) {
+  function etatDe(id: string): string {
+    if (vie[id] <= 0) return "ko";
+    if (termine || !evenementActuel) return "idle";
+    if (acteur === id) {
+      if (evenementActuel.type === "spellSoin") return "incantation";
+      if (evenementActuel.type === "stun") return "idle";
+      return "attaque";
+    }
+    if (
+      cible === id &&
+      (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats")
+    ) {
+      return "touche";
+    }
+    return "idle";
+  }
+
+  function effetDe(id: string) {
+    if (termine || !evenementActuel) return null;
+    const ev = evenementActuel;
+
+    if (estSort(ev) && acteur === id) {
+      return { frames: EFFET_SORT, palette: PALETTE_SORT };
+    }
+    if (cible !== id) return null;
+
+    switch (ev.type) {
+      case "hit":
+        return { frames: EFFET_COUP, palette: PALETTE_COUP };
+      case "spellDegats":
+        return { frames: EFFET_IMPACT, palette: PALETTE_IMPACT };
+      case "spellSoin":
+        return { frames: EFFET_SOIN, palette: PALETTE_SOIN };
+      case "spellEtourdissement":
+        return { frames: EFFET_ETOURDI, palette: PALETTE_ETOURDI };
+      default:
+        return null;
+    }
+  }
+
+  function renderColonne(equipe: Fighter3v3[], flip: boolean) {
     return equipe.map((f) => {
       const pct = Math.round((vie[f.id] / f.vieMax) * 100);
       const pctMana =
@@ -128,6 +198,9 @@ export default function TeamVsTeamViewer({
       const estActeur = acteur === f.id;
       const estCible = cible === f.id;
       const ko = vie[f.id] <= 0;
+      const etat = etatDe(f.id);
+      const effet = effetDe(f.id);
+      const apparence = apparences[f.id];
 
       return (
         <div
@@ -136,7 +209,27 @@ export default function TeamVsTeamViewer({
             estCible && !termine ? styles.cible : ""
           } ${ko ? styles.ko : ""}`}
         >
-          <PersonnageIcon size={44} couleur={f.color} variant={f.spriteId} />
+          <div className={styles.spriteWrapper}>
+            {apparence && (
+              <AnimatedSprite
+                animations={apparence.animations}
+                etat={etat}
+                palette={apparence.palette}
+                size={44}
+                flip={flip}
+              />
+            )}
+            {effet && (
+              <div key={step} className={styles.effetOverlay}>
+                <EffetSprite
+                  frames={effet.frames}
+                  palette={effet.palette}
+                  size={52}
+                  fps={10}
+                />
+              </div>
+            )}
+          </div>
           <div className={styles.infos}>
             <span className={styles.nom}>{f.name}</span>
             <div className={styles.barreTrack}>
@@ -159,19 +252,24 @@ export default function TeamVsTeamViewer({
     });
   }
 
+  const secousse =
+    !termine &&
+    evenementActuel &&
+    (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats");
+
   return (
     <div className={styles.viewer}>
-      <div className={styles.stage}>
+      <div className={`${styles.stage} ${secousse ? styles.stageShake : ""}`}>
         <div className={styles.equipeColonne}>
           <span className={styles.equipeNom}>{nomA}</span>
-          {renderColonne(equipeA)}
+          {renderColonne(equipeA, false)}
         </div>
 
         <div className={styles.vs}>VS</div>
 
         <div className={styles.equipeColonne}>
           <span className={styles.equipeNom}>{nomB}</span>
-          {renderColonne(equipeB)}
+          {renderColonne(equipeB, true)}
         </div>
       </div>
 

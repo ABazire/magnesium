@@ -616,3 +616,110 @@ export const PALETTE_BEAR_4 = {
   "#": "#5c4326",
   g: "#f2c94c",
 };
+
+// --- Slime, Élémentaire, Griffon, Serpent de Cristal ---
+// Une silhouette par famille ; le palier se traduit par la palette
+// (couleurs plus chaudes / plus saturées à mesure qu'on monte).
+
+export const SPRITE_SLIME = [
+  "............",
+  "............",
+  "....kkkk....",
+  "...k####k...",
+  "..k##bb##k..",
+  ".k###bb###k.",
+  ".k#e####e#k.",
+  "k##########k",
+  "k##########k",
+  "k####dd####k",
+  ".kkkkkkkkkk.",
+  "............",
+];
+
+export const SPRITE_ELEMENTAIRE = [
+  ".....kk.....",
+  "....k##k....",
+  "...k#bb#k...",
+  "..k#bbbb#k..",
+  ".k#bbeebb#k.",
+  "k#bbeeeebb#k",
+  "k#bbeeeebb#k",
+  ".k#bbeebb#k.",
+  "..k#bbbb#k..",
+  "...k#bb#k...",
+  "....k##k....",
+  ".....kk.....",
+];
+
+export const SPRITE_GRIFFON = [
+  "....kkkk....",
+  "...k#ee#k...",
+  "...k#dd#k...",
+  ".k#k#dd#k#k.",
+  "k##k####k##k",
+  "k##k####k##k",
+  ".k#k####k#k.",
+  "..k######k..",
+  "...k####k...",
+  "...k#bb#k...",
+  "..k#b..b#k..",
+  ".k##....##k.",
+];
+
+export const SPRITE_SERPENT = [
+  "............",
+  ".....kkk....",
+  "....k###k...",
+  "...k#e#e#k..",
+  "...k#####k..",
+  "....k###k...",
+  ".....k#k....",
+  "....k##k....",
+  "...k##bk....",
+  "..k##bk.....",
+  ".k##bk......",
+  ".kkkk.......",
+];
+
+function paletteMonstre(base: string, accent: string) {
+  return {
+    k: PALETTE_COMMUNE.k,
+    "#": base,
+    b: eclaircir(base, 0.4),
+    d: assombrir(base, 0.35),
+    e: accent,
+  };
+}
+
+const TEINTES_SLIME = ["#7fd9c4", "#5cc8ff", "#8ff5da", "#c792ea", "#f2c94c"];
+const TEINTES_ELEMENTAIRE = [
+  "#c792ea",
+  "#a78bfa",
+  "#8ff5da",
+  "#ff9d81",
+  "#f2c94c",
+];
+const TEINTES_GRIFFON = ["#c9a227", "#d7b740", "#e5c95e", "#f2d97c", "#fff0a8"];
+const TEINTES_SERPENT = ["#5cc8ff", "#7fd9c4", "#a8e0ff", "#c792ea", "#e9d5ff"];
+
+export function paletteSlime(tier: number) {
+  return paletteMonstre(TEINTES_SLIME[tier - 1] ?? TEINTES_SLIME[0], "#16241f");
+}
+export function paletteElementaire(tier: number) {
+  return paletteMonstre(
+    TEINTES_ELEMENTAIRE[tier - 1] ?? TEINTES_ELEMENTAIRE[0],
+    "#ffffff",
+  );
+}
+export function paletteGriffon(tier: number) {
+  return paletteMonstre(
+    TEINTES_GRIFFON[tier - 1] ?? TEINTES_GRIFFON[0],
+    "#16241f",
+  );
+}
+export function paletteSerpent(tier: number) {
+  return paletteMonstre(
+    TEINTES_SERPENT[tier - 1] ?? TEINTES_SERPENT[0],
+    "#16241f",
+  );
+}

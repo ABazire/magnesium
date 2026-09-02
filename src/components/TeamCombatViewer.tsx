@@ -1,27 +1,25 @@
 "use client";
 
-import { useState, useEffect, type ComponentType } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { CombatEvent3v3 } from "@/lib/combatEquipe";
-import { PersonnageIcon, WolfTierIcon, BearTierIcon } from "@/components/pixel";
-import { Droplets, Sparkles, Feather, Gem } from "lucide-react";
+import { AnimatedSprite, EffetSprite } from "@/components/pixel/AnimatedSprite";
+import {
+  apparencePersonnage,
+  apparenceMonstre,
+} from "@/components/pixel/combattants";
+import {
+  EFFET_COUP,
+  PALETTE_COUP,
+  EFFET_IMPACT,
+  PALETTE_IMPACT,
+  EFFET_SOIN,
+  PALETTE_SOIN,
+  EFFET_ETOURDI,
+  PALETTE_ETOURDI,
+  EFFET_SORT,
+  PALETTE_SORT,
+} from "@/components/pixel/animations";
 import styles from "./TeamCombatViewer.module.css";
-
-type IconeMonstreProps = { size?: number; tier?: number };
-
-function sansTier(Icone: ComponentType<{ size?: number }>) {
-  return function IconeSansTier({ size }: IconeMonstreProps) {
-    return <Icone size={size} />;
-  };
-}
-
-const ICONES: Record<string, ComponentType<IconeMonstreProps>> = {
-  loup: WolfTierIcon,
-  ours: BearTierIcon,
-  slime: sansTier(Droplets),
-  élémentaire: sansTier(Sparkles),
-  griffon: sansTier(Feather),
-  "serpent de cristal": sansTier(Gem),
-};
 
 type FighterEquipe = {
   id: string;
@@ -66,6 +64,14 @@ function acteurCible(ev: CombatEvent3v3): { acteur?: string; cible?: string } {
   }
 }
 
+function estSort(ev: CombatEvent3v3) {
+  return (
+    ev.type === "spellDegats" ||
+    ev.type === "spellSoin" ||
+    ev.type === "spellEtourdissement"
+  );
+}
+
 function decrireEvenement(
   ev: CombatEvent3v3,
   nom: (id: string) => string,
@@ -98,6 +104,21 @@ export default function TeamCombatViewer({
 }: Props) {
   const [step, setStep] = useState(0);
   const vitesse = 700;
+
+  const apparencesEquipe = useMemo(
+    () =>
+      Object.fromEntries(
+        equipe.map((f) => [
+          f.id,
+          apparencePersonnage(f.spriteId ?? 0, f.color),
+        ]),
+      ),
+    [equipe],
+  );
+  const apparenceMonstreCourant = useMemo(
+    () => apparenceMonstre(monstre.iconKey ?? "élémentaire", monstre.tier ?? 1),
+    [monstre],
+  );
 
   const nomParId: Record<string, string> = { [monstre.id]: monstre.name };
   for (const f of equipe) nomParId[f.id] = f.name;
@@ -143,12 +164,61 @@ export default function TeamCombatViewer({
     setStep(events.length);
   }
 
-  const IconeMonstre = ICONES[monstre.iconKey ?? ""] ?? ICONES.élémentaire;
+  function etatDe(id: string): string {
+    if (vie[id] <= 0) return "ko";
+    if (termine || !evenementActuel) return "idle";
+    if (acteur === id) {
+      if (evenementActuel.type === "spellSoin") return "incantation";
+      if (evenementActuel.type === "stun") return "idle";
+      return "attaque";
+    }
+    if (
+      cible === id &&
+      (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats")
+    ) {
+      return "touche";
+    }
+    return "idle";
+  }
+
+  function effetDe(id: string) {
+    if (termine || !evenementActuel) return null;
+    const ev = evenementActuel;
+
+    if (estSort(ev) && acteur === id) {
+      return { frames: EFFET_SORT, palette: PALETTE_SORT };
+    }
+    if (cible !== id) return null;
+
+    switch (ev.type) {
+      case "hit":
+        return { frames: EFFET_COUP, palette: PALETTE_COUP };
+      case "spellDegats":
+        return { frames: EFFET_IMPACT, palette: PALETTE_IMPACT };
+      case "spellSoin":
+        return { frames: EFFET_SOIN, palette: PALETTE_SOIN };
+      case "spellEtourdissement":
+        return { frames: EFFET_ETOURDI, palette: PALETTE_ETOURDI };
+      default:
+        return null;
+    }
+  }
+
+  const secousse =
+    !termine &&
+    evenementActuel &&
+    (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats");
+
+  // Seul contre trois : le boss occupe la scène, et grossit avec son palier.
+  const etatMonstre = etatDe(monstre.id);
+  const effetMonstre = effetDe(monstre.id);
+  const tailleBoss = 110 + Math.min(Math.max(monstre.tier ?? 1, 1), 5) * 18;
+  const couleurBoss = apparenceMonstreCourant.palette["#"] ?? "#9db3aa";
 
   return (
     <div className={styles.viewer}>
       <div
-        className={styles.stage}
+        className={`${styles.stage} ${secousse ? styles.stageShake : ""}`}
         style={
           background
             ? {
@@ -164,18 +234,38 @@ export default function TeamCombatViewer({
             const pct = Math.round((vie[f.id] / f.vieMax) * 100);
             const pctMana =
               f.manaMax > 0 ? Math.round((mana[f.id] / f.manaMax) * 100) : 0;
-            const estActeur = acteur === f.id;
-            const estCible = cible === f.id;
-            const ko = vie[f.id] <= 0;
+            const etat = etatDe(f.id);
+            const effet = effetDe(f.id);
+            const apparence = apparencesEquipe[f.id];
 
             return (
               <div
                 key={f.id}
-                className={`${styles.carte} ${estActeur ? styles.acteur : ""} ${
-                  estCible && !termine ? styles.cible : ""
-                } ${ko ? styles.ko : ""}`}
+                className={`${styles.carte} ${etat === "attaque" ? styles.acteur : ""} ${
+                  etat === "touche" ? styles.cible : ""
+                } ${etat === "ko" ? styles.ko : ""}`}
               >
-                <PersonnageIcon size={44} couleur={f.color} variant={f.spriteId} />
+                <div className={styles.spriteWrapper}>
+                  {apparence && (
+                    <AnimatedSprite
+                      animations={apparence.animations}
+                      etat={etat}
+                      palette={apparence.palette}
+                      size={44}
+                    />
+                  )}
+                  {effet && (
+                    <div key={step} className={styles.effetOverlay}>
+                      <EffetSprite
+                        frames={effet.frames}
+                        palette={effet.palette}
+                        size={52}
+                        fps={10}
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div className={styles.infos}>
                   <span className={styles.nom}>{f.name}</span>
                   <div className={styles.barreTrack}>
@@ -198,14 +288,44 @@ export default function TeamCombatViewer({
           })}
         </div>
 
-        <div
-          className={`${styles.monstreCarte} ${acteur === monstre.id ? styles.acteur : ""} ${
-            cible === monstre.id && !termine ? styles.cible : ""
-          } ${vie[monstre.id] <= 0 ? styles.ko : ""}`}
-        >
-          <IconeMonstre size={72} tier={monstre.tier} />
-          <span className={styles.nom}>{monstre.name}</span>
-          <div className={styles.barreTrackLarge}>
+        <div className={styles.monstreZone}>
+          <div
+            className={`${styles.monstreSprite} ${
+              etatMonstre === "attaque" ? styles.monstreActeur : ""
+            } ${etatMonstre === "touche" ? styles.monstreCible : ""} ${
+              etatMonstre === "ko" ? styles.monstreKo : ""
+            }`}
+          >
+            <div
+              className={styles.auraBoss}
+              style={{
+                background: `radial-gradient(circle, ${couleurBoss}33, transparent 70%)`,
+              }}
+            />
+            <div className={styles.ombreSol} />
+
+            <AnimatedSprite
+              animations={apparenceMonstreCourant.animations}
+              etat={etatMonstre}
+              palette={apparenceMonstreCourant.palette}
+              size={tailleBoss}
+              flip
+            />
+
+            {effetMonstre && (
+              <div key={step} className={styles.effetOverlay}>
+                <EffetSprite
+                  frames={effetMonstre.frames}
+                  palette={effetMonstre.palette}
+                  size={Math.round(tailleBoss * 0.8)}
+                  fps={10}
+                />
+              </div>
+            )}
+          </div>
+
+          <span className={styles.nomBoss}>{monstre.name}</span>
+          <div className={styles.barreBoss}>
             <div
               className={styles.barreVie}
               style={{

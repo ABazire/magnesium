@@ -8,7 +8,7 @@ import {
   BootsIcon,
   AmuletIcon,
 } from "@/components/pixel";
-import { Sparkles } from "lucide-react";
+import { IconeMagie } from "@/components/pixel/IconesUI";
 import { fabriquerEquipement, fabriquerSort } from "../../actions/forge";
 import { RECETTES_EQUIPEMENT, RECETTE_SORT } from "@/lib/craft";
 import { NOMS_MATERIAU } from "@/lib/monsterDrops";
@@ -120,8 +120,8 @@ export default function ForgeClient({
   const couleur = resultat ? RARITY_COLORS[resultat.stars] : "#f2c94c";
   const IconeResultat =
     resultat?.kind === "equipment"
-      ? (ICONE_SLOT[resultat.slot as EquipmentSlot] ?? Sparkles)
-      : Sparkles;
+      ? (ICONE_SLOT[resultat.slot as EquipmentSlot] ?? IconeMagie)
+      : IconeMagie;
 
   return (
     <main className={styles.page}>
@@ -206,7 +206,7 @@ export default function ForgeClient({
           })}
 
           <div className={styles.carte}>
-            <Sparkles size={40} />
+            <IconeMagie size={40} />
             <span className={styles.carteLabel}>Sort</span>
             <div className={styles.recette}>
               {RECETTE_SORT.materiaux.map((m) => (

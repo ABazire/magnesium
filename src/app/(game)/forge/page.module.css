@@ -7,20 +7,20 @@
 .title {
   color: #ffffff;
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 12px;
 }
 
 .currency {
   color: #9db8b1;
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 12px;
 }
 
 .currencyValue {
   color: #f2c94c;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .materiaux {
@@ -32,16 +32,18 @@
 
 .materiauBadge {
   color: #cfe3da;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 999px;
+  background: #12201b;
+  border: 2px solid #4a5c38;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  border-radius: 0;
   padding: 5px 12px;
 }
 
 .error {
   color: #ef4444;
-  font-size: 13px;
+  font-size: 15px;
   margin-bottom: 16px;
 }
 
@@ -56,16 +58,19 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 16px;
+  border: 3px solid #4a5c38;
+  outline: 3px solid #1b2f1e;
+  outline-offset: -7px;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4);
+  border-radius: 0;
   padding: 20px 14px;
-  background: rgba(15, 26, 22, 0.4);
+  background: #12201b;
 }
 
 .carteLabel {
   color: #ffffff;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
@@ -79,22 +84,23 @@
 
 .ok {
   color: #10b981;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .manque {
   color: #ef4444;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .craftButton {
   background: #059669;
+  box-shadow: 0 4px 0 #044e37;
   color: #0f1a16;
-  font-weight: 800;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: 14px;
   text-transform: uppercase;
-  border: none;
-  border-radius: 999px;
+  border: 3px solid #1b2f1e;
+  border-radius: 0;
   padding: 10px 20px;
   cursor: pointer;
   width: 100%;
@@ -106,7 +112,7 @@
 
 .craftButton:disabled {
   background: transparent;
-  border: 1.5px solid #1e3a2f;
+  border: 2px solid #1e3a2f;
   color: #4d7266;
   cursor: not-allowed;
 }
@@ -116,33 +122,35 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  border: 2px solid;
-  border-radius: 20px;
+  border: 3px solid;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.45);
+  border-radius: 0;
   padding: 32px;
+  background: #12201b;
   max-width: 320px;
   margin: 20px auto;
 }
 
 .resultLabel {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
 .resultName {
   color: #ffffff;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .resultStars {
   color: #f2c94c;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .resultBonus {
   color: #cfe3da;
-  font-size: 13px;
+  font-size: 15px;
   margin-bottom: 12px;
   text-align: center;
 }

@@ -12,13 +12,13 @@
 .title {
   color: #ffffff;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
 .message {
   color: #9db8b1;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -30,12 +30,13 @@
 
 .retryButton {
   background: #059669;
+  box-shadow: 0 4px 0 #044e37;
   color: #0f1a16;
-  font-weight: 800;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: 14px;
   text-transform: uppercase;
   border: none;
-  border-radius: 999px;
+  border-radius: 0;
   padding: 10px 22px;
   cursor: pointer;
 }
@@ -46,12 +47,12 @@
 
 .homeLink {
   color: #ffffff;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
   text-decoration: none;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 999px;
+  border: 2px solid #1e3a2f;
+  border-radius: 0;
   padding: 10px 22px;
 }
 
@@ -61,6 +62,6 @@
 
 .digest {
   color: #4d7266;
-  font-size: 11px;
+  font-size: 13px;
   margin-top: 12px;
 }

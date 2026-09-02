@@ -1,0 +1,133 @@
+.ecran {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 40px 16px;
+}
+
+/* Le titre est doublé : une copie décalée d'un pixel entier sert d'ombre.
+   text-shadow avec un blur nul donne exactement le contour des logos 8 bits. */
+.titre {
+  color: #e9ec9f;
+  font-size: clamp(28px, 7vw, 56px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-align: center;
+  margin: 0;
+  text-shadow:
+    4px 4px 0 #1b2f1e,
+    8px 8px 0 rgba(0, 0, 0, 0.45);
+}
+
+.sousTitre {
+  color: #6f9184;
+  font-size: 18px;
+  letter-spacing: 1px;
+  text-align: center;
+  margin: 0;
+}
+
+.heros {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 28px;
+  margin: 6px 0 4px;
+}
+
+.panneau {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 380px;
+  padding: 26px 24px;
+  background: #12201b;
+  border: 3px solid #4a5c38;
+  outline: 3px solid #1b2f1e;
+  outline-offset: -7px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.45);
+}
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: #10b981;
+  font-family: var(--font-titre), monospace;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.input {
+  background: #0b1411;
+  border: 3px solid #2f5a48;
+  color: #ffffff;
+  font-family: var(--font-corps), monospace;
+  font-size: 20px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #10b981;
+}
+
+.bouton {
+  background: #059669;
+  color: #0b1411;
+  font-family: var(--font-titre), monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 3px solid #1b2f1e;
+  padding: 14px 20px;
+  box-shadow: 0 5px 0 #044e37;
+}
+
+.bouton:hover:not(:disabled) {
+  background: #10b981;
+}
+
+.bouton:disabled {
+  background: #1e3a2f;
+  color: #4d7266;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.35);
+  cursor: not-allowed;
+}
+
+.erreur {
+  color: #ef4444;
+  font-size: 17px;
+  text-align: center;
+}
+
+/* Invite clignotante : le petit détail qui situe tout de suite l'ambiance. */
+.invite {
+  color: #6f9184;
+  font-family: var(--font-titre), monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: clignote 1.2s steps(1) infinite;
+}
+
+@keyframes clignote {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0.15;
+  }
+}

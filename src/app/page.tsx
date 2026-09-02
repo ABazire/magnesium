@@ -1,14 +1,27 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+
+import { AnimatedSprite } from "@/components/pixel/AnimatedSprite";
+import {
+  apparenceMonstre,
+  apparencePersonnage,
+} from "@/components/pixel/combattants";
+
+import styles from "./page.module.css";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const router = useRouter();
+
+  // Deux figurants animés en boucle : ils annoncent le style du jeu avant même
+  // la connexion.
+  const heros = useMemo(() => apparencePersonnage(0, "#10b981"), []);
+  const bete = useMemo(() => apparenceMonstre("Loup", 2), []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,35 +50,49 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0f1a16] flex flex-col items-center pt-24">
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col items-center w-full"
-      >
-        <button
-          type="submit"
-          disabled={enCours}
-          className="bg-emerald-600 text-emerald-950 font-extrabold text-3xl px-16 py-6 rounded-3xl mb-8 disabled:opacity-60"
-        >
-          {enCours ? "..." : "JOUER"}
-        </button>
+    <main className={styles.ecran}>
+      <h1 className={styles.titre}>MAGNESIUM</h1>
+      <p className={styles.sousTitre}>Recrute. Équipe. Combats.</p>
 
-        {erreur && (
-          <p className="text-red-400 text-sm mb-8">{erreur}</p>
-        )}
+      <div className={styles.heros}>
+        <AnimatedSprite
+          animations={heros.animations}
+          etat="idle"
+          palette={heros.palette}
+          size={96}
+        />
+        <AnimatedSprite
+          animations={bete.animations}
+          etat="idle"
+          palette={bete.palette}
+          size={110}
+          flip
+        />
+      </div>
 
-        <div className="flex flex-col gap-2 w-full max-w-md px-6">
-          <label className="text-emerald-400 font-bold uppercase text-sm">
-            Username
+      <form onSubmit={handleSubmit} className={styles.panneau}>
+        <div className={styles.champ}>
+          <label className={styles.label} htmlFor="username">
+            Nom de joueur
           </label>
           <input
+            id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="bg-transparent border-2 border-emerald-500 rounded-xl px-4 py-3 text-white outline-none"
+            className={styles.input}
+            autoComplete="username"
             required
           />
         </div>
+
+        {erreur && <p className={styles.erreur}>{erreur}</p>}
+
+        <button type="submit" disabled={enCours} className={styles.bouton}>
+          {enCours ? "..." : "Jouer"}
+        </button>
       </form>
+
+      <span className={styles.invite}>Appuie sur Jouer pour commencer</span>
     </main>
   );
 }

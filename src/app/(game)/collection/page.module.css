@@ -6,7 +6,7 @@
 .title {
   color: #ffffff;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 20px;
 }
@@ -34,8 +34,8 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border-radius: 12px;
-  border: 1.5px solid;
+  border-radius: 0;
+  border: 2px solid;
   cursor: pointer;
   padding: 4px;
   overflow: hidden;
@@ -57,12 +57,12 @@
 .cardLevel {
   display: block;
   opacity: 0.75;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .cardStars {
   color: #e0e58e;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.5px;
 }
 
@@ -71,15 +71,15 @@
   top: 3px;
   right: 4px;
   color: #10b981;
-  font-size: 11px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .cardEmpty {
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.03);
-  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.06);
   width: 50%;
   position: relative;
   place-self: center;
@@ -91,15 +91,18 @@
   width: 300px;
   flex-shrink: 0;
   background: #12181a;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 16px;
+  border: 3px solid #4a5c38;
+  outline: 3px solid #1b2f1e;
+  outline-offset: -7px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.45);
+  border-radius: 0;
   padding: 20px;
 }
 
 .detailEmpty {
   display: block;
   color: #6b7c78;
-  font-size: 13px;
+  font-size: 15px;
   text-align: center;
   padding: 24px 0;
 }
@@ -115,18 +118,18 @@
 .detailName {
   color: #ffffff;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .detailLevel {
   color: #9db8b1;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .stars {
   color: #e9ec9f;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 1px;
 }
 
@@ -142,14 +145,14 @@
   align-items: center;
   gap: 8px;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 15px;
   margin: 0;
 }
 
 .subLabel {
   display: block;
   color: #10b981;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -159,12 +162,12 @@
   display: block;
   width: 100%;
   background: transparent;
-  border: 1.5px solid #10b981;
+  border: 2px solid #10b981;
   color: #10b981;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
-  border-radius: 999px;
+  border-radius: 0;
   padding: 8px 16px;
   cursor: pointer;
   margin: 10px 0 16px;
@@ -195,8 +198,8 @@
   flex-direction: column;
   gap: 4px;
   background: #0f1a16;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 10px;
+  border: 2px solid #1e3a2f;
+  border-radius: 0;
   padding: 8px;
 }
 
@@ -205,9 +208,9 @@
   background: transparent;
   border: none;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 13px;
   padding: 6px 8px;
-  border-radius: 6px;
+  border-radius: 0;
   cursor: pointer;
 }
 
@@ -217,7 +220,7 @@
 
 .pickerEmpty {
   color: #4d7266;
-  font-size: 11px;
+  font-size: 13px;
   padding: 6px 8px;
 }
 
@@ -243,7 +246,7 @@
 
 .sectionLabel {
   color: #10b981;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   margin-top: 10px;
@@ -255,7 +258,7 @@
 
 .erreurAction {
   color: #ef4444;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 12px;
   text-align: center;
 }
@@ -275,8 +278,8 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 10px;
+  border: 2px solid #1e3a2f;
+  border-radius: 0;
   background: rgba(16, 185, 129, 0.05);
 }
 
@@ -287,7 +290,7 @@
 
 .slotFilled {
   color: #10b981;
-  font-size: 9px;
+  font-size: 11px;
   text-align: center;
   padding: 0 4px;
 }
@@ -295,6 +298,6 @@
 .inTeamNote {
   margin-top: 10px;
   color: #4d7266;
-  font-size: 10px;
+  font-size: 12px;
   text-align: center;
 }

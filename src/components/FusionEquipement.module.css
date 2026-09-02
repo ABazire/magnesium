@@ -5,7 +5,7 @@
 .label {
   display: block;
   color: #10b981;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 10px;
@@ -13,7 +13,7 @@
 
 .erreur {
   color: #ef4444;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 8px;
 }
 
@@ -28,38 +28,39 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 12px;
+  border: 2px solid #1e3a2f;
+  border-radius: 0;
   padding: 14px;
   background: rgba(16, 185, 129, 0.05);
 }
 
 .titre {
   color: #ffffff;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
 .stock {
   color: #4d7266;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .recette {
   color: #9db8b1;
-  font-size: 10px;
+  font-size: 12px;
   text-align: center;
 }
 
 .bouton {
   background: #059669;
+  box-shadow: 0 4px 0 #044e37;
   color: #0f1a16;
-  font-weight: 800;
-  font-size: 11px;
+  font-weight: 700;
+  font-size: 13px;
   text-transform: uppercase;
   border: none;
-  border-radius: 999px;
+  border-radius: 0;
   padding: 8px 14px;
   cursor: pointer;
   width: 100%;

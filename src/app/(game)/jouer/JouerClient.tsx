@@ -13,17 +13,15 @@ import {
   SwordIcon,
 } from "@/components/pixel";
 import {
-  Box,
-  Flame,
-  HeartPulse,
-  Snowflake,
-  Shield,
-  Sparkles,
-  Droplet,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+  ICONE_EFFET_SORT,
+  IconeBouclier,
+  IconeCaisse,
+  IconeChevronDroit,
+  IconeChevronGauche,
+  IconeMagie,
+  IconeMana,
+  IconePoubelle,
+} from "@/components/pixel/IconesUI";
 import {
   equiperObjet,
   desequiperObjet,
@@ -112,14 +110,6 @@ const SORT_SLOTS: { slot: SpellSlot; label: string }[] = [
   { slot: "SORT_3", label: "Sort 3" },
   { slot: "PASSIF", label: "Passif" },
 ];
-
-const ICONE_EFFET: Record<string, ComponentType<{ size?: number }>> = {
-  DEGATS: Flame,
-  SOIN: HeartPulse,
-  ETOURDISSEMENT: Snowflake,
-  BONUS_STAT: Sparkles,
-  REDUCTION_DEGATS: Shield,
-};
 
 export default function JouerClient({
   equipes,
@@ -402,7 +392,7 @@ export default function JouerClient({
               className={styles.flecheButton}
               aria-label="Équipe précédente"
             >
-              <ChevronLeft size={20} />
+              <IconeChevronGauche size={20} />
             </button>
 
             <div className={styles.sliderTitre}>
@@ -433,7 +423,7 @@ export default function JouerClient({
               </span>
               {equipeActuelle.estDefense && (
                 <span className={styles.defenseBadge}>
-                  <Shield size={11} /> Défense 3v3
+                  <IconeBouclier size={11} /> Défense 3v3
                 </span>
               )}
             </div>
@@ -446,7 +436,7 @@ export default function JouerClient({
               className={styles.flecheButton}
               aria-label="Équipe suivante"
             >
-              <ChevronRight size={20} />
+              <IconeChevronDroit size={20} />
             </button>
 
             <button
@@ -472,7 +462,7 @@ export default function JouerClient({
                   : undefined
               }
             >
-              <Shield size={16} />
+              <IconeBouclier size={16} />
             </button>
 
             <button
@@ -481,7 +471,7 @@ export default function JouerClient({
               className={styles.supprimerButton}
               aria-label="Supprimer l'équipe"
             >
-              <Trash2 size={16} />
+              <IconePoubelle size={16} />
             </button>
           </div>
 
@@ -598,7 +588,7 @@ export default function JouerClient({
       )}
 
       <Link href="/collection" className={styles.collectionButton}>
-        <Box size={32} />
+        <IconeCaisse size={32} />
         Collection
       </Link>
 
@@ -695,7 +685,7 @@ export default function JouerClient({
                     <AmuletIcon size={16} /> Agilité: {stats.agilite}
                   </p>
                   <p>
-                    <Droplet size={16} /> Mana: {stats.mana}
+                    <IconeMana size={16} /> Mana: {stats.mana}
                   </p>
                 </div>
 
@@ -766,7 +756,7 @@ export default function JouerClient({
                       (s) => s.slot === slot,
                     );
                     const IconeSort = lien
-                      ? (ICONE_EFFET[lien.spell.effect] ?? Sparkles)
+                      ? (ICONE_EFFET_SORT[lien.spell.effect] ?? IconeMagie)
                       : null;
 
                     return (

@@ -9,7 +9,10 @@ import {
   AmuletIcon,
   ChestIcon,
 } from "@/components/pixel";
-import { Flame, HeartPulse, Snowflake, Shield, Sparkles } from "lucide-react";
+import {
+  ICONE_EFFET_SORT,
+  IconeMagie,
+} from "@/components/pixel/IconesUI";
 import { desequiperObjet } from "../../actions/equiper";
 import { desequiperSort } from "../../actions/sorts";
 import FilterBar from "@/components/FilterBar";
@@ -17,7 +20,11 @@ import Pagination from "@/components/Pagination";
 import FusionEquipement from "@/components/FusionEquipement";
 import { NOMS_MATERIAU } from "@/lib/monsterDrops";
 import { SEUILS_FUSION } from "@/lib/fusion";
-import { descriptionSort } from "@/lib/spell";
+import {
+  COULEUR_ELEMENT,
+  LIBELLE_ELEMENT,
+  descriptionSort,
+} from "@/lib/spell";
 import styles from "./page.module.css";
 import type { Prisma, EquipmentSlot, MaterialType } from "@prisma/client";
 import Link from "next/link";
@@ -30,14 +37,6 @@ const ICONE_SLOT: Record<string, ComponentType<{ size?: number }>> = {
   ARMURE: ArmorIcon,
   BOTTES: BootsIcon,
   AMULETTE: AmuletIcon,
-};
-
-const ICONE_EFFET: Record<string, ComponentType<{ size?: number }>> = {
-  DEGATS: Flame,
-  SOIN: HeartPulse,
-  ETOURDISSEMENT: Snowflake,
-  BONUS_STAT: Sparkles,
-  REDUCTION_DEGATS: Shield,
 };
 
 const RARITY_COLORS: Record<number, string> = {
@@ -73,6 +72,7 @@ type SearchParams = {
   bonusStat?: string;
   type?: string;
   effect?: string;
+  element?: string;
   tri?: string;
   q?: string;
   page?: string;
@@ -410,10 +410,25 @@ const TYPE_OPTIONS = [
 const EFFET_OPTIONS = [
   { value: "", label: "Tous" },
   { value: "DEGATS", label: "Dégâts" },
-  { value: "SOIN", label: "Soin" },
+  { value: "BRULURE", label: "Brûlure" },
+  { value: "DEGATS_ZONE", label: "Dégâts de zone" },
+  { value: "RALENTISSEMENT", label: "Ralentissement" },
   { value: "ETOURDISSEMENT", label: "Étourdissement" },
+  { value: "SOIN", label: "Soin" },
   { value: "BONUS_STAT", label: "Bonus stat" },
   { value: "REDUCTION_DEGATS", label: "Réduction dégâts" },
+  { value: "REGENERATION", label: "Régénération" },
+  { value: "VOL_DE_VIE", label: "Vol de vie" },
+  { value: "EPINES", label: "Épines" },
+  { value: "CRITIQUE", label: "Critique" },
+];
+
+const ELEMENT_OPTIONS = [
+  { value: "", label: "Tous" },
+  { value: "NEUTRE", label: "Neutre" },
+  { value: "FEU", label: "Feu" },
+  { value: "GLACE", label: "Glace" },
+  { value: "FOUDRE", label: "Foudre" },
 ];
 
 const CHAMPS_TRI_SORT = [
@@ -445,7 +460,7 @@ async function InventaireSorts({
   userId: string;
   sp: SearchParams;
 }) {
-  const { minStars, statut, type, effect, tri, q, page } = sp;
+  const { minStars, statut, type, effect, element, tri, q, page } = sp;
   const minStarsNum = minStars ? Number(minStars) : 0;
   const pageActuelle = page ? Math.max(1, Number(page)) : 1;
 
@@ -468,6 +483,7 @@ async function InventaireSorts({
   let filtres = tousLesSorts.filter((s) => (s.rarity?.stars ?? 0) >= minStarsNum);
   if (type) filtres = filtres.filter((s) => s.type === type);
   if (effect) filtres = filtres.filter((s) => s.effect === effect);
+  if (element) filtres = filtres.filter((s) => s.element === element);
   if (statut === "equipe") filtres = filtres.filter((s) => !!s.equippedOn);
   if (statut === "libre") filtres = filtres.filter((s) => !s.equippedOn);
 
@@ -496,6 +512,7 @@ async function InventaireSorts({
       minStars: String(minStarsNum),
       ...(type ? { type } : {}),
       ...(effect ? { effect } : {}),
+      ...(element ? { element } : {}),
       ...(statut ? { statut } : {}),
       ...(tri ? { tri } : {}),
       ...(q ? { q } : {}),
@@ -535,6 +552,12 @@ async function InventaireSorts({
             options: EFFET_OPTIONS,
           },
           {
+            name: "element",
+            label: "Élément",
+            value: element ?? "",
+            options: ELEMENT_OPTIONS,
+          },
+          {
             name: "statut",
             label: "Statut",
             value: statut ?? "",
@@ -560,7 +583,7 @@ async function InventaireSorts({
         <div className={styles.grid}>
           {sortsPage.map((s) => {
             const couleur = RARITY_COLORS[s.rarity?.stars ?? 1];
-            const Icone = ICONE_EFFET[s.effect] ?? Sparkles;
+            const Icone = ICONE_EFFET_SORT[s.effect] ?? IconeMagie;
             const estEquipe = !!s.equippedOn;
 
             const carte = (
@@ -573,6 +596,14 @@ async function InventaireSorts({
               >
                 <span className={styles.cardLabel}>{s.name.toUpperCase()}</span>
                 <Icone size={40} />
+                {s.element !== "NEUTRE" && (
+                  <span
+                    className={styles.elementBadge}
+                    style={{ color: COULEUR_ELEMENT[s.element] }}
+                  >
+                    {LIBELLE_ELEMENT[s.element]}
+                  </span>
+                )}
                 <span className={styles.cardBonus}>{descriptionSort(s)}</span>
                 <span className={styles.cardStars}>
                   {"★".repeat(s.rarity?.stars ?? 0)}

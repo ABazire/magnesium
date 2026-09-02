@@ -9,17 +9,16 @@ import {
   type ApparenceCombattant,
 } from "@/components/pixel/combattants";
 import {
-  EFFET_COUP,
-  PALETTE_COUP,
-  EFFET_IMPACT,
-  PALETTE_IMPACT,
-  EFFET_SOIN,
-  PALETTE_SOIN,
-  EFFET_ETOURDI,
-  PALETTE_ETOURDI,
   EFFET_SORT,
   PALETTE_SORT,
 } from "@/components/pixel/animations";
+import {
+  acteurCible,
+  appliquerEvenement,
+  estImpact,
+  estSort,
+  effetVisuel,
+} from "./combatEvents";
 import styles from "./CombatViewer.module.css";
 
 type Fighter = {
@@ -39,29 +38,6 @@ type Props = {
   winnerId: string;
   background?: string;
 };
-
-function acteurCible(ev: CombatEvent): { acteur: string; cible?: string } {
-  switch (ev.type) {
-    case "dodge":
-    case "hit":
-    case "spellDegats":
-      return { acteur: ev.attackerId, cible: ev.defenderId };
-    case "spellSoin":
-      return { acteur: ev.casterId, cible: ev.casterId };
-    case "spellEtourdissement":
-      return { acteur: ev.casterId, cible: ev.targetId };
-    case "stun":
-      return { acteur: ev.personnageId };
-  }
-}
-
-function estSort(ev: CombatEvent) {
-  return (
-    ev.type === "spellDegats" ||
-    ev.type === "spellSoin" ||
-    ev.type === "spellEtourdissement"
-  );
-}
 
 function apparenceDe(f: Fighter): ApparenceCombattant {
   if (!f.iconKey || f.iconKey === "personnage") {
@@ -93,14 +69,7 @@ export default function CombatViewer({
     [f2.id]: f2.manaMax ?? 0,
   };
   for (let i = 0; i < step; i++) {
-    const ev = events[i];
-    if (ev.type === "hit" || ev.type === "spellDegats") {
-      vie[ev.defenderId] = ev.defenderHpAfter;
-    } else if (ev.type === "spellSoin") {
-      vie[ev.casterId] = ev.casterHpAfter;
-    }
-    const { acteur } = acteurCible(ev);
-    if (acteur in mana) mana[acteur] = ev.manaApres;
+    appliquerEvenement(vie, mana, events[i]);
   }
 
   const termine = step >= events.length;
@@ -130,7 +99,7 @@ export default function CombatViewer({
     }
     if (
       cible === id &&
-      (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats")
+      estImpact(evenementActuel)
     ) {
       return "touche";
     }
@@ -147,24 +116,14 @@ export default function CombatViewer({
     }
     if (cible !== id) return null;
 
-    switch (ev.type) {
-      case "hit":
-        return { frames: EFFET_COUP, palette: PALETTE_COUP, taille: 110 };
-      case "spellDegats":
-        return { frames: EFFET_IMPACT, palette: PALETTE_IMPACT, taille: 120 };
-      case "spellSoin":
-        return { frames: EFFET_SOIN, palette: PALETTE_SOIN, taille: 110 };
-      case "spellEtourdissement":
-        return { frames: EFFET_ETOURDI, palette: PALETTE_ETOURDI, taille: 100 };
-      default:
-        return null;
-    }
+    const effet = effetVisuel(ev);
+    return effet ? { ...effet, taille: 115 } : null;
   }
 
   const secousse =
     !termine &&
     evenementActuel &&
-    (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats");
+    estImpact(evenementActuel);
 
   const taille1 = f1.tier === 5 ? 200 : 150;
   const taille2 = f2.tier === 5 ? 200 : 150;
@@ -293,7 +252,12 @@ function EvenementPopup({
   switch (ev.type) {
     case "hit":
       if (ev.defenderId !== personnageId) return null;
-      return <span className={styles.damagePopup}>-{ev.damage}</span>;
+      return (
+        <span className={styles.damagePopup}>
+          -{ev.damage}
+          {ev.critique && <span className={styles.spellName}>Critique !</span>}
+        </span>
+      );
     case "dodge":
       if (ev.defenderId !== personnageId) return null;
       return <span className={styles.dodgePopup}>Esquive !</span>;
@@ -302,7 +266,9 @@ function EvenementPopup({
       return (
         <span className={styles.damagePopup}>
           -{ev.damage}
-          <span className={styles.spellName}>{ev.spellName}</span>
+          <span className={styles.spellName}>
+            {ev.critique ? `${ev.spellName} · critique` : ev.spellName}
+          </span>
         </span>
       );
     case "spellSoin":
@@ -316,6 +282,43 @@ function EvenementPopup({
     case "spellEtourdissement":
       if (ev.targetId !== personnageId) return null;
       return <span className={styles.statusPopup}>Étourdi !</span>;
+    case "spellRalentissement":
+      if (ev.targetId !== personnageId) return null;
+      return (
+        <span className={styles.statusPopup}>Ralenti -{ev.pourcentage}%</span>
+      );
+    case "brulure":
+      if (ev.personnageId !== personnageId) return null;
+      return (
+        <span className={styles.damagePopup}>
+          -{ev.damage}
+          <span className={styles.spellName}>Brûlure</span>
+        </span>
+      );
+    case "epines":
+      if (ev.attackerId !== personnageId) return null;
+      return (
+        <span className={styles.damagePopup}>
+          -{ev.damage}
+          <span className={styles.spellName}>Épines</span>
+        </span>
+      );
+    case "regeneration":
+      if (ev.personnageId !== personnageId) return null;
+      return (
+        <span className={styles.healPopup}>
+          +{ev.heal}
+          <span className={styles.spellName}>Régénération</span>
+        </span>
+      );
+    case "volDeVie":
+      if (ev.personnageId !== personnageId) return null;
+      return (
+        <span className={styles.healPopup}>
+          +{ev.heal}
+          <span className={styles.spellName}>Vol de vie</span>
+        </span>
+      );
     case "stun":
       if (ev.personnageId !== personnageId) return null;
       return <span className={styles.statusPopup}>Ne peut pas agir</span>;

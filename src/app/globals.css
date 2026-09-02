@@ -1,22 +1,46 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Jetons de style — palette restreinte, dans l'esprit des jeux pixel art.
+   Les modules CSS piochent dans ces variables plutôt que de répéter les codes
+   couleur en dur.
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fonds */
+  --nuit: #0f1a16;
+  --fonce: #16241f;
+  --panneau: #12201b;
+
+  /* Bordures */
+  --bord: #1e3a2f;
+  --bord-clair: #2f5a48;
+  --bord-lumiere: #4d7266;
+
+  /* Accents */
+  --vert: #10b981;
+  --vert-sombre: #059669;
+  --or: #f2c94c;
+  --rouge: #ef4444;
+  --bleu: #5cc8ff;
+  --violet: #c792ea;
+
+  /* Texte */
+  --texte: #ffffff;
+  --texte-doux: #cfe3da;
+  --texte-faible: #4d7266;
+
+  /* Épaisseur de la bordure « pixel » */
+  --px: 3px;
+
+  --background: var(--nuit);
+  --foreground: var(--texte);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-corps);
 }
 
 html,
@@ -27,11 +51,125 @@ body {
 
 body {
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #0f1a16;
+  font-family: var(--font-corps), "Courier New", monospace;
+  font-size: 18px;
+  background-color: var(--nuit);
   background-image: url("../components/images/bg.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  /* Le lissage sub-pixel ramollit les polices bitmap : on le coupe. */
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+/* Les sprites SVG et images doivent rester nets à l'agrandissement. */
+img,
+svg {
+  image-rendering: pixelated;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-titre), var(--font-corps), monospace;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+
+/* Ombre portée nette d'un pixel entier, comme les titres d'écran-titre.
+   Un blur ici ferait retomber tout de suite dans l'esthétique web. */
+h1 {
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6);
+}
+
+button,
+select {
+  font-family: var(--font-titre), var(--font-corps), monospace;
+  border-radius: 0;
+}
+
+/* Silkscreen est trop large pour de la saisie libre : les champs de texte
+   gardent VT323, qui reste pixel mais laisse tenir un nom entier. */
+input,
+textarea {
+  font-family: var(--font-corps), monospace;
+  border-radius: 0;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Enfoncement au clic : le bouton descend et son socle disparaît, comme une
+   touche qu'on écrase. Le sélecteur est plus spécifique que les classes des
+   modules, donc il neutralise bien leur box-shadow. */
+button:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+select,
+input,
+textarea {
+  background: var(--nuit);
+  color: var(--texte);
+  border: var(--px) solid var(--bord-clair);
+  padding: 8px 10px;
+  outline: none;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  border-color: var(--vert);
+}
+
+/* ==========================================================================
+   Habillage écran — fine trame horizontale, comme un vieux moniteur.
+   Purement décoratif, ne capte aucun clic.
+   ========================================================================== */
+
+.trameEcran {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.12) 0px,
+    rgba(0, 0, 0, 0.12) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.35;
+}
+
+/* ==========================================================================
+   Utilitaires « pixel »
+   Les coins sont volontairement absents (box-shadow au lieu de border) : ça
+   donne la découpe en escalier caractéristique du pixel art, impossible à
+   obtenir avec border-radius.
+   ========================================================================== */
+
+.cadrePixel {
+  border-radius: 0;
+  background: var(--panneau);
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--bord-clair),
+    0 var(--px) 0 0 var(--bord-clair),
+    calc(-1 * var(--px)) 0 0 0 var(--bord-clair),
+    var(--px) 0 0 0 var(--bord-clair);
+}
+
+.cadrePixelAccent {
+  border-radius: 0;
+  background: var(--panneau);
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--vert),
+    0 var(--px) 0 0 var(--vert),
+    calc(-1 * var(--px)) 0 0 0 var(--vert),
+    var(--px) 0 0 0 var(--vert);
 }

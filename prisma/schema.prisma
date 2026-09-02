@@ -93,6 +93,24 @@ enum SpellEffect {
   ETOURDISSEMENT
   BONUS_STAT
   REDUCTION_DEGATS
+
+  // Actifs élémentaires
+  BRULURE // Feu : dégâts répartis sur plusieurs tours
+  DEGATS_ZONE // Foudre : frappe toute l'équipe adverse
+  RALENTISSEMENT // Glace : allonge le délai entre deux actions de la cible
+
+  // Passifs
+  REGENERATION // Rend des PV à chaque tour
+  VOL_DE_VIE // Convertit une part des dégâts infligés en PV
+  EPINES // Renvoie une part des dégâts subis
+  CRITIQUE // Chance de doubler les dégâts
+}
+
+enum SpellElement {
+  NEUTRE
+  FEU
+  GLACE
+  FOUDRE
 }
 
 enum SpellSlot {
@@ -134,14 +152,21 @@ model PersonnageEquipment {
 }
 
 model Spell {
-  id     String      @id @default(cuid())
-  name   String
-  type   SpellType
-  effect SpellEffect
+  id      String       @id @default(cuid())
+  name    String
+  type    SpellType
+  effect  SpellEffect
+  element SpellElement @default(NEUTRE)
 
   // Dégâts : % de dégâts bonus. Soin : PV rendus. Étourdissement : nb de tours sautés.
   // Bonus stat : valeur ajoutée à targetStat. Réduction dégâts : % de dégâts subis en moins.
+  // Brûlure : % de dégâts par tour. Zone : % de dégâts sur chaque ennemi.
+  // Ralentissement : % de vitesse en moins. Régénération : % PV max par tour.
+  // Vol de vie / Épines / Critique : % appliqué à leur effet respectif.
   value Int
+
+  // Nombre de tours pendant lesquels l'effet persiste (brûlure, ralentissement).
+  duree Int @default(0)
 
   targetStat StatType?
   cooldown   Int        @default(3)

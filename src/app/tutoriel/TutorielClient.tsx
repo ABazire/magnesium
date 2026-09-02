@@ -4,15 +4,15 @@ import { useState, type ComponentType } from "react";
 import { terminerTutoriel } from "../actions/tutoriel";
 import { PersonnageIcon } from "@/components/pixel";
 import {
-  Star,
-  IdCard,
-  Box,
-  Package,
-  Hammer,
-  Compass,
-  Swords,
-  Trophy,
-} from "lucide-react";
+  IconeRubriqueRecrutement,
+  IconeRubriqueAccueil,
+  IconeCaisse,
+  IconeRubriqueInventaire,
+  IconeRubriqueForge,
+  IconeRubriqueAventure,
+  IconeRubriqueArene,
+  IconeRubriqueClassement,
+} from "@/components/pixel/IconesUI";
 import styles from "./page.module.css";
 
 const ETAPES: {
@@ -21,61 +21,61 @@ const ETAPES: {
   texte: string;
 }[] = [
   {
-    icone: Star,
+    icone: IconeRubriqueRecrutement,
     titre: "Bienvenue",
     texte:
       "Bienvenue, jeune recrue ! Je suis ton guide — installe-toi, on va faire le tour du jeu ensemble avant de te lâcher dans la nature.",
   },
   {
-    icone: IdCard,
+    icone: IconeRubriqueAccueil,
     titre: "Accueil & Équipes",
     texte:
       "La page d'Accueil est le cœur du jeu : tu y formes des équipes de 3 personnages, avec des flèches pour naviguer entre elles. Ces équipes servent en Aventure, et tu peux désigner l'une d'elles comme « équipe de défense » pour l'Arène en 3v3.",
   },
   {
-    icone: Box,
+    icone: IconeCaisse,
     titre: "Collection",
     texte:
       "Ta Collection regroupe tous tes personnages. Tu peux y consulter leurs statistiques, gérer leur équipement et leurs sorts, et les fusionner (ou les renvoyer contre des fragments) pour augmenter leur rareté.",
   },
   {
-    icone: Star,
+    icone: IconeRubriqueRecrutement,
     titre: "Recrutement",
     texte:
       "Le Recrutement te permet d'obtenir de nouveaux personnages contre de la monnaie ou des diamants, avec un tirage plus rare en version premium.",
   },
   {
-    icone: Package,
+    icone: IconeRubriqueInventaire,
     titre: "Inventaire",
     texte:
       "L'Inventaire est séparé en 3 catégories pour ne pas tout mélanger : Objets (tes matériaux de craft), Équipement, et Sorts — chacun avec ses propres filtres.",
   },
   {
-    icone: Hammer,
+    icone: IconeRubriqueForge,
     titre: "Forge",
     texte:
       "La Forge te permet de fabriquer équipement et sorts à partir des matériaux récoltés en Aventure, plus un peu d'or. Tu peux aussi y fusionner des objets en double pour les faire monter en rareté.",
   },
   {
-    icone: Compass,
+    icone: IconeRubriqueAventure,
     titre: "Aventure",
     texte:
       "En Aventure, tu envoies une équipe affronter des monstres (loup, ours, slime, élémentaire, griffon, serpent de cristal...) pour gagner de la monnaie, de l'expérience, des matériaux, et parfois du butin.",
   },
   {
-    icone: Swords,
+    icone: IconeRubriqueArene,
     titre: "Arène",
     texte:
       "L'Arène t'oppose à d'autres joueurs : en 1v1 avec un personnage au choix, ou en 3v3 avec une équipe complète contre l'équipe de défense de ton adversaire.",
   },
   {
-    icone: Trophy,
+    icone: IconeRubriqueClassement,
     titre: "Classement",
     texte:
       "Le Classement affiche les meilleurs joueurs en 1v1 et en 3v3. Grimpe en gagnant des combats d'Arène !",
   },
   {
-    icone: Star,
+    icone: IconeRubriqueRecrutement,
     titre: "À toi de jouer",
     texte:
       "Avant de commencer, voici un premier personnage, une arme, et une équipe déjà formée pour t'accompagner. Bonne chance !",

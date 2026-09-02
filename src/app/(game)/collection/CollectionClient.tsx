@@ -11,7 +11,11 @@ import {
   PersonnageIcon,
   SwordIcon,
 } from "@/components/pixel";
-import { Flame, HeartPulse, Snowflake, Shield, Sparkles, Droplet } from "lucide-react";
+import {
+  ICONE_EFFET_SORT,
+  IconeMagie,
+  IconeMana,
+} from "@/components/pixel/IconesUI";
 import {
   equiperObjet,
   desequiperObjet,
@@ -71,14 +75,6 @@ const SORT_SLOTS: { slot: SpellSlot; label: string }[] = [
   { slot: "SORT_3", label: "Sort 3" },
   { slot: "PASSIF", label: "Passif" },
 ];
-
-const ICONE_EFFET: Record<string, ComponentType<{ size?: number }>> = {
-  DEGATS: Flame,
-  SOIN: HeartPulse,
-  ETOURDISSEMENT: Snowflake,
-  BONUS_STAT: Sparkles,
-  REDUCTION_DEGATS: Shield,
-};
 
 
 export default function CollectionClient({
@@ -278,7 +274,7 @@ export default function CollectionClient({
                   <AmuletIcon size={16} /> Agilité: {stats.agilite}
                 </p>
                 <p>
-                  <Droplet size={16} /> Mana: {stats.mana}
+                  <IconeMana size={16} /> Mana: {stats.mana}
                 </p>
               </div>
 
@@ -347,7 +343,7 @@ export default function CollectionClient({
                 {SORT_SLOTS.map(({ slot, label }) => {
                   const lien = selectionne.spells.find((s) => s.slot === slot);
                   const IconeSort = lien
-                    ? (ICONE_EFFET[lien.spell.effect] ?? Sparkles)
+                    ? (ICONE_EFFET_SORT[lien.spell.effect] ?? IconeMagie)
                     : null;
 
                   return (

@@ -5,17 +5,17 @@ import type { CombatEvent3v3 } from "@/lib/combatEquipe";
 import { AnimatedSprite, EffetSprite } from "@/components/pixel/AnimatedSprite";
 import { apparencePersonnage } from "@/components/pixel/combattants";
 import {
-  EFFET_COUP,
-  PALETTE_COUP,
-  EFFET_IMPACT,
-  PALETTE_IMPACT,
-  EFFET_SOIN,
-  PALETTE_SOIN,
-  EFFET_ETOURDI,
-  PALETTE_ETOURDI,
   EFFET_SORT,
   PALETTE_SORT,
 } from "@/components/pixel/animations";
+import {
+  acteurCible,
+  appliquerEvenement,
+  estImpact,
+  estSort,
+  effetVisuel,
+  libelleEvenement,
+} from "./combatEvents";
 import styles from "./TeamVsTeamViewer.module.css";
 
 type Fighter3v3 = {
@@ -37,52 +37,6 @@ type Props = {
   onTermine?: () => void;
 };
 
-function acteurCible(ev: CombatEvent3v3): { acteur?: string; cible?: string } {
-  switch (ev.type) {
-    case "dodge":
-    case "hit":
-    case "spellDegats":
-      return { acteur: ev.attackerId, cible: ev.defenderId };
-    case "spellSoin":
-      return { acteur: ev.casterId, cible: ev.casterId };
-    case "spellEtourdissement":
-      return { acteur: ev.casterId, cible: ev.targetId };
-    case "stun":
-      return { acteur: ev.personnageId };
-    case "ko":
-      return { cible: ev.personnageId };
-  }
-}
-
-function estSort(ev: CombatEvent3v3) {
-  return (
-    ev.type === "spellDegats" ||
-    ev.type === "spellSoin" ||
-    ev.type === "spellEtourdissement"
-  );
-}
-
-function decrireEvenement(
-  ev: CombatEvent3v3,
-  nom: (id: string) => string,
-): string {
-  switch (ev.type) {
-    case "dodge":
-      return `${nom(ev.defenderId)} esquive l'attaque de ${nom(ev.attackerId)}`;
-    case "hit":
-      return `${nom(ev.attackerId)} inflige ${ev.damage} dégâts à ${nom(ev.defenderId)}`;
-    case "spellDegats":
-      return `${nom(ev.attackerId)} lance ${ev.spellName} : ${ev.damage} dégâts à ${nom(ev.defenderId)}`;
-    case "spellSoin":
-      return `${nom(ev.casterId)} lance ${ev.spellName} et récupère ${ev.heal} PV`;
-    case "spellEtourdissement":
-      return `${nom(ev.casterId)} lance ${ev.spellName} : ${nom(ev.targetId)} est étourdi`;
-    case "stun":
-      return `${nom(ev.personnageId)} est étourdi et ne peut pas agir`;
-    case "ko":
-      return `${nom(ev.personnageId)} est hors combat !`;
-  }
-}
 
 export default function TeamVsTeamViewer({
   equipeA,
@@ -118,16 +72,7 @@ export default function TeamVsTeamViewer({
   }
 
   for (let i = 0; i < step; i++) {
-    const ev = events[i];
-    if (ev.type === "hit" || ev.type === "spellDegats") {
-      vie[ev.defenderId] = ev.defenderHpAfter;
-    } else if (ev.type === "spellSoin") {
-      vie[ev.casterId] = ev.casterHpAfter;
-    }
-    if ("manaApres" in ev) {
-      const { acteur } = acteurCible(ev);
-      if (acteur && acteur in mana) mana[acteur] = ev.manaApres;
-    }
+    appliquerEvenement(vie, mana, events[i]);
   }
 
   const termine = step >= events.length;
@@ -160,7 +105,7 @@ export default function TeamVsTeamViewer({
     }
     if (
       cible === id &&
-      (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats")
+      estImpact(evenementActuel)
     ) {
       return "touche";
     }
@@ -176,18 +121,7 @@ export default function TeamVsTeamViewer({
     }
     if (cible !== id) return null;
 
-    switch (ev.type) {
-      case "hit":
-        return { frames: EFFET_COUP, palette: PALETTE_COUP };
-      case "spellDegats":
-        return { frames: EFFET_IMPACT, palette: PALETTE_IMPACT };
-      case "spellSoin":
-        return { frames: EFFET_SOIN, palette: PALETTE_SOIN };
-      case "spellEtourdissement":
-        return { frames: EFFET_ETOURDI, palette: PALETTE_ETOURDI };
-      default:
-        return null;
-    }
+    return effetVisuel(ev);
   }
 
   function renderColonne(equipe: Fighter3v3[], flip: boolean) {
@@ -255,7 +189,7 @@ export default function TeamVsTeamViewer({
   const secousse =
     !termine &&
     evenementActuel &&
-    (evenementActuel.type === "hit" || evenementActuel.type === "spellDegats");
+    estImpact(evenementActuel);
 
   return (
     <div className={styles.viewer}>
@@ -279,7 +213,7 @@ export default function TeamVsTeamViewer({
             {winnerSide === "A" ? nomA : nomB} remporte le combat !
           </p>
         ) : (
-          evenementActuel && <p>{decrireEvenement(evenementActuel, nom)}</p>
+          evenementActuel && <p>{libelleEvenement(evenementActuel, nom)}</p>
         )}
       </div>
 

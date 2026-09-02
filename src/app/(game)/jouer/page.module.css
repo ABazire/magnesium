@@ -6,14 +6,14 @@
 
 .erreurAction {
   color: #ef4444;
-  font-size: 12px;
+  font-size: 14px;
   text-align: center;
   margin-bottom: 12px;
 }
 
 .stars {
   color: #e9ec9f;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 1px;
 }
 
@@ -28,16 +28,16 @@
 }
 
 .flecheButton {
-  background: transparent;
-  border: 1.5px solid #1e3a2f;
+  background: #16241f;
+  border: 3px solid #4a5c38;
   color: #ffffff;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4);
 }
 
 .flecheButton:hover:not(:disabled) {
@@ -63,7 +63,7 @@
   border: none;
   color: #ffffff;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
   padding: 0;
@@ -71,17 +71,17 @@
 
 .equipeCompteur {
   color: #4d7266;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .renommageInput {
   background: transparent;
-  border: 1.5px solid #10b981;
-  border-radius: 8px;
+  border: 2px solid #10b981;
+  border-radius: 0;
   padding: 6px 10px;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 15px;
   outline: none;
   text-align: center;
 }
@@ -131,7 +131,7 @@
   align-items: center;
   gap: 4px;
   color: #10b981;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   margin-top: 2px;
@@ -144,7 +144,7 @@
   gap: 12px;
   padding: 60px 0;
   color: #4d7266;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .creationRow {
@@ -180,15 +180,25 @@
 
 .teamCard {
   width: 100%;
-  border-radius: 20px;
+  border-radius: 0;
   overflow: hidden;
+  /* Double encadrement : liseré clair à l'extérieur, trait sombre à
+     l'intérieur. C'est le cadre à deux valeurs des menus 16 bits. */
   border: 3px solid #eaeda0;
+  outline: 3px solid #1b2f1e;
+  outline-offset: -6px;
   background: transparent;
   cursor: pointer;
   padding: 0;
   min-height: 500px;
   position: relative;
   margin-block: 50px 25px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.45);
+  transition: transform 120ms steps(2);
+}
+
+.teamCard:hover {
+  transform: translateY(-3px);
 }
 
 .teamCardRetirer {
@@ -197,11 +207,10 @@
   right: -6px;
   width: 26px;
   height: 26px;
-  border-radius: 50%;
   background: #16241f;
-  border: 1.5px solid #eaeda0;
+  border: 2px solid #eaeda0;
   color: #ef4444;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
   display: flex;
@@ -229,22 +238,22 @@
   justify-content: center;
   width: 54px;
   height: 54px;
-  border-radius: 50%;
   background: #16241f;
-  border: 2.5px solid #eaeda0;
+  border: 3px solid #eaeda0;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45);
   z-index: 2;
 }
 
 .levelBadgeLabel {
   color: #ffffff;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .levelBadgeValue {
   color: #ffffff;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -262,14 +271,14 @@
 
 .cardName {
   color: #ffffff;
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .barTrack {
   width: 100%;
   min-height: 12px;
-  border-radius: 4px;
+  border-radius: 0;
   overflow: hidden;
   background: #1f272a;
   margin-top: 2px;
@@ -277,12 +286,14 @@
 
 .hpBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #ef4444, #f87171);
+  background: #e2453f;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
 }
 
 .xpBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #5cc8ff, #10b981);
+  background: #34b3a0;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
 }
 
 .teamSlotEmpty {
@@ -292,7 +303,7 @@
   align-items: center;
   justify-content: center;
   border: 3px solid #e9ec9f;
-  border-radius: 20px;
+  border-radius: 0;
   background-color: rgba(31, 39, 42, 0.25);
   margin-block: 50px 25px;
   cursor: pointer;
@@ -321,7 +332,7 @@
 .pickerTitle {
   color: #ffffff;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 12px;
   text-align: center;
@@ -335,12 +346,19 @@
   margin: 0 auto;
   background: #e9ec9f;
   color: #16241f;
-  font-weight: 800;
-  font-size: 12px;
+  font-family: var(--font-titre), monospace;
+  font-weight: 700;
+  font-size: 14px;
   text-transform: uppercase;
   text-decoration: none;
-  border-radius: 999px;
+  border-radius: 0;
   padding: 10px 24px;
+  border: 3px solid #1b2f1e;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+}
+
+.collectionButton:hover {
+  background: #f4f7b4;
 }
 
 /* --- Contenu de la modal --- */
@@ -356,7 +374,7 @@
 .detailName {
   color: #ffffff;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .statContainer {
@@ -371,14 +389,14 @@
   align-items: center;
   gap: 8px;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 15px;
   margin: 0;
 }
 
 .subLabel {
   display: block;
   color: #10b981;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -402,8 +420,8 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 10px;
+  border: 2px solid #1e3a2f;
+  border-radius: 0;
   background: rgba(16, 185, 129, 0.05);
   cursor: pointer;
 }
@@ -419,7 +437,7 @@
 
 .slotFilled {
   color: #10b981;
-  font-size: 9px;
+  font-size: 11px;
   text-align: center;
   padding: 0 4px;
 }
@@ -434,8 +452,8 @@
   flex-direction: column;
   gap: 4px;
   background: #0f1a16;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 10px;
+  border: 2px solid #1e3a2f;
+  border-radius: 0;
   padding: 8px;
 }
 
@@ -444,9 +462,9 @@
   background: transparent;
   border: none;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 13px;
   padding: 6px 8px;
-  border-radius: 6px;
+  border-radius: 0;
   cursor: pointer;
 }
 
@@ -456,7 +474,7 @@
 
 .pickerEmpty {
   color: #4d7266;
-  font-size: 11px;
+  font-size: 13px;
   padding: 6px 8px;
 }
 
@@ -475,13 +493,13 @@
 
 .detailLevel {
   color: #4d7266;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .xpTrack {
   width: 100%;
   height: 8px;
-  border-radius: 999px;
+  border-radius: 0;
   background: #1e3a2f;
   overflow: hidden;
   margin-top: 6px;
@@ -489,7 +507,8 @@
 
 .xpFill {
   height: 100%;
-  background: linear-gradient(90deg, #5cc8ff, #10b981);
+  background: #34b3a0;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
 }
 
 .cardRight {
@@ -501,7 +520,7 @@
 
 .sectionLabel {
   color: #10b981;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   margin-top: 10px;

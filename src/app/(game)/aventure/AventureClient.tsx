@@ -7,7 +7,12 @@ import {
   getMonstresDisponibles,
 } from "../../actions/aventure";
 import { WolfTierIcon, BearTierIcon, PersonnageIcon } from "@/components/pixel";
-import { Droplets, Sparkles, Feather, Gem } from "lucide-react";
+import {
+  IconeMana,
+  IconeMagie,
+  IconePlume,
+  IconeGemmeUI,
+} from "@/components/pixel/IconesUI";
 import TeamCombatViewer from "@/components/TeamCombatViewer";
 import Modal from "@/components/Modal";
 import { NOMS_MATERIAU } from "@/lib/monsterDrops";
@@ -86,10 +91,10 @@ const ICONE_BASE: Record<
 > = {
   Loup: WolfTierIcon,
   Ours: BearTierIcon,
-  Slime: sansTier(Droplets),
-  Élémentaire: sansTier(Sparkles),
-  Griffon: sansTier(Feather),
-  "Serpent de Cristal": sansTier(Gem),
+  Slime: sansTier(IconeMana),
+  Élémentaire: sansTier(IconeMagie),
+  Griffon: sansTier(IconePlume),
+  "Serpent de Cristal": sansTier(IconeGemmeUI),
 };
 
 const ZONES = [

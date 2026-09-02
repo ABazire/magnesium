@@ -10,11 +10,11 @@
   display: inline-block;
   min-width: 32px;
   color: #4d7266;
-  font-size: 12px;
+  font-size: 14px;
   text-align: center;
   text-decoration: none;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 8px;
+  border: 2px solid #1e3a2f;
+  border-radius: 0;
   padding: 6px 12px;
 }
 
@@ -27,24 +27,24 @@
   display: inline-block;
   min-width: 32px;
   color: #16241f;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-align: center;
   text-decoration: none;
   background: #10b981;
-  border: 1.5px solid #10b981;
-  border-radius: 8px;
+  border: 2px solid #10b981;
+  border-radius: 0;
   padding: 6px 12px;
 }
 
 .pageNav {
   color: #ffffff;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
   text-decoration: none;
-  border: 1.5px solid #1e3a2f;
-  border-radius: 8px;
+  border: 2px solid #1e3a2f;
+  border-radius: 0;
   padding: 6px 12px;
 }
 
@@ -61,6 +61,6 @@
 
 .ellipsis {
   color: #4d7266;
-  font-size: 12px;
+  font-size: 14px;
   padding: 0 4px;
 }

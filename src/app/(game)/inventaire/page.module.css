@@ -194,3 +194,27 @@
 .cardNiveau {
   color: #10b981;
 }
+
+/* --------------------------------------------------------------- Responsive */
+
+@media (max-width: 700px) {
+  .page {
+    padding: 16px 8px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .tabs {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+}

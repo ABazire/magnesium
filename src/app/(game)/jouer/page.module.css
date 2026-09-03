@@ -536,3 +536,33 @@
     align-items: center;
   }
 }
+
+@media (max-width: 700px) {
+  .page {
+    padding: 16px 8px;
+  }
+
+  /* Les 65% de largeur laissaient les cartes minuscules et perdues dans le
+     vide sur téléphone — sur un seul écran étroit, autant utiliser la place. */
+  .teamRow {
+    width: 100%;
+  }
+
+  .cardTop {
+    height: 220px;
+  }
+
+  .teamCard,
+  .teamSlotEmpty {
+    min-height: 340px;
+    height: auto;
+  }
+
+  .sliderHeader {
+    gap: 8px;
+  }
+
+  .sliderTitre {
+    min-width: 100px;
+  }
+}

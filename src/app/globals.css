@@ -127,6 +127,18 @@ textarea:focus {
   border-color: var(--vert);
 }
 
+/* Coquille de page : une largeur fixe à 80% gaspillait de la place sur
+   mobile (300px utiles sur un écran de 375px) sans rien apporter sur grand
+   écran (les pages plafonnent déjà leur propre max-width). Une marge en
+   clamp() donne de l'air aux petits écrans et se stabilise sur les grands. */
+.coquille {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-inline: clamp(10px, 4vw, 48px);
+  box-sizing: border-box;
+}
+
 /* ==========================================================================
    Habillage écran — fine trame horizontale, comme un vieux moniteur.
    Purement décoratif, ne capte aucun clic.

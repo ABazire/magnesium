@@ -143,7 +143,21 @@
    RESPONSIVE
    ========================================================= */
 
+/* En dessous de 700px, la maquette desktop ne tient plus : le bandeau
+   d'origine repose sur deux blocs de 300px de large de part et d'autre du
+   menu (un espaceur invisible à gauche, les compteurs de ressources à
+   droite) rien que pour centrer le menu visuellement. Cette largeur fixe
+   dépasse à elle seule la largeur d'un téléphone — elle doit disparaître ici,
+   pas juste rétrécir. */
 @media (max-width: 700px) {
+  .header {
+    padding-inline: 10px;
+  }
+
+  .header > div {
+    width: auto;
+  }
+
   .nav {
     height: 72px;
   }
@@ -153,13 +167,13 @@
   }
 
   .items {
-    gap: 3px;
-    padding: 0 15px;
+    gap: 2px;
+    padding: 0 10px;
   }
 
   .item {
-    width: 54px;
-    flex-basis: 54px;
+    width: 42px;
+    flex-basis: 42px;
     height: 52px;
   }
 
@@ -168,23 +182,53 @@
   }
 
   .infos {
-    font-size: 16px;
-    gap: 6px;
+    font-size: 14px;
+    gap: 4px;
+  }
+
+  .currency {
+    padding: 3px 6px;
   }
 }
 
 @media (max-width: 480px) {
+  .header {
+    flex-direction: column;
+    gap: 8px;
+    padding-block: 8px;
+  }
+
+  /* Le menu n'a plus besoin d'être équilibré par un espaceur : sur une seule
+     colonne, il se centre tout seul. */
+  .header > div:first-child {
+    display: none;
+  }
+
   .items {
     gap: 0;
-    padding: 0 5px;
+    padding: 0 4px;
   }
 
   .item {
-    width: 45px;
-    flex-basis: 45px;
+    width: 34px;
+    flex-basis: 34px;
+  }
+
+  /* Les icônes sont du SVG dimensionné en JS (attribut width/height, pas du
+     CSS) : un scale() est le seul levier purement CSS pour les faire
+     rentrer dans une case aussi étroite sans toucher au composant. */
+  .icon {
+    transform: scale(0.82);
   }
 
   .infos {
-    display: none;
+    grid-template-columns: repeat(4, 1fr);
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .currency {
+    padding: 3px 4px;
+    justify-content: center;
   }
 }

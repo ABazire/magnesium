@@ -246,3 +246,23 @@
   font-weight: 700;
   text-transform: uppercase;
 }
+
+@media (max-width: 600px) {
+  .page {
+    padding: 16px 8px;
+  }
+
+  .renforcementLigne {
+    flex-wrap: wrap;
+  }
+
+  .renforcementInfo {
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .renforcerButton {
+    order: 2;
+    margin-left: 42px;
+  }
+}

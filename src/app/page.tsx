@@ -9,6 +9,7 @@ import {
   apparenceMonstre,
   apparencePersonnage,
 } from "@/components/pixel/combattants";
+import LogoArena from "@/components/pixel/LogoArena";
 
 import styles from "./page.module.css";
 
@@ -51,7 +52,7 @@ export default function LoginPage() {
 
   return (
     <main className={styles.ecran}>
-      <h1 className={styles.titre}>MAGNESIUM</h1>
+      <LogoArena width={320} className={styles.logo} />
       <p className={styles.sousTitre}>Recrute. Équipe. Combats.</p>
 
       <div className={styles.heros}>

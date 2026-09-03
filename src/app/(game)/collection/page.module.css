@@ -270,6 +270,39 @@
   }
 }
 
+/* La grille et le panneau de détail sont côte à côte sur desktop ; sous
+   860px il n'y a plus la place pour les deux, le panneau passe en dessous
+   et perd son sticky (il suivrait le scroll d'une colonne qui n'existe
+   plus). */
+@media (max-width: 860px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .details {
+    position: static;
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 16px 8px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+}
+
 .slot {
   width: 100%;
   aspect-ratio: 1;

@@ -10,16 +10,12 @@
 
 /* Le titre est doublé : une copie décalée d'un pixel entier sert d'ombre.
    text-shadow avec un blur nul donne exactement le contour des logos 8 bits. */
-.titre {
-  color: #e9ec9f;
-  font-size: clamp(28px, 7vw, 56px);
-  font-weight: 700;
-  letter-spacing: 4px;
-  text-align: center;
-  margin: 0;
-  text-shadow:
-    4px 4px 0 #1b2f1e,
-    8px 8px 0 rgba(0, 0, 0, 0.45);
+/* Le logo est du SVG (voir LogoArena) : l'ombre portée s'applique au tracé
+   plutôt qu'à un fond rectangulaire, contrairement à text-shadow. */
+.logo {
+  filter: drop-shadow(4px 4px 0 #1b2f1e) drop-shadow(8px 8px 0 rgba(0, 0, 0, 0.45));
+  max-width: 90vw;
+  height: auto;
 }
 
 .sousTitre {

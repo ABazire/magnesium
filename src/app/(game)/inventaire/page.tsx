@@ -376,7 +376,7 @@ async function InventaireEquipement({
               return (
                 <DemantelerButton
                   key={e.id}
-                  action={() => demantelerEquipement(e.id)}
+                  action={demantelerEquipement.bind(null, e.id)}
                   confirmText={`Démanteler ${e.name} contre ${orDemantelementEquipement(e.rarity?.stars ?? 1)} or ? Cette action est définitive.`}
                   className={styles.cardButton}
                 >
@@ -643,7 +643,7 @@ async function InventaireSorts({
               return (
                 <DemantelerButton
                   key={s.id}
-                  action={() => demantelerSort(s.id)}
+                  action={demantelerSort.bind(null, s.id)}
                   confirmText={`Démanteler ${s.name} contre ${orDemantelementSort(s.rarity?.stars ?? 1)} or ? Cette action est définitive.`}
                   className={styles.cardButton}
                 >

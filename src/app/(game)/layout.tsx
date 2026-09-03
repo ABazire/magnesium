@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import NavBar from "@/components/NavBar";
 import VersionTag from "@/components/VersionTag";
 import { getEnergieEtCoupons } from "@/lib/energy";
+import { enregistrerConnexionQuotidienne } from "@/lib/quetes";
+import QuetesPanel from "@/components/QuetesPanel";
 
 export default async function GameLayout({
   children,
@@ -23,6 +25,12 @@ export default async function GameLayout({
     redirect("/tutoriel");
   }
 
+  // Une fois par jour, en dehors du chemin critique de rendu : la mise à
+  // jour du streak ne doit jamais faire échouer l'affichage de la page.
+  if (session?.user?.id && user) {
+    enregistrerConnexionQuotidienne(session.user.id).catch(() => {});
+  }
+
   const ressources = session?.user?.id
     ? await getEnergieEtCoupons(session.user.id)
     : { energy: 0, coupons: 0 };
@@ -37,6 +45,7 @@ export default async function GameLayout({
         coupons={ressources.coupons}
       />
       <div>{children}</div>
+      {user && <QuetesPanel />}
     </div>
   );
 }

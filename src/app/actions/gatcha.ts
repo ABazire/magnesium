@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { tirerRarete, tirerRaretePremium } from "@/lib/rarity";
+import { progresserQuete } from "@/lib/quetes";
 
 const COUT_TIRAGE = 100;
 const COUT_PREMIUM = 75;
@@ -14,6 +15,42 @@ const NOMS_ALEATOIRES = [
   "Ossaria",
   "Nyxelle",
   "Grommosh",
+  "Thalindra",
+  "Karnog",
+  "Elyndris",
+  "Draveth",
+  "Sylvaka",
+  "Morgrath",
+  "Zephyrine",
+  "Baldrek",
+  "Isolde",
+  "Rurik",
+  "Vaelith",
+  "Corvinne",
+  "Hagrim",
+  "Selunara",
+  "Torvek",
+  "Amberlyn",
+  "Doryan",
+  "Ithriel",
+  "Krognar",
+  "Faelynn",
+  "Grendric",
+  "Lyssara",
+  "Modrick",
+  "Nyveth",
+  "Osrune",
+  "Perenna",
+  "Quorrik",
+  "Ravenna",
+  "Skjald",
+  "Tamriel",
+  "Ulfrik",
+  "Veyna",
+  "Wystrel",
+  "Xanthir",
+  "Yggara",
+  "Zaltheor",
 ];
 
 function randomStat(min: number, max: number): number {
@@ -67,6 +104,8 @@ export async function tirerGatcha(): Promise<ResultatGatcha> {
       data: { name, ...stats, rarityId: rarete.id, ownerId: session.user.id },
     }),
   ]);
+
+  await progresserQuete(session.user.id, "INVOCATION");
 
   revalidatePath("/gatcha");
   revalidatePath("/jouer");
@@ -130,6 +169,8 @@ export async function tirerGatchaPremium(): Promise<ResultatGatchaPremium> {
       data: { name, ...stats, rarityId: rarete.id, ownerId: session.user.id },
     }),
   ]);
+
+  await progresserQuete(session.user.id, "INVOCATION");
 
   revalidatePath("/gatcha");
   revalidatePath("/jouer");

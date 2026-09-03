@@ -4,11 +4,15 @@ import {
   ICONE_ARENE,
   ICONE_AVENTURE,
   ICONE_CLASSEMENT,
+  ICONE_ENERGIE,
   ICONE_FORGE,
   ICONE_GEMME,
   ICONE_INVENTAIRE,
+  ICONE_PIECE,
   ICONE_RECRUTEMENT,
+  PALETTE_ENERGIE,
   PALETTE_GEMME,
+  PALETTE_PIECE,
   paletteIcone,
 } from "./icones";
 
@@ -170,6 +174,8 @@ export const IconeCaisse = fabriquer(CAISSE, {
 });
 export const IconePlume = fabriquer(PLUME, { p: "#7c9a90", c: "#e6f0ec" });
 export const IconeGemmeUI = fabriquer(ICONE_GEMME, PALETTE_GEMME);
+export const IconePieceUI = fabriquer(ICONE_PIECE, PALETTE_PIECE);
+export const IconeEnergieUI = fabriquer(ICONE_ENERGIE, PALETTE_ENERGIE);
 
 /* Actions : elles suivent la couleur du texte autour, comme le faisaient les
    icônes au trait qu'elles remplacent. */

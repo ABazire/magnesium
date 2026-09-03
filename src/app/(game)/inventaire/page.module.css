@@ -173,3 +173,24 @@
   letter-spacing: 0.5px;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
 }
+
+/* Prix de démantèlement, affiché sur les objets/sorts non équipés — le clic
+   sur la carte les démantèle (avec confirmation), comme le clic sur une
+   carte équipée la déséquipe. */
+.prixBadge {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  background: rgba(15, 26, 22, 0.75);
+  color: #f2c94c;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 0;
+}
+
+/* Niveau de renforcement, en suffixe du nom sur la carte. */
+.cardNiveau {
+  color: #10b981;
+}

@@ -15,6 +15,10 @@ import {
 } from "@/components/pixel/IconesUI";
 import { desequiperObjet } from "../../actions/equiper";
 import { desequiperSort } from "../../actions/sorts";
+import { demantelerEquipement, demantelerSort } from "../../actions/demanteler";
+import { orDemantelementEquipement, orDemantelementSort } from "@/lib/craft";
+import { bonusValueEffectif, NOMS_ENSEMBLE } from "@/lib/equipmentSet";
+import DemantelerButton from "@/components/DemantelerButton";
 import FilterBar from "@/components/FilterBar";
 import Pagination from "@/components/Pagination";
 import FusionEquipement from "@/components/FusionEquipement";
@@ -338,15 +342,19 @@ async function InventaireEquipement({
             const carte = (
               <div
                 className={styles.card}
+                title={e.ensemble ? NOMS_ENSEMBLE[e.ensemble] : undefined}
                 style={{
                   background: `linear-gradient(160deg, ${couleur}bb, ${couleur}55)`,
                   borderColor: couleur,
                 }}
               >
-                <span className={styles.cardLabel}>{e.name.toUpperCase()}</span>
+                <span className={styles.cardLabel}>
+                  {e.name.toUpperCase()}
+                  {e.niveau > 0 && <span className={styles.cardNiveau}> +{e.niveau}</span>}
+                </span>
                 <Icone size={40} />
                 <span className={styles.cardBonus}>
-                  +{e.bonusValue} {e.bonusStat}
+                  +{bonusValueEffectif(e.bonusValue, e.niveau)} {e.bonusStat}
                 </span>
                 <span className={styles.cardStars}>
                   {"★".repeat(e.rarity?.stars ?? 0)}
@@ -356,14 +364,24 @@ async function InventaireEquipement({
                     {e.equippedOn!.personnage.name}
                   </span>
                 )}
+                {!estEquipe && (
+                  <span className={styles.prixBadge}>
+                    +{orDemantelementEquipement(e.rarity?.stars ?? 1)} or
+                  </span>
+                )}
               </div>
             );
 
             if (!estEquipe) {
               return (
-                <div key={e.id} className={styles.cardWrapper}>
+                <DemantelerButton
+                  key={e.id}
+                  action={() => demantelerEquipement(e.id)}
+                  confirmText={`Démanteler ${e.name} contre ${orDemantelementEquipement(e.rarity?.stars ?? 1)} or ? Cette action est définitive.`}
+                  className={styles.cardButton}
+                >
                   {carte}
-                </div>
+                </DemantelerButton>
               );
             }
 
@@ -613,14 +631,24 @@ async function InventaireSorts({
                     {s.equippedOn!.personnage.name}
                   </span>
                 )}
+                {!estEquipe && (
+                  <span className={styles.prixBadge}>
+                    +{orDemantelementSort(s.rarity?.stars ?? 1)} or
+                  </span>
+                )}
               </div>
             );
 
             if (!estEquipe) {
               return (
-                <div key={s.id} className={styles.cardWrapper}>
+                <DemantelerButton
+                  key={s.id}
+                  action={() => demantelerSort(s.id)}
+                  confirmText={`Démanteler ${s.name} contre ${orDemantelementSort(s.rarity?.stars ?? 1)} or ? Cette action est définitive.`}
+                  className={styles.cardButton}
+                >
                   {carte}
-                </div>
+                </DemantelerButton>
               );
             }
 

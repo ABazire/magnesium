@@ -11,6 +11,10 @@ import {
 
 import { bonusStatsParNiveau } from "./leveling";
 import { VIE_PAR_POINT } from "./statsConstantes";
+import {
+  bonusValueEffectif,
+  effetsEnsemblesActifs,
+} from "./equipmentSet";
 
 type PersonnageAvecEquipement = Personnage & {
   equipment: (PersonnageEquipment & { equipment: Equipment })[];
@@ -32,7 +36,7 @@ export function statsEffectives(personnage: PersonnageAvecEquipement) {
   };
 
   for (const pe of personnage.equipment) {
-    const bonus = pe.equipment.bonusValue;
+    const bonus = bonusValueEffectif(pe.equipment.bonusValue, pe.equipment.niveau);
     switch (pe.equipment.bonusStat) {
       case StatType.FORCE:
         stats.force += bonus;
@@ -46,6 +50,16 @@ export function statsEffectives(personnage: PersonnageAvecEquipement) {
       case StatType.AGILITE:
         stats.agilite += bonus;
         break;
+    }
+  }
+
+  // Effets d'ensemble (2 ou 4 pièces d'un même ensemble) : indépendants du
+  // slot d'origine, calculés une fois sur l'ensemble des objets équipés.
+  for (const effet of effetsEnsemblesActifs(personnage.equipment)) {
+    if (effet.type === "stat") {
+      if (effet.stat === "force") stats.force += effet.valeur;
+      else if (effet.stat === "vitesse") stats.vitesse += effet.valeur;
+      else if (effet.stat === "vie") stats.vie += effet.valeur * VIE_PAR_POINT;
     }
   }
 
@@ -111,30 +125,38 @@ const PASSIFS_VIDES: PassifsCombat = {
 export function passifsCombat(
   personnage: PersonnageAvecEquipement,
 ): PassifsCombat {
-  const passif = personnage.spells?.find((ps) => ps.slot === "PASSIF")?.spell;
-  if (!passif) return { ...PASSIFS_VIDES };
-
   const valeurs = { ...PASSIFS_VIDES };
-  switch (passif.effect) {
+
+  const passif = personnage.spells?.find((ps) => ps.slot === "PASSIF")?.spell;
+  switch (passif?.effect) {
     case SpellEffect.REDUCTION_DEGATS:
-      valeurs.reductionDegats = passif.value;
+      valeurs.reductionDegats += passif.value;
       break;
     case SpellEffect.REGENERATION:
-      valeurs.regeneration = passif.value;
+      valeurs.regeneration += passif.value;
       break;
     case SpellEffect.VOL_DE_VIE:
-      valeurs.volDeVie = passif.value;
+      valeurs.volDeVie += passif.value;
       break;
     case SpellEffect.EPINES:
-      valeurs.epines = passif.value;
+      valeurs.epines += passif.value;
       break;
     case SpellEffect.CRITIQUE:
-      valeurs.critique = passif.value;
+      valeurs.critique += passif.value;
       break;
     default:
-      // BONUS_STAT est déjà appliqué dans statsEffectives.
+      // BONUS_STAT est déjà appliqué dans statsEffectives ; pas de sort
+      // passif équipé n'est pas non plus un cas particulier.
       break;
   }
+
+  // Les effets d'ensemble s'ajoutent que le personnage ait ou non un sort
+  // passif équipé : ce sont deux sources de bonus indépendantes.
+  for (const effet of effetsEnsemblesActifs(personnage.equipment)) {
+    if (effet.type === "critique") valeurs.critique += effet.valeur;
+    if (effet.type === "reductionDegats") valeurs.reductionDegats += effet.valeur;
+  }
+
   return valeurs;
 }
 

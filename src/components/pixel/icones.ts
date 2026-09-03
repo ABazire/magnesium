@@ -94,6 +94,18 @@ export const ICONE_FORGE = [
   "....s....",
 ];
 
+export const ICONE_GUILDE = [
+  "...oooo..",
+  "..oppppo.",
+  "..oppppo.",
+  "..oppppo.",
+  "...oopo..",
+  "....s....",
+  "....s....",
+  "....s....",
+  "....s....",
+];
+
 /** Teinte une icône d'interface en une ou deux couleurs. */
 export function paletteIcone(
   principal: string,

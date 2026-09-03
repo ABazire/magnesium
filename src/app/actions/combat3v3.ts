@@ -15,6 +15,11 @@ import {
 import { gagnerXp } from "@/lib/leveling";
 import { calculerNouveauxRangs } from "@/lib/elo";
 import { revalidatePath } from "next/cache";
+import { progresserQuete } from "@/lib/quetes";
+
+// Le 3v3 est plus exigeant à préparer (équipe complète, pas de tirage
+// contre un bot) qu'un duel 1v1 : la récompense d'or suit.
+const GAIN_OR_VICTOIRE_3V3 = 50;
 
 async function chargerEquipe(teamId: string): Promise<PersonnageCombat3v3[]> {
   const team = await prisma.team.findUniqueOrThrow({
@@ -119,10 +124,15 @@ export async function lancerCombat3v3(teamId: string, defenderUserId: string) {
     },
   });
 
+  const gainOr = winnerSide === "A" ? GAIN_OR_VICTOIRE_3V3 : 0;
+
   await prisma.$transaction([
     prisma.user.update({
       where: { id: userId },
-      data: { rankPoints3v3: nouveauRankAttaquant },
+      data: {
+        rankPoints3v3: nouveauRankAttaquant,
+        ...(gainOr > 0 ? { currency: { increment: gainOr } } : {}),
+      },
     }),
     prisma.user.update({
       where: { id: defenderUserId },
@@ -130,6 +140,10 @@ export async function lancerCombat3v3(teamId: string, defenderUserId: string) {
     }),
     ...misesAJourNiveau,
   ]);
+
+  if (winnerSide === "A") {
+    await progresserQuete(userId, "VICTOIRE_ARENE");
+  }
 
   revalidatePath("/arene");
   redirect(`/arene3v3/${fight.id}`);

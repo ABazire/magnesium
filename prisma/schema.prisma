@@ -18,12 +18,82 @@ model User {
   coupons         Int      @default(10)
   couponsUpdatedAt DateTime @default(now())
 
+  // Connexion quotidienne : jour du dernier passage ("AAAA-MM-JJ") et
+  // nombre de jours consécutifs, pour la récompense de streak.
+  loginStreak   Int     @default(0)
+  lastLoginJour String?
+
   personnages Personnage[]
   equipments Equipment[]
   spells      Spell[]
   teams       Team[]
   materials   MaterialStack[]
   fragments   PersonnageFragment[]
+  quetes      QuestProgress[]
+
+  guilde   Guild?  @relation(fields: [guildeId], references: [id])
+  guildeId String?
+  guildeBossContributions GuildBossContribution[]
+}
+
+model Guild {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  leaderId  String
+
+  membres User[]
+  boss    GuildBoss?
+}
+
+// Boss coopératif : un seul par guilde, avec une réserve de vie partagée que
+// les membres entament au fil de leurs attaques quotidiennes. "cycle"
+// distingue les vies successives du boss (il repop plus costaud après
+// chaque défaite) sans perdre l'historique des contributions passées.
+model GuildBoss {
+  id      String @id @default(cuid())
+  guildId String @unique
+  guild   Guild  @relation(fields: [guildId], references: [id])
+
+  cycle        Int      @default(1)
+  vieMax       Int
+  vie          Int
+  cycleTermine Boolean  @default(false)
+  demarreLe    DateTime @default(now())
+
+  contributions GuildBossContribution[]
+}
+
+model GuildBossContribution {
+  id     String    @id @default(cuid())
+  bossId String
+  boss   GuildBoss @relation(fields: [bossId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  cycle              Int
+  degats             Int     @default(0)
+  attaquesAujourdhui Int     @default(0)
+  dernierJour        String?
+
+  @@unique([bossId, userId, cycle])
+}
+
+// Progression d'une quête pour un jour donné. La définition de la quête
+// (cible, récompense) vit dans le code (src/lib/quetes.ts) : cette table ne
+// garde que l'état, pour pouvoir ajuster le catalogue sans migration.
+model QuestProgress {
+  id      String  @id @default(cuid())
+  jour    String // "AAAA-MM-JJ"
+  cle     String // identifiant de la définition de quête
+  progres Int     @default(0)
+  reclame Boolean @default(false)
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  @@unique([ownerId, jour, cle])
 }
 
 model Rarity {
@@ -120,6 +190,14 @@ enum SpellSlot {
   PASSIF
 }
 
+enum EquipmentSet {
+  FORCE
+  ENDURANCE
+  CELERITE
+  PRECISION
+  REMPART
+}
+
 model Equipment {
   id      String        @id @default(cuid())
   name    String
@@ -127,6 +205,12 @@ model Equipment {
 
   bonusStat  StatType
   bonusValue Int
+
+  // Nullable : les objets créés avant l'introduction des sets n'en ont pas,
+  // et ne comptent simplement pour aucun bonus d'ensemble.
+  ensemble EquipmentSet?
+  // Niveau de renforcement (0 à 10), augmente bonusValue à l'usage.
+  niveau   Int           @default(0)
 
   rarity   Rarity @relation(fields: [rarityId], references: [id])
   rarityId String

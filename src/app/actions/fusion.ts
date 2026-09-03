@@ -6,6 +6,13 @@ import { revalidatePath } from "next/cache";
 import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
 import { RECETTES_FUSION_EQUIPEMENT } from "@/lib/craft";
 import { SEUILS_FUSION, coutFusionObjet, coutFusionPersonnage } from "@/lib/fusion";
+import { tirerEnsemble } from "@/lib/equipmentSet";
+
+// Gain par statistique à chaque évolution d'étoile. Choisi pour suivre la
+// progression moyenne entre deux paliers de rareté (RARETES dans
+// prisma/donnees.ts monte d'environ +5 au milieu de la plage à chaque
+// palier), sans dépendre de la plage exacte.
+const INCREMENT_STAT_EVOLUTION = 5;
 
 function randomStat(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -85,6 +92,7 @@ export async function fusionnerObjets(equipmentIds: string[]) {
         slot,
         bonusStat: SLOT_TO_STAT[slot],
         bonusValue,
+        ensemble: tirerEnsemble(),
         rarityId: nouvelleRarete.id,
         ownerId: userId,
       },
@@ -168,12 +176,17 @@ export async function fusionnerPersonnage(personnageId: string) {
       where: { id: personnageId },
       data: {
         rarityId: nouvelleRarete.id,
-        vie: randomStat(nouvelleRarete.statMin, nouvelleRarete.statMax),
-        force: randomStat(nouvelleRarete.statMin, nouvelleRarete.statMax),
-        vitesse: randomStat(nouvelleRarete.statMin, nouvelleRarete.statMax),
-        resistance: randomStat(nouvelleRarete.statMin, nouvelleRarete.statMax),
-        agilite: randomStat(nouvelleRarete.statMin, nouvelleRarete.statMax),
-        mana: 20 + randomStat(nouvelleRarete.statMin, nouvelleRarete.statMax),
+        // Incrément fixe plutôt qu'un nouveau tirage : réévoluer ne doit
+        // jamais pouvoir faire redescendre une statistique. Un personnage
+        // dont les jets étaient déjà bons au palier précédent le reste après
+        // évolution, il ne prend pas le risque de retomber vers le minimum
+        // de la nouvelle plage.
+        vie: personnage.vie + INCREMENT_STAT_EVOLUTION,
+        force: personnage.force + INCREMENT_STAT_EVOLUTION,
+        vitesse: personnage.vitesse + INCREMENT_STAT_EVOLUTION,
+        resistance: personnage.resistance + INCREMENT_STAT_EVOLUTION,
+        agilite: personnage.agilite + INCREMENT_STAT_EVOLUTION,
+        mana: personnage.mana + INCREMENT_STAT_EVOLUTION,
       },
     }),
   ]);

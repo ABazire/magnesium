@@ -108,10 +108,10 @@ export type CombatEvent3v3 =
 
 const BASE_TICK = 100;
 const FACTEUR_REDUCTION = 0.35;
-const ESQUIVE_MIN = 3;
-const ESQUIVE_MAX = 40;
+const ESQUIVE_MIN = 2;
+const ESQUIVE_MAX = 28;
 /** Poids de la force face à l'agilité dans le calcul d'esquive. */
-const POIDS_FORCE_ESQUIVE = 5;
+const POIDS_FORCE_ESQUIVE = 10;
 const MAX_TOURS = 600;
 /**
  * Régénération de mana, en fraction de la réserve maximale et par tour.
@@ -138,10 +138,11 @@ const VARIANCE_DEGATS = 0.15;
 /**
  * Chance d'esquive, en pourcentage.
  *
- * À statistiques égales l'ancienne formule donnait 50% : une attaque sur deux
- * dans le vide, et surtout un avantage énorme aux sorts, qui ne sont pas
- * esquivables. Le poids donné à la force ramène ce cas de figure autour de
- * 17%, une valeur qui laisse l'agilité utile sans rendre les coups aléatoires.
+ * Encore trop fréquente à 17% (un coup sur six dans le vide, ressenti comme
+ * "ça esquive beaucoup" sur un combat entier) : à statistiques égales elle
+ * tombe maintenant autour de 9%, un événement notable plutôt qu'un tirage
+ * régulier. Le plafond baisse en proportion pour qu'un build tout-agilité
+ * reste fort sans rendre un personnage quasi inatteignable.
  */
 function chanceEsquive(
   agiliteDefenseur: number,

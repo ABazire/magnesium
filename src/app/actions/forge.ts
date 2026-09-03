@@ -7,6 +7,8 @@ import { tirerRarete } from "@/lib/rarity";
 import { SLOT_TO_STAT, NOMS_PAR_SLOT } from "@/lib/equipment";
 import { genererSort } from "@/lib/spell";
 import { RECETTES_EQUIPEMENT, RECETTE_SORT, type Recette } from "@/lib/craft";
+import { progresserQuete } from "@/lib/quetes";
+import { tirerEnsemble } from "@/lib/equipmentSet";
 import { EquipmentSlot, MaterialType } from "@prisma/client";
 
 function randomStat(min: number, max: number): number {
@@ -95,11 +97,14 @@ export async function fabriquerEquipement(
         slot,
         bonusStat: SLOT_TO_STAT[slot],
         bonusValue,
+        ensemble: tirerEnsemble(),
         rarityId: rarete.id,
         ownerId: userId,
       },
     }),
   ]);
+
+  await progresserQuete(userId, "FABRICATION");
 
   revalidatePath("/forge");
   revalidatePath("/inventaire");
@@ -143,6 +148,8 @@ export async function fabriquerSort(): Promise<ResultatFabricationSort> {
     ...operationsConsommation(userId, recette),
     prisma.spell.create({ data: { ...sort, ownerId: userId } }),
   ]);
+
+  await progresserQuete(userId, "FABRICATION");
 
   revalidatePath("/forge");
   revalidatePath("/inventaire");

@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { progresserQuete } from "@/lib/quetes";
+import { tirerEnsemble } from "@/lib/equipmentSet";
 import {
   simulerCombatEquipe,
   type CombatEvent3v3,
@@ -213,6 +215,7 @@ export async function affronterMonstre(
         slot,
         bonusStat: SLOT_TO_STAT[slot],
         bonusValue,
+        ensemble: tirerEnsemble(),
         rarityId: rarete.id,
         ownerId: userId,
       },
@@ -225,6 +228,10 @@ export async function affronterMonstre(
       bonusValue,
       stars: rarete.stars,
     };
+  }
+
+  if (victoire) {
+    await progresserQuete(userId, "VICTOIRE_AVENTURE");
   }
 
   revalidatePath("/aventure");

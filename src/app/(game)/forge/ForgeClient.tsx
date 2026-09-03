@@ -10,8 +10,15 @@ import {
 } from "@/components/pixel";
 import { IconeMagie } from "@/components/pixel/IconesUI";
 import { fabriquerEquipement, fabriquerSort } from "../../actions/forge";
+import { renforcerEquipement } from "../../actions/renforcement";
 import { RECETTES_EQUIPEMENT, RECETTE_SORT } from "@/lib/craft";
 import { NOMS_MATERIAU } from "@/lib/monsterDrops";
+import {
+  NOMS_ENSEMBLE,
+  NIVEAU_RENFORCEMENT_MAX,
+  coutRenforcement,
+} from "@/lib/equipmentSet";
+import type { EquipmentSet } from "@prisma/client";
 import { descriptionSort } from "@/lib/spell";
 import type { EquipmentSlot, MaterialType } from "@prisma/client";
 import type { ComponentType } from "react";
@@ -60,12 +67,25 @@ type ResultatSort = {
 
 type Resultat = ResultatEquipement | ResultatSort;
 
+type EquipementResume = {
+  id: string;
+  name: string;
+  slot: EquipmentSlot;
+  bonusStat: string;
+  bonusValue: number;
+  niveau: number;
+  ensemble: EquipmentSet | null;
+  stars: number;
+};
+
 export default function ForgeClient({
   currency,
   materiaux,
+  equipements,
 }: {
   currency: number;
   materiaux: Record<string, number>;
+  equipements: EquipementResume[];
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<"idle" | "fabrication" | "reveal">(
@@ -74,9 +94,23 @@ export default function ForgeClient({
   const [resultat, setResultat] = useState<Resultat | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
   const [enCours, setEnCours] = useState<string | null>(null);
+  const [renforcementEnCours, setRenforcementEnCours] = useState<string | null>(null);
 
   function possede(materiel: MaterialType, quantite: number) {
     return (materiaux[materiel] ?? 0) >= quantite;
+  }
+
+  async function renforcer(equipement: EquipementResume) {
+    setErreur(null);
+    setRenforcementEnCours(equipement.id);
+    try {
+      await renforcerEquipement(equipement.id);
+      router.refresh();
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : "Erreur inconnue");
+    } finally {
+      setRenforcementEnCours(null);
+    }
   }
 
   function peutFabriquer(recette: { materiaux: { type: MaterialType; quantity: number }[]; or: number }) {
@@ -232,6 +266,54 @@ export default function ForgeClient({
             </button>
           </div>
         </div>
+      )}
+
+      {phase !== "reveal" && equipements.length > 0 && (
+        <>
+          <h2 className={styles.sousTitre}>Renforcement</h2>
+          <p className={styles.sousTitreInfo}>
+            Chaque niveau augmente le bonus de l&apos;objet. 2 pièces d&apos;un
+            même ensemble donnent un petit bonus supplémentaire, 4 pièces (le
+            maximum) le bonus fort.
+          </p>
+          <div className={styles.renforcementListe}>
+            {equipements.map((e) => {
+              const Icone = ICONE_SLOT[e.slot];
+              const auMax = e.niveau >= NIVEAU_RENFORCEMENT_MAX;
+              const { or, materiau } = coutRenforcement(e.slot, e.niveau);
+              const peut =
+                !auMax && currency >= or && possede(materiau.type, materiau.quantity);
+
+              return (
+                <div key={e.id} className={styles.renforcementLigne}>
+                  <Icone size={28} />
+                  <div className={styles.renforcementInfo}>
+                    <span className={styles.renforcementNom}>
+                      {e.name} <span className={styles.renforcementNiveau}>+{e.niveau}</span>
+                    </span>
+                    <span className={styles.renforcementDetail}>
+                      {e.ensemble ? NOMS_ENSEMBLE[e.ensemble] : "Sans ensemble"} · +
+                      {e.bonusValue + e.niveau} {e.bonusStat}
+                    </span>
+                  </div>
+                  {auMax ? (
+                    <span className={styles.renforcementMax}>Max</span>
+                  ) : (
+                    <button
+                      onClick={() => renforcer(e)}
+                      disabled={!peut || renforcementEnCours === e.id}
+                      className={styles.renforcerButton}
+                    >
+                      {renforcementEnCours === e.id
+                        ? "..."
+                        : `+1 · ${or} or · ${NOMS_MATERIAU[materiau.type]} ${materiau.quantity}`}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </main>
   );

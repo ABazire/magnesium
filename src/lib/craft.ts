@@ -57,3 +57,18 @@ export const RECETTES_FUSION_EQUIPEMENT: Record<
   BOTTES: { materiaux: [{ type: "PLUME", quantity: 2 }] },
   AMULETTE: { materiaux: [{ type: "ECAILLE_CRISTAL", quantity: 2 }] },
 };
+
+/**
+ * Or rendu en démantelant un équipement ou un sort inutile.
+ *
+ * Volontairement modeste — moins de la moitié du coût de fabrication (80 or
+ * pour un équipement, 100 pour un sort) et sans reverser les matériaux :
+ * c'est un débouché pour l'inventaire, pas une boucle de profit.
+ */
+export function orDemantelementEquipement(stars: number): number {
+  return 8 + stars * 12;
+}
+
+export function orDemantelementSort(stars: number): number {
+  return 10 + stars * 10;
+}

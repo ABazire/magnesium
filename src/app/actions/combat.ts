@@ -14,7 +14,10 @@ import { calculerNouveauxRangs } from "@/lib/elo";
 import { gagnerXp } from "@/lib/leveling";
 import { revalidatePath } from "next/cache";
 import { tirerGainDiamants } from "@/lib/diamond";
+import { progresserQuete } from "@/lib/quetes";
 import { obtenirCouponsActuels, COUPONS_COUT_COMBAT } from "@/lib/energy";
+
+const GAIN_OR_VICTOIRE_ARENE = 30;
 
 export async function lancerCombat(formData: FormData) {
   const session = await auth();
@@ -85,6 +88,9 @@ export async function lancerCombat(formData: FormData) {
   const seed = Math.floor(Math.random() * 2147483647);
   const { events, winnerId } = simulerCombat(combat1, combat2, seed);
   const gainDiamants = tirerGainDiamants();
+  // Récompense d'or : seulement en cas de victoire, contrairement aux
+  // diamants ci-dessus qui sont un lot de participation.
+  const gainOr = winnerId === perso1.id ? GAIN_OR_VICTOIRE_ARENE : 0;
 
   const { nouveauRankAttaquant, nouveauRankDefenseur } = calculerNouveauxRangs(
     perso1.rankPoints,
@@ -121,11 +127,14 @@ export async function lancerCombat(formData: FormData) {
   });
 
   await prisma.$transaction([
-    ...(gainDiamants > 0
+    ...(gainDiamants > 0 || gainOr > 0
       ? [
           prisma.user.update({
             where: { id: session.user.id },
-            data: { diamonds: { increment: gainDiamants } },
+            data: {
+              ...(gainDiamants > 0 ? { diamonds: { increment: gainDiamants } } : {}),
+              ...(gainOr > 0 ? { currency: { increment: gainOr } } : {}),
+            },
           }),
         ]
       : []),
@@ -138,6 +147,10 @@ export async function lancerCombat(formData: FormData) {
       data: { rankPoints: nouveauRankDefenseur },
     }),
   ]);
+
+  if (winnerId === perso1.id) {
+    await progresserQuete(session.user.id, "VICTOIRE_ARENE");
+  }
 
   revalidatePath("/arene");
   redirect(`/combat/${fight.id}`);

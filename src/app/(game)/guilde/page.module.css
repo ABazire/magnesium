@@ -1,0 +1,285 @@
+.page {
+  padding: 24px 16px;
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
+.title {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.colonnes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 760px) {
+  .colonnes {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panneau {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #12201b;
+  border: 3px solid #4a5c38;
+  outline: 3px solid #1b2f1e;
+  outline-offset: -7px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.45);
+  padding: 20px;
+}
+
+.sousTitre {
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.info {
+  color: #9db8b1;
+  font-size: 14px;
+}
+
+.erreur {
+  color: #ef4444;
+  font-size: 14px;
+}
+
+.input {
+  background: #0b1411;
+  border: 2px solid #2f5a48;
+  color: #ffffff;
+  font-size: 15px;
+  padding: 8px 10px;
+}
+
+.input:focus {
+  border-color: #10b981;
+  outline: none;
+}
+
+.boutonPrimaire {
+  background: #059669;
+  box-shadow: 0 3px 0 #044e37;
+  color: #0b1411;
+  font-family: var(--font-titre), monospace;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  border: 2px solid #1b2f1e;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.boutonPrimaire:hover:not(:disabled) {
+  background: #10b981;
+}
+
+.boutonPrimaire:disabled {
+  background: transparent;
+  border-color: #1e3a2f;
+  color: #4d7266;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.boutonSecondaire {
+  flex-shrink: 0;
+  background: transparent;
+  border: 2px solid #4a5c38;
+  color: #cfe3da;
+  font-family: var(--font-titre), monospace;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.boutonSecondaire:hover:not(:disabled) {
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.boutonQuitter {
+  background: transparent;
+  border: 2px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.boutonQuitter:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.listeGuildes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ligneGuilde {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0b1411;
+  border: 2px solid #1e3a2f;
+  padding: 8px 12px;
+}
+
+.nomGuilde {
+  flex: 1;
+  color: #ffffff;
+  font-size: 14px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compteMembres {
+  flex-shrink: 0;
+  color: #4d7266;
+  font-size: 12px;
+}
+
+.enteteGuilde {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionLabel {
+  color: #10b981;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.listeMembres {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.membre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #cfe3da;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.badgeChef {
+  color: #f2c94c;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid #f2c94c;
+  padding: 1px 5px;
+}
+
+.cycleLabel {
+  color: #9db8b1;
+  font-size: 12px;
+}
+
+.barreBossTrack {
+  height: 16px;
+  background: #1e3a2f;
+  border: 2px solid #0b1411;
+  overflow: hidden;
+}
+
+.barreBossFill {
+  height: 100%;
+  background: #ef4444;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  transition: width 0.4s ease-out;
+}
+
+.vieBoss {
+  color: #cfe3da;
+  font-size: 13px;
+}
+
+.journal {
+  color: #10b981;
+  font-size: 13px;
+}
+
+.mesDegats {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.classement {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ligneClassement {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.rang {
+  flex-shrink: 0;
+  width: 20px;
+  color: #f2c94c;
+  font-weight: 700;
+}
+
+.nomJoueur {
+  flex: 1;
+  color: #cfe3da;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.degatsJoueur {
+  flex-shrink: 0;
+  color: #ffffff;
+}
+
+.recompenseInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #9db8b1;
+  font-size: 12px;
+  margin-top: 6px;
+}

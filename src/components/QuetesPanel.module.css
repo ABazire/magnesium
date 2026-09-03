@@ -1,0 +1,224 @@
+/* Onglet fixé sur le bord droit de l'écran, texte vertical — comme une
+   languette de classeur. Reste visible sur toutes les pages du jeu. */
+.onglet {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  background: #16241f;
+  border: 3px solid #4a5c38;
+  border-right: none;
+  box-shadow: -4px 0 0 rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.onglet:hover {
+  background: #1c2e26;
+}
+
+/* La règle globale d'enfoncement au clic (button:active) a une spécificité
+   plus forte et remplacerait entièrement le translateY(-50%) de centrage
+   ci-dessus — l'onglet sautait hors de sa position pile pendant le clic. On
+   recompose les deux transforms pour garder le centrage. */
+.onglet:not(:disabled):active {
+  transform: translateY(-50%) translateX(2px);
+}
+
+.ongletTexte {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: #cfe3da;
+  font-family: var(--font-titre), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Fond assombri derrière le tiroir : cliquer dessus referme. */
+.fond {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.tiroir {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 211;
+  width: min(420px, 92vw);
+  background: #12201b;
+  border-left: 3px solid #4a5c38;
+  box-shadow: -6px 0 0 rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: glisser 0.15s steps(4);
+}
+
+@keyframes glisser {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.entete {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 44px 16px 20px;
+  border-bottom: 3px solid #1e3a2f;
+}
+
+.titre {
+  color: #ffffff;
+  font-family: var(--font-titre), monospace;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.streak {
+  color: #9db8b1;
+  font-size: 13px;
+}
+
+.fermer {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  background: #1e3a2f;
+  border: 2px solid #4a5c38;
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.fermer:hover {
+  background: #2a4034;
+}
+
+.liste {
+  list-style: none;
+  margin: 0;
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ligne {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.label {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.barreTrack {
+  height: 8px;
+  background: #1e3a2f;
+  overflow: hidden;
+}
+
+.barreFill {
+  height: 100%;
+  background: #10b981;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  transition: width 0.3s ease-out;
+}
+
+.recompense {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #cfe3da;
+  font-size: 13px;
+}
+
+.reclamerButton {
+  flex-shrink: 0;
+  background: #059669;
+  box-shadow: 0 3px 0 #044e37;
+  color: #0b1411;
+  font-family: var(--font-titre), monospace;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  border: 2px solid #1b2f1e;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.reclamerButton:hover:not(:disabled) {
+  background: #10b981;
+}
+
+.compte {
+  flex-shrink: 0;
+  color: #4d7266;
+  font-size: 13px;
+  min-width: 40px;
+  text-align: right;
+}
+
+.fait {
+  flex-shrink: 0;
+  color: #4d7266;
+  font-size: 12px;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .ongletTexte {
+    font-size: 11px;
+  }
+}

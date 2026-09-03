@@ -154,3 +154,95 @@
   margin-bottom: 12px;
   text-align: center;
 }
+
+/* --------------------------------------------------------------- Renforcement */
+
+.sousTitre {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 32px 0 6px;
+}
+
+.sousTitreInfo {
+  color: #9db8b1;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.renforcementListe {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.renforcementLigne {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #12201b;
+  border: 3px solid #4a5c38;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4);
+  padding: 10px 14px;
+}
+
+.renforcementInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.renforcementNom {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.renforcementNiveau {
+  color: #10b981;
+  font-size: 13px;
+}
+
+.renforcementDetail {
+  color: #9db8b1;
+  font-size: 13px;
+}
+
+.renforcerButton {
+  flex-shrink: 0;
+  background: #059669;
+  box-shadow: 0 3px 0 #044e37;
+  color: #0b1411;
+  font-family: var(--font-titre), monospace;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  border: 2px solid #1b2f1e;
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.renforcerButton:hover:not(:disabled) {
+  background: #10b981;
+}
+
+.renforcerButton:disabled {
+  background: transparent;
+  border-color: #1e3a2f;
+  color: #4d7266;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.renforcementMax {
+  flex-shrink: 0;
+  color: #f2c94c;
+  font-family: var(--font-titre), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}

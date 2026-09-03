@@ -12,6 +12,7 @@ import {
   ICONE_ENERGIE,
   ICONE_FORGE,
   ICONE_GEMME,
+  ICONE_GUILDE,
   ICONE_INVENTAIRE,
   ICONE_PIECE,
   ICONE_RECRUTEMENT,
@@ -34,6 +35,7 @@ const LIENS = [
   { href: "/classement", label: "Classement", grille: ICONE_CLASSEMENT },
   { href: "/gatcha", label: "Recrutement", grille: ICONE_RECRUTEMENT },
   { href: "/forge", label: "Forge", grille: ICONE_FORGE },
+  { href: "/guilde", label: "Guilde", grille: ICONE_GUILDE },
 ];
 
 const PALETTE_ONGLET = paletteIcone("#b7c396", "#8f9d6d");

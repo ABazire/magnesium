@@ -248,6 +248,15 @@
   cursor: pointer;
 }
 
+/* La règle globale d'enfoncement au clic (button:active) a une spécificité
+   plus forte et remplacerait entièrement ce transform de centrage — le bouton
+   sautait ailleurs pile pendant le clic, si bien que le relâchement de la
+   souris tombait à côté et le clic ne comptait pas. On recompose les deux
+   transforms ici pour garder le centrage tout en gardant le retour visuel. */
+.mapNode:not(:disabled):active {
+  transform: translate(-50%, -50%) translateY(3px);
+}
+
 .mapNode:disabled {
   opacity: 0.4;
   cursor: not-allowed;

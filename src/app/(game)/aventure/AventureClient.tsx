@@ -133,6 +133,10 @@ const ZONES = [
 const SCENES: Record<string, string> = {
   Loup: "/scenes/foret.jpg",
   Ours: "/scenes/montage.png",
+  Slime: "/scenes/plaine.png",
+  Élémentaire: "/scenes/element.png",
+  Griffon: "/scenes/plaine.png",
+  "Serpent de Cristal": "/scenes/grotte.png",
 };
 
 export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
@@ -157,7 +161,9 @@ export default function AventureClient({ equipes }: { equipes: Equipe[] }) {
   useEffect(() => {
     getMonstresDisponibles()
       .then(setMonstresDispo)
-      .catch((e) => setErreur(e instanceof Error ? e.message : "Erreur inconnue"));
+      .catch((e) =>
+        setErreur(e instanceof Error ? e.message : "Erreur inconnue"),
+      );
   }, [resultat]);
 
   async function combattre(monstre: MonstreDispo) {
